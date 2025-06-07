@@ -116,6 +116,13 @@ extension Alertable where Self: UIViewController {
         alertController.configuration.exitingTransition = .slideDown
         alertController.configuration.headerAnimation = .slideUp
         alertController.configuration.buttonGroupAnimation = .slideUp
+
+        if traitCollection.horizontalSizeClass == .regular {
+            alertController.viewConfiguration.size = .init(
+                width: .proportional(minimumRatio: 0.4, maximumRatio: 0.8),
+                height: .proportional()
+            )
+        }
         return alertController
     }
 }
