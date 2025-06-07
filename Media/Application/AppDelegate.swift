@@ -17,6 +17,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
+        
+        #if DEBUG
+        CoreDataService.shared.generateDummy()
+        #endif
+        
         return true
     }
 

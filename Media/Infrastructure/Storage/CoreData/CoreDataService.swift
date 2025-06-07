@@ -8,26 +8,41 @@
 import Foundation
 import CoreData
 
-/// Core Data 작업 중 발생할 수 있는 오류를 나타내는 열거형입니다.
-enum CoreDataError: Error {
-
-    /// 데이터를 읽는 도중 발생한 오류
-    case readError(any Error)
-
-    /// 데이터를 저장하는 도중 발생한 오류
-    case saveError(any Error)
-
-    /// 데이터를 삭제하는 도중 발생한 오류
-    case deleteError(any Error)
-}
-
 /// Core Data 관련 기능을 캡슐화한 싱글톤 서비스 클래스입니다.
 /// 컨텍스트 접근, 저장, 백그라운드 작업 수행 등을 제공합니다.
 final class CoreDataService {
 
     /// CoreDataService의 싱글톤 인스턴스입니다.
     static let shared = CoreDataService()
-    private init() { }
+ 
+    /// 빌드 모드에 따라 in-memory 여부를 설정하는 초기화 메서드입니다.
+    /// - Note: 디버그 모드에서는 in-memory 저장소를 사용하고, 릴리즈 모드에서는 디스크에 영구 저장합니다.
+    private convenience init() {
+        #if DEBUG
+        self.init(inMemory: true)  // 디버그 모드: 메모리 전용 저장소 (테스트용)
+        #else
+        self.init(inMemory: false) // 릴리즈 모드: 실제 디스크에 저장
+        #endif
+    }
+
+    /// CoreDataService를 초기화합니다.
+    /// - Parameter inMemory: true일 경우, 데이터는 메모리에만 저장됩니다 (디버깅/테스트용)
+    init(inMemory: Bool = false) {
+        self.persistentContainer = {
+            let container = NSPersistentContainer(name: "Media")
+            if inMemory { container.persistentStoreDescriptions.first?.url = URL(fileURLWithPath: "/dev/null") }
+            container.loadPersistentStores { (storeDescription, error) in
+                if let error = error {
+                    fatalError("can not load persistent stores: \(error)")
+                }
+            }
+            return container
+        }()
+    }
+    
+    
+    // declare NSFetchedResultsController here If needed...
+    
 
     /// 메인 스레드에서 사용할 기본 viewContext입니다.
     var viewContext: NSManagedObjectContext {
@@ -36,15 +51,12 @@ final class CoreDataService {
 
     /// `NSPersistentContainer`는 앱의 Core Data Stack을 캡슐화하며,
     /// 컨텍스트와 영속 저장소를 관리합니다.
-    lazy var persistentContainer: NSPersistentContainer = {
-        let container = NSPersistentContainer(name: "Media")
-        container.loadPersistentStores { (storeDescription, error) in
-            if let error = error {
-                fatalError("can not load persistent stores: \(error)")
-            }
-        }
-        return container
-    }()
+    var persistentContainer: NSPersistentContainer
+    
+    /// <#Description#>
+    private var persistentStoreCoordinator: NSPersistentStoreCoordinator {
+        persistentContainer.persistentStoreCoordinator
+    }
 
     /// viewContext에 변경사항이 있는 경우 저장을 시도합니다.
     func saveContext() {
@@ -80,7 +92,8 @@ extension CoreDataService {
         let request = NSFetchRequest<Entity>(entityName: String(describing: Entity.self))
         request.predicate = predicate
         request.sortDescriptors = sortDescriptors
-        return try viewContext.fetch(request)
+        do { return try viewContext.fetch(request) }
+        catch { throw CoreDataError.saveError(error) }
     }
 
     /// 지정된 엔티티 객체를 Core Data 컨텍스트에 삽입합니다.
@@ -121,5 +134,39 @@ extension CoreDataService {
         let viewContext = viewContext ?? self.viewContext
         viewContext.delete(entity)
         saveContext()
+    }
+}
+
+
+extension CoreDataService {
+    
+    /// 지정된 타입의 엔티티 데이터를 모두 삭제합니다.
+    /// - Parameter type: 삭제할 NSManagedObject 메타 타입
+    func clear(type: NSManagedObject.Type) throws {
+        let entities = persistentStoreCoordinator.managedObjectModel.entities
+        if let description = entities.first(where: { $0.name == String(describing: type) }) {
+            try clear(description.name!)
+        }
+    }
+
+    /// 지정된 엔티티 이름의 모든 데이터를 삭제합니다.
+    /// - Parameter entityName: 삭제할 엔티티 이름
+    func clear(_ entityName: String) throws {
+        let fetchRequest: NSFetchRequest<NSFetchRequestResult> = NSFetchRequest(entityName: entityName)
+        let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
+        
+        do {
+            try persistentStoreCoordinator.execute(deleteRequest, with: viewContext)
+        } catch {
+            throw CoreDataError.deleteError(error)
+        }
+    }
+
+    /// 모든 엔티티의 데이터를 삭제합니다.
+    func clearAll() throws {
+        let entities = persistentStoreCoordinator.managedObjectModel.entities
+        for entity in entities {
+            try clear(entity.name!)
+        }
     }
 }

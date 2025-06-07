@@ -1,17 +1,16 @@
 //
-//  StoryboardViewController.swift
-//  News
+//  NibView.swift
+//  Media
 //
-//  Created by 김건우 on 5/31/25.
+//  Created by 김건우 on 6/7/25.
 //
 
 import UIKit
 
-class StoryboardViewController: UIViewController, StoryboardInstantiable, Alertable {
+class NibView: UIView, NibLodable {
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
-
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
         setupUI()
         setupAttributes()
     }

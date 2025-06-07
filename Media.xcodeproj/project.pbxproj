@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		C714D8EC2DF434B800E601E9 /* TSAlertController in Frameworks */ = {isa = PBXBuildFile; productRef = C714D8EB2DF434B800E601E9 /* TSAlertController */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		C702131C2DF131F0007037B7 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +56,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C714D8EC2DF434B800E601E9 /* TSAlertController in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -70,6 +75,7 @@
 			children = (
 				C70213042DF131EF007037B7 /* Media */,
 				C702131E2DF131F0007037B7 /* MediaTests */,
+				C714D8EA2DF434B800E601E9 /* Frameworks */,
 				C70213032DF131EF007037B7 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -81,6 +87,13 @@
 				C702131B2DF131F0007037B7 /* MediaTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		C714D8EA2DF434B800E601E9 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -103,6 +116,7 @@
 			);
 			name = Media;
 			packageProductDependencies = (
+				C714D8EB2DF434B800E601E9 /* TSAlertController */,
 			);
 			productName = Media;
 			productReference = C70213022DF131EF007037B7 /* Media.app */;
@@ -159,6 +173,9 @@
 			);
 			mainGroup = C70212F92DF131EF007037B7;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				C714D8E92DF4348100E601E9 /* XCRemoteSwiftPackageReference "TSAlertController-iOS" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = C70213032DF131EF007037B7 /* Products */;
 			projectDirPath = "";
@@ -470,6 +487,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		C714D8E92DF4348100E601E9 /* XCRemoteSwiftPackageReference "TSAlertController-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/rlarjsdn3/TSAlertController-iOS.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		C714D8EB2DF434B800E601E9 /* TSAlertController */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C714D8E92DF4348100E601E9 /* XCRemoteSwiftPackageReference "TSAlertController-iOS" */;
+			productName = TSAlertController;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = C70212FA2DF131EF007037B7 /* Project object */;
 }
