@@ -12,11 +12,17 @@ import TSAlertController
 protocol Alertable { }
 
 extension Alertable where Self: UIViewController {
-
+    
+    /// 사용자에게 확인 및 취소 옵션이 있는 기본 알림을 표시합니다.
+    /// - Parameters:
+    ///   - title: 알림창의 제목 텍스트
+    ///   - message: 알림창에 표시할 메시지 내용
+    ///   - onConfirm: 확인 버튼을 눌렀을 때 실행될 핸들러
+    ///   - onCancel: 취소 버튼을 눌렀을 때 실행될 핸들러
     func showAlert(
         _ title: String,
         message: String,
-        onConfirm: @escaping ((TSAlertAction)) -> Void,
+        onConfirm: @escaping (TSAlertAction) -> Void,
         onCancel: @escaping (TSAlertAction) -> Void
     ) {
         let alertController = defaultAlertController(title, message: message)
@@ -31,7 +37,13 @@ extension Alertable where Self: UIViewController {
 
         present(alertController, animated: true)
     }
-
+    
+    /// 사용자가 삭제 작업을 수행할 수 있도록 확인/취소 알림창을 표시합니다.
+    /// - Parameters:
+    ///   - title: 알림창의 제목 텍스트
+    ///   - message: 알림창에 표시할 메시지 내용
+    ///   - onConfirm: 삭제 버튼을 눌렀을 때 실행될 핸들러
+    ///   - onCancel: 취소 버튼을 눌렀을 때 실행될 핸들러
     func showDeleteAlert(
         _ title: String,
         message: String,
@@ -49,7 +61,14 @@ extension Alertable where Self: UIViewController {
 
         present(alertController, animated: true)
     }
-
+    
+    /// 텍스트 필드가 포함된 알림창을 표시합니다. 사용자의 입력과 확인/취소 동작을 처리할 수 있습니다.
+    /// - Parameters:
+    ///   - title: 알림창의 제목 텍스트
+    ///   - message: 알림창에 표시할 메시지 내용
+    ///   - placeholder: 텍스트 필드에 표시할 플레이스홀더 문자열 (옵션)
+    ///   - onConfirm: 확인 버튼을 눌렀을 때 실행될 핸들러. 사용자 입력값이 함께 전달됩니다.
+    ///   - onCancel: 취소 버튼을 눌렀을 때 실행될 핸들러
     func showTextFieldAlert(
         _ title: String,
         message: String,
@@ -77,11 +96,20 @@ extension Alertable where Self: UIViewController {
         present(alertController, animated: true)
     }
 
-    private func defaultAlertController(_ title: String, message: String) -> TSAlertController {
+
+    /// 기본 설정이 적용된 알림 컨트롤러를 생성합니다.
+    /// - Parameters:
+    ///   - title: 알림창의 제목 텍스트
+    ///   - message: 알림창에 표시할 메시지 내용
+    /// - Returns: 기본 애니메이션 및 옵션이 적용된 `TSAlertController` 인스턴스
+    private func defaultAlertController(
+        _ title: String,
+        message: String
+    ) -> TSAlertController {
         let alertController = TSAlertController(
             title: title,
             message: message,
-            options: [.dismissOnSwipeDown, .dismissOnTapOutside],
+            options: [.dismissOnSwipeDown, .interactiveScaleAndDrag],
             preferredStyle: .alert
         )
         alertController.configuration.enteringTransition = .slideUp
