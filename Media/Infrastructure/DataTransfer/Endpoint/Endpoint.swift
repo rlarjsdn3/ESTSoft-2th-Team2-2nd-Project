@@ -39,7 +39,7 @@ struct Endpoint<R>: ResponseRequestable {
     /// `mock`이 설정되어 있지 않은 경우에는 빌드 스킴과 관계없이 실제 네트워크 요청이 이루어집니다.
     ///
     /// - Parameters:
-    ///   - baseUrl: 요청할 API의 기본 주소입니다.
+    ///   - baseUrl: 요청할 API의 전체 주소입니다. 전체 요청 URL을 직접 지정할 경우 사용합니다. 이 값이 설정되면 `path`와 쿼리 관련 매개변수는 무시됩니다.
     ///   - path: 요청할 API의 경로입니다. (예: "/books")
     ///   - method: HTTP 요청 메서드입니다. (예: .get, .post)
     ///   - headerParameters: 요청에 포함할 HTTP 헤더 필드입니다.
