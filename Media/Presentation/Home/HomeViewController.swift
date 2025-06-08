@@ -10,7 +10,7 @@ final class HomeViewController: StoryboardViewController {
             navigationController?.pushViewController(searchVC, animated: true)
         }
     }
-    
+
     let service = DefaultDataTransferService()
 
     override func viewDidLoad() {
