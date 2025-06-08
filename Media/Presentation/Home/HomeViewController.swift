@@ -1,27 +1,21 @@
-//
-//  HomeViewController.swift
-//  Media
-//
-//  Created by 김건우 on 6/5/25.
-//
 
 import UIKit
 
 final class HomeViewController: StoryboardViewController {
 
+
+    @IBAction func SearchButton(_ sender: Any) {
+        let storyboard = UIStoryboard(name: "SearchViewController", bundle: nil)
+        if let searchVC = storyboard.instantiateViewController(withIdentifier: "SearchViewController") as? SearchViewController {
+            navigationController?.pushViewController(searchVC, animated: true)
+        }
+    }
+    
     let service = DefaultDataTransferService()
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        service.request(APIEndpoints.pixabay(query: "flower yellow", perPage: 3)) { result in
-            switch result {
-            case .success(let value):
-                print(value.hits.count)
-            case .failure(let error):
-                print(error)
-            }
-        }
     }
 }
 
