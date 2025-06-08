@@ -9,19 +9,15 @@ import UIKit
 
 final class HomeViewController: StoryboardViewController {
 
-    let dataTransferService: any DataTransferService = DefaultDataTransferService()
+    let service = DefaultDataTransferService()
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        fetchMedia()
-    }
-
-    func fetchMedia() {
-        dataTransferService.request(APIEndpoints.media()) { result in
+        service.request(APIEndpoints.pixabay(query: "flower yellow", perPage: 3)) { result in
             switch result {
-            case .success(let media):
-                print(media)
+            case .success(let value):
+                print(value.hits.count)
             case .failure(let error):
                 print(error)
             }
