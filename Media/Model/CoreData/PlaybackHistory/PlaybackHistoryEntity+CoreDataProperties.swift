@@ -16,6 +16,7 @@ extension PlaybackHistoryEntity {
         return NSFetchRequest<PlaybackHistoryEntity>(entityName: "PlaybackHistoryEntity")
     }
 
+    @NSManaged public var createdAt: Date
     @NSManaged public var id: Int64
     @NSManaged public var pageUrl: URL
     @NSManaged public var views: Int64
