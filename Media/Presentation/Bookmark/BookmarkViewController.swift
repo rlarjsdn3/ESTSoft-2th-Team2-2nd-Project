@@ -12,6 +12,8 @@ final class BookmarkViewController: StoryboardViewController {
 
     private typealias BookmarkDiffableDataSource = UICollectionViewDiffableDataSource<Bookmark.Section, Bookmark.Item>
 
+    private let coreDataService = CoreDataService.shared
+    
     private var dataSource: BookmarkDiffableDataSource? = nil
     @IBOutlet weak var collectionView: UICollectionView!
 
@@ -109,7 +111,7 @@ extension BookmarkViewController {
     }
 
     private func setupFetchedResultsController() {
-        let viewContext = CoreDataService.shared.viewContext
+        let viewContext = coreDataService.viewContext
 
         let playlistFetchRequest = PlaylistEntity.fetchRequest().apply {
             $0.sortDescriptors = [NSSortDescriptor(keyPath: \PlaylistEntity.createdAt, ascending: true)]
@@ -161,37 +163,88 @@ extension BookmarkViewController: UICollectionViewDelegate {
         didHighlightItemAt indexPath: IndexPath
     ) {
         guard let cell = collectionView.cellForItem(at: indexPath) else { return }
-        adjustAnimatedScale(for: cell, scale: 0.95)
-    }
-
-    func collectionView(_ collectionView: UICollectionView, didUnhighlightItemAt indexPath: IndexPath) {
-        guard let cell = collectionView.cellForItem(at: indexPath) else { return }
-        adjustAnimatedScale(for: cell)
+        adjustAnimatedOpacity(for: cell)
     }
 
     func collectionView(
         _ collectionView: UICollectionView,
-        didSelectItemAt indexPath: IndexPath
+        didUnhighlightItemAt indexPath: IndexPath
     ) {
         guard let cell = collectionView.cellForItem(at: indexPath) else { return }
-        adjustAnimatedScale(for: cell)
+        adjustAnimatedOpacity(for: cell, opacity: 1.0)
     }
 
     func collectionView(
         _ collectionView: UICollectionView,
-        didDeselectItemAt indexPath: IndexPath
-    ) {
-        guard let cell = collectionView.cellForItem(at: indexPath) else { return }
-        adjustAnimatedScale(for: cell)
-    }
+        contextMenuConfigurationForItemsAt indexPaths: [IndexPath],
+        point: CGPoint
+    ) -> UIContextMenuConfiguration? {
+        guard let indexPath = indexPaths.first,
+              let section = Bookmark.Section(rawValue: indexPath.section),
+              section != .history else {
+            return nil }
 
-    private func adjustAnimatedScale(for cell: UICollectionViewCell, scale: CGFloat = 1.0) {
-        UIView.animate(withDuration: 0.1) {
-            cell.transform = CGAffineTransform(
-                scaleX: scale,
-                y: scale
-            )
+        return UIContextMenuConfiguration(
+            identifier: nil,
+            previewProvider: nil
+        ) { suggestedActions in
+            let renameAction = self.renamePlaylistNameAction(for: indexPath)
+            let deleteAction = self.deletePlaylistAction(for: indexPath)
+            return UIMenu(title: "", children: [renameAction, deleteAction])
         }
+    }
+    
+    private func adjustAnimatedOpacity(
+        for cell: UICollectionViewCell,
+        opacity: CGFloat = 0.75
+    ) {
+        UIView.animate(withDuration: 0.1) {
+            cell.layer.opacity = Float(opacity)
+        }
+    }
+}
+
+extension BookmarkViewController {
+    
+    private func renamePlaylistNameAction(for indexPath: IndexPath) -> UIAction {
+        return UIAction(
+            title: "Rename Playlist",
+            image: UIImage(systemName: "square.and.pencil")
+        ) { _ in
+            guard let entity = self.playListEntityFromDatasource(for: indexPath) else { return }
+            
+            self.showTextFieldAlert(
+                "재생 목록 이름 변경",
+                message: "변경할 이름을 입력해 주세요.",
+                defaultText: entity.name,
+                placeholder: "새 이름",
+                onConfirm: { (_, newName) in
+                    self.coreDataService.update(entity, by: \.name, to: newName)
+                },
+                onCancel: { _ in
+                }
+            )
+
+        }
+    }
+
+    private func deletePlaylistAction(for indexPath: IndexPath) -> UIAction {
+        return UIAction(
+            title: "Delete Playlist",
+            image: UIImage(systemName: "trash"),
+            attributes: .destructive
+        ) { _ in
+            guard let entity = self.playListEntityFromDatasource(for: indexPath) else { return }
+            self.coreDataService.delete(entity)
+        }
+    }
+    
+    private func playListEntityFromDatasource(for indexPath: IndexPath) -> PlaylistEntity? {
+        guard let item = self.dataSource?.itemIdentifier(for: indexPath),
+              case let .playlist(entity) = item  else {
+            return nil
+        }
+        return entity
     }
 }
 

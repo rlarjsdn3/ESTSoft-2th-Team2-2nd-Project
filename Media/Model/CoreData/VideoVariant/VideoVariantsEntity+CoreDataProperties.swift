@@ -20,6 +20,7 @@ extension VideoVariantsEntity {
     @NSManaged public var medium: VideoQualityEntity
     @NSManaged public var small: VideoQualityEntity
     @NSManaged public var tiny: VideoQualityEntity
+    @NSManaged public var video: PlaylistVideoEntity?
 
 }
 

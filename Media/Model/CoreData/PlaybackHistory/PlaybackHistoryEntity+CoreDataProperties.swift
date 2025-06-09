@@ -16,14 +16,14 @@ extension PlaybackHistoryEntity {
         return NSFetchRequest<PlaybackHistoryEntity>(entityName: "PlaybackHistoryEntity")
     }
 
-    @NSManaged public var createdAt: Date
+    @NSManaged public var createdAt: Date?
     @NSManaged public var id: Int64
-    @NSManaged public var pageUrl: URL
-    @NSManaged public var views: Int64
+    @NSManaged public var pageUrl: URL?
+    @NSManaged public var user: String?
     @NSManaged public var userId: Int64
-    @NSManaged public var user: String
-    @NSManaged public var userImageUrl: URL
-    @NSManaged public var video: VideoVariantsEntity
+    @NSManaged public var userImageUrl: URL?
+    @NSManaged public var views: Int64
+    @NSManaged public var video: VideoVariantsEntity?
 
 }
 
