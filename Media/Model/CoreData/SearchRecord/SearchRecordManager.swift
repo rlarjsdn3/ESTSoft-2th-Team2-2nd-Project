@@ -25,7 +25,11 @@ protocol SearchRecordManaging {
 
 final class SearchRecordManager: SearchRecordManaging {
 
-    private let service: CoreDataService = .shared
+    private let service: CoreDataService
+
+    init(service: CoreDataService = .shared) {
+            self.service = service
+        }
 
     func save(query: String) throws {
         let record = SearchRecordEntity(context: service.viewContext, query: query)

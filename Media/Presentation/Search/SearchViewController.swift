@@ -10,16 +10,16 @@ import UIKit
 final class SearchViewController: StoryboardViewController {
     @IBOutlet weak var searchTableView: UITableView!
 
-    private let recordManager = SearchRecordManager()
+    var recordManager = SearchRecordManager()
     private var records: [SearchRecordEntity] = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        loadRecentSearches()
     }
 
     override func setupHierachy() {
         configureSearchTableView()
-        loadRecentSearches()
     }
 
     override func setupAttributes() {
@@ -29,14 +29,42 @@ final class SearchViewController: StoryboardViewController {
     private func configureSearchTableView() {
         searchTableView.delegate = self
         searchTableView.dataSource = self
+        searchTableView.register(
+            UINib(nibName: SearchTableViewCell.id, bundle: nil),
+            forCellReuseIdentifier: SearchTableViewCell.id)
     }
 
     private func loadRecentSearches() {
         records = (try? recordManager.fetchRecent(limit: 20)) ?? []
         searchTableView.reloadData()
     }
-}
 
+    @IBAction func showSheet(_ sender: Any) {
+        showSheet()
+    }
+
+    func showSheet() {
+        let storyboard = UIStoryboard(name: "SearchFilterViewController", bundle: nil)
+        let vc = storyboard.instantiateViewController(
+            identifier: "SearchFilterViewController"
+        ) as! SearchFilterViewController
+
+        vc.modalPresentationStyle = .pageSheet
+
+        if let sheet = vc.sheetPresentationController {
+            sheet.detents = [.medium(), .large()]
+            sheet.selectedDetentIdentifier = .medium
+            sheet.largestUndimmedDetentIdentifier = .large
+            sheet.prefersScrollingExpandsWhenScrolledToEdge = false
+            sheet.prefersEdgeAttachedInCompactHeight = true
+            sheet.widthFollowsPreferredContentSizeWhenEdgeAttached = true
+            sheet.prefersGrabberVisible = true
+            sheet.preferredCornerRadius = 20
+        }
+
+        present(vc, animated: true)
+    }
+}
 
 extension SearchViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -54,4 +82,10 @@ extension SearchViewController: UITableViewDataSource {
 
 extension SearchViewController: UITableViewDelegate {
 
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let storyboard = UIStoryboard(name: "SearchResultViewController", bundle: nil)
+        if let searchResultVC = storyboard.instantiateViewController(withIdentifier: "SearchResultViewController") as? SearchResultViewController {
+            navigationController?.pushViewController(searchResultVC, animated: true)
+        }
+    }
 }
