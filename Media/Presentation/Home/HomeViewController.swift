@@ -31,6 +31,7 @@ final class HomeViewController: StoryboardViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+
         categoryCollectionView.delegate = self
         categoryCollectionView.dataSource = self
         categoryCollectionView.register(UINib(nibName: "CategoryCell", bundle: nil), forCellWithReuseIdentifier: "CategoryCell")
@@ -38,6 +39,8 @@ final class HomeViewController: StoryboardViewController {
         videoCollectionView.delegate = self
         videoCollectionView.dataSource = self
         videoCollectionView.register(UINib(nibName: "VideoCell", bundle: nil), forCellWithReuseIdentifier: "VideoCell")
+
+
 
     }
 }
