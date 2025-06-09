@@ -37,39 +37,34 @@
                                     </collectionViewCell>
                                 </cells>
                             </collectionView>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="zhQ-qm-gp9" customClass="NavigationBar" customModule="Media" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="118" width="393" height="44"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="44" id="cPm-wR-f7G"/>
+                                </constraints>
+                            </view>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="vDu-zF-Fre"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="B7J-me-q7q" firstAttribute="trailing" secondItem="vDu-zF-Fre" secondAttribute="trailing" id="3yN-a4-qdl"/>
-                            <constraint firstItem="B7J-me-q7q" firstAttribute="top" secondItem="vDu-zF-Fre" secondAttribute="top" id="WBh-t1-MU2"/>
+                            <constraint firstItem="zhQ-qm-gp9" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="Bnd-8W-zlS"/>
+                            <constraint firstItem="B7J-me-q7q" firstAttribute="top" secondItem="zhQ-qm-gp9" secondAttribute="bottom" id="DRI-dZ-f7U"/>
+                            <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="zhQ-qm-gp9" secondAttribute="trailing" id="MkI-Sg-pN8"/>
                             <constraint firstAttribute="bottom" secondItem="B7J-me-q7q" secondAttribute="bottom" id="bVT-hf-wzw"/>
                             <constraint firstItem="B7J-me-q7q" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="kDl-ym-Evd"/>
+                            <constraint firstItem="zhQ-qm-gp9" firstAttribute="top" secondItem="vDu-zF-Fre" secondAttribute="top" id="ti9-wD-pLM"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="네비게이션 바" id="Oq7-7R-80j"/>
+                    <connections>
+                        <outlet property="navigationBar" destination="zhQ-qm-gp9" id="3K6-Bi-lti"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Ief-a0-LHa" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1052.6717557251909" y="18.30985915492958"/>
-        </scene>
-        <!--Navigation Controller-->
-        <scene sceneID="oTn-Iv-g4C">
-            <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="ct5-1V-bbC" sceneMemberID="viewController">
-                    <toolbarItems/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="Unk-mc-mjk">
-                        <rect key="frame" x="0.0" y="118" width="393" height="44"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                    </navigationBar>
-                    <nil name="viewControllers"/>
-                    <connections>
-                        <segue destination="Y6W-OH-hqX" kind="relationship" relationship="rootViewController" id="eR5-sJ-plS"/>
-                    </connections>
-                </navigationController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="tvg-xc-eXA" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="129.00763358778624" y="18.30985915492958"/>
         </scene>
     </scenes>
     <resources>

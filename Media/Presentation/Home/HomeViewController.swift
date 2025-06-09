@@ -4,10 +4,16 @@ import UIKit
 final class HomeViewController: StoryboardViewController {
 
     @IBAction func SearchButton(_ sender: Any) {
-        let storyboard = UIStoryboard(name: "SearchViewController", bundle: nil)
-        if let searchVC = storyboard.instantiateViewController(withIdentifier: "SearchViewController") as? SearchViewController {
-            navigationController?.pushViewController(searchVC, animated: true)
-        }
+        let mockService = CoreDataService(inMemory: true)
+                let mockManager = SearchRecordManager(service: mockService)
+                ["Apple","Beer","Circle","Dear","Eagle", "Feather", "Green", "Holly", "INTP", "Japan", "Korea"].forEach { try? mockManager.save(query: $0) }
+
+                let sb = UIStoryboard(name: "SearchViewController", bundle: nil)
+                let searchVC = sb.instantiateViewController(identifier: "SearchViewController") as! SearchViewController
+
+                searchVC.recordManager = mockManager
+
+                navigationController?.pushViewController(searchVC, animated: true)
     }
 
     @IBOutlet weak var categoryCollectionView: UICollectionView!

@@ -9,22 +9,31 @@ import UIKit
 
 class SearchFilterViewController: StoryboardViewController {
 
+    @IBOutlet weak var containerUIView: UIView!
+
     @IBOutlet weak var filterCategoryCollectionView: UICollectionView!
 
     @IBOutlet weak var filterDateCollectionView: UICollectionView!
 
     @IBOutlet weak var filterVideoDurationCollectionView: UICollectionView!
 
+    @IBOutlet weak var filterCategoryCVHeightConstraint: NSLayoutConstraint!
+
     private let categories = Category.allCases
 
     //임시 데이터
     private let dates = ["지난 1시간", "오늘", "이번 주", "이번 달", "올해"]
     private let durations = ["10초 미만", "10~30초", "1분 초과"]
-//popular/ latest 추가 해야함
+    //popular/ latest 추가 해야함
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
         registerCollectionViews()
+        if let flow = filterCategoryCollectionView.collectionViewLayout as? UICollectionViewFlowLayout {
+            flow.scrollDirection = .horizontal
+        }
+        filterCategoryCVHeightConstraint.constant = 40
     }
 
     override func setupHierachy() {
@@ -32,9 +41,17 @@ class SearchFilterViewController: StoryboardViewController {
 
     override func setupAttributes() {
         self.view.backgroundColor = UIColor.background
-    }
+        self.containerUIView.backgroundColor = UIColor.background
+        filterCategoryCollectionView.backgroundColor = .clear
+        filterDateCollectionView.backgroundColor = .clear
+        filterVideoDurationCollectionView.backgroundColor = .clear
+	}
 
     @IBAction func applyButtonTapped(_ sender: UIButton) {
+        self.dismiss(animated: true)
+    }
+
+    @IBAction func cancelButtonTapped(_ sender: UIButton) {
         self.dismiss(animated: true)
     }
     
@@ -114,4 +131,29 @@ extension SearchFilterViewController: UICollectionViewDelegate {
     }
 }
 
+extension SearchFilterViewController: UISheetPresentationControllerDelegate {
+    func sheetPresentationControllerDidChangeSelectedDetentIdentifier(
+        _ sheetPresentationController: UISheetPresentationController
+    ) {
+        guard let detent = sheetPresentationController.selectedDetentIdentifier,
+              let flow = filterCategoryCollectionView.collectionViewLayout as? UICollectionViewFlowLayout
+        else { return }
+
+        switch detent {
+        case .large:
+            flow.scrollDirection = .vertical
+            filterCategoryCVHeightConstraint.constant = 240
+        default:
+            flow.scrollDirection = .horizontal
+            filterCategoryCVHeightConstraint.constant = 40
+
+        }
+
+        flow.invalidateLayout()
+
+        UIView.animate(withDuration: 0.25) {
+            self.view.layoutIfNeeded()
+        }
+    }
+}
 

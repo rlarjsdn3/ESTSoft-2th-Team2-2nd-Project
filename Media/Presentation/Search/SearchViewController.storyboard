@@ -17,7 +17,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="Ase-Rr-RAE">
-                                <rect key="frame" x="0.0" y="162" width="393" height="573"/>
+                                <rect key="frame" x="0.0" y="158" width="393" height="577"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="SearchTableViewCell" id="3L3-yX-MKS" customClass="SearchTableViewCell" customModule="Media" customModuleProvider="target">
@@ -30,14 +30,24 @@
                                     </tableViewCell>
                                 </prototypes>
                             </tableView>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="2oi-2c-qVG" customClass="NavigationBar" customModule="Media" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="118" width="393" height="40"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="40" id="M89-nx-KOv"/>
+                                </constraints>
+                            </view>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="vDu-zF-Fre"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
+                            <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="2oi-2c-qVG" secondAttribute="trailing" id="3DV-Kn-Wsi"/>
                             <constraint firstItem="vDu-zF-Fre" firstAttribute="bottom" secondItem="Ase-Rr-RAE" secondAttribute="bottom" id="Bo7-nd-AOu"/>
-                            <constraint firstItem="Ase-Rr-RAE" firstAttribute="top" secondItem="vDu-zF-Fre" secondAttribute="top" id="Jdi-ws-8Ga"/>
+                            <constraint firstItem="Ase-Rr-RAE" firstAttribute="top" secondItem="2oi-2c-qVG" secondAttribute="bottom" id="Ekb-01-L0r"/>
+                            <constraint firstItem="2oi-2c-qVG" firstAttribute="top" secondItem="vDu-zF-Fre" secondAttribute="top" id="S3h-ty-OXD"/>
                             <constraint firstItem="Ase-Rr-RAE" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="WoM-C9-c2Y"/>
                             <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="Ase-Rr-RAE" secondAttribute="trailing" id="X4j-7L-unB"/>
+                            <constraint firstItem="2oi-2c-qVG" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="xfc-tF-Qn8"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="네비게이션 바" id="v0y-1H-4Nc">
@@ -49,30 +59,13 @@
                     </navigationItem>
                     <simulatedTabBarMetrics key="simulatedBottomBarMetrics"/>
                     <connections>
+                        <outlet property="navigationBar" destination="2oi-2c-qVG" id="fnP-Kv-eNm"/>
                         <outlet property="searchTableView" destination="Ase-Rr-RAE" id="7PO-e9-ew5"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Ief-a0-LHa" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2866.4122137404579" y="-34.507042253521128"/>
-        </scene>
-        <!--Navigation Controller-->
-        <scene sceneID="2jp-js-MPg">
-            <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="QvJ-nH-Dax" sceneMemberID="viewController">
-                    <toolbarItems/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="Vx3-Tq-UeI">
-                        <rect key="frame" x="0.0" y="118" width="393" height="44"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                    </navigationBar>
-                    <nil name="viewControllers"/>
-                    <connections>
-                        <segue destination="Y6W-OH-hqX" kind="relationship" relationship="rootViewController" id="o19-Z1-n4i"/>
-                    </connections>
-                </navigationController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="0uK-V7-a2r" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="1939.6946564885495" y="-34.507042253521128"/>
+            <point key="canvasLocation" x="3134" y="-46"/>
         </scene>
     </scenes>
     <resources>
