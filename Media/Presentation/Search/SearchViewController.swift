@@ -9,16 +9,21 @@ import UIKit
 
 final class SearchViewController: StoryboardViewController {
     @IBOutlet weak var searchTableView: UITableView!
-    
+
+    private let recordManager = SearchRecordManager()
+    private var records: [SearchRecordEntity] = []
+
     override func viewDidLoad() {
         super.viewDidLoad()
     }
 
-    override func setupUI() {
+    override func setupHierachy() {
         configureSearchTableView()
+        loadRecentSearches()
     }
 
     override func setupAttributes() {
+        searchTableView.backgroundColor = .yellow
     }
 
     private func configureSearchTableView() {
@@ -26,19 +31,25 @@ final class SearchViewController: StoryboardViewController {
         searchTableView.dataSource = self
     }
 
+    private func loadRecentSearches() {
+        records = (try? recordManager.fetchRecent(limit: 20)) ?? []
+        searchTableView.reloadData()
+    }
 }
 
 
 extension SearchViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        <#code#>
+        return records.count
     }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        <#code#>
-    }
-    
 
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: SearchTableViewCell.id, for: indexPath) as! SearchTableViewCell
+        let target = records[indexPath.row]
+        cell.searchLabel.text = target.query
+
+        return cell
+    }
 }
 
 extension SearchViewController: UITableViewDelegate {

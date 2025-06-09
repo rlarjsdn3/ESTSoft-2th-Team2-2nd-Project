@@ -7,9 +7,15 @@
 
 import UIKit
 
-class SearchResultViewController: UIViewController {
+final class SearchResultViewController: StoryboardViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+    }
+
+    override func setupHierachy() {
+    }
+
+    override func setupAttributes() {
     }
 }
