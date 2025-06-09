@@ -27,6 +27,20 @@ final class BookmarkViewController: StoryboardViewController {
         setupDataSource()
     }
 
+    override func prepare(
+        for segue: UIStoryboardSegue,
+        sender: Any?
+    ) {
+        if let playlistVC = segue.destination as? PlaylistVideosViewController {
+            guard let indexPath = sender as? IndexPath,
+                  case let .playlist(entity) = dataSource?.itemIdentifier(for: indexPath),
+                  let playlistVideos = entity.playlistVideos?.allObjects as? [PlaylistVideoEntity] else {
+                return
+            }
+            playlistVC.playlistVideos = playlistVideos
+        }
+    }
+
     override func setupAttributes() {
         super.setupAttributes()
 
@@ -178,6 +192,16 @@ extension BookmarkViewController: UICollectionViewDelegate {
 
     func collectionView(
         _ collectionView: UICollectionView,
+        didSelectItemAt indexPath: IndexPath
+    ) {
+        performSegue(
+            withIdentifier: "navigateToPlaylistVideos",
+            sender: indexPath
+        )
+    }
+
+    func collectionView(
+        _ collectionView: UICollectionView,
         contextMenuConfigurationForItemsAt indexPaths: [IndexPath],
         point: CGPoint
     ) -> UIContextMenuConfiguration? {
@@ -261,7 +285,8 @@ extension BookmarkViewController {
 }
 
 
-fileprivate extension UIColor {
+// 임시 색상 코드
+extension UIColor {
 
     static var random: UIColor {
         let hue = CGFloat.random(in: 0...1)

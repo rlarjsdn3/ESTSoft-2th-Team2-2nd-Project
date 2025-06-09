@@ -50,11 +50,22 @@
                     </view>
                     <connections>
                         <outlet property="collectionView" destination="6kr-uA-UTS" id="tfO-O4-3Q1"/>
+                        <segue destination="18y-81-EKP" kind="show" identifier="navigateToPlaylistVideos" id="1O2-p0-zZd"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Ief-a0-LHa" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-16.030534351145036" y="3.5211267605633805"/>
+        </scene>
+        <!--PlaylistVideosViewController-->
+        <scene sceneID="mwN-2s-rUh">
+            <objects>
+                <viewControllerPlaceholder storyboardName="PlaylistVideosViewController" referencedIdentifier="PlaylistVideosViewController" id="18y-81-EKP" sceneMemberID="viewController">
+                    <navigationItem key="navigationItem" id="W67-R0-6cu"/>
+                </viewControllerPlaceholder>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="2bA-y2-Uuu" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="656" y="4"/>
         </scene>
     </scenes>
     <resources>
