@@ -10,7 +10,7 @@ import CoreData
 
 final class BookmarkViewController: StoryboardViewController {
 
-    private typealias BookmarkDiffableDataSource = UICollectionViewDiffableDataSource<Bookmark.Section, UIColorItem>
+    private typealias BookmarkDiffableDataSource = UICollectionViewDiffableDataSource<Bookmark.Section, Bookmark.Item>
 
     private var dataSource: BookmarkDiffableDataSource? = nil
     @IBOutlet weak var collectionView: UICollectionView!
@@ -21,8 +21,8 @@ final class BookmarkViewController: StoryboardViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        setupDataSource()
         setupFetchedResultsController()
+        setupDataSource()
     }
 
     override func setupAttributes() {
@@ -45,8 +45,14 @@ extension BookmarkViewController {
 
     private func setupDataSource() {
         // 임시 셀 등록 코드
-        let cellRagistration = UICollectionView.CellRegistration<ColorCollectionViewCell, UIColorItem> { cell, indexPath, item in
+        let historyCellRagistration = UICollectionView.CellRegistration<HistoryCollectionViewCell, Bookmark.Item> { cell, indexPath, item in
             cell.backgroundColor = UIColor.random
+            cell.label.text = "\(indexPath) history"
+        }
+
+        let playlistCellRagistration = UICollectionView.CellRegistration<PlaylistCollectionViewCell, Bookmark.Item> { cell, indexPath, item in
+            cell.backgroundColor = UIColor.random
+            cell.label.text = "\(indexPath) playlist"
         }
 
         // 임시 헤더 등록 코드
@@ -56,11 +62,23 @@ extension BookmarkViewController {
 
         // 임시 데이터 소스 코드
         dataSource = BookmarkDiffableDataSource(collectionView: collectionView) { collectionView, indexPath, item in
-            return collectionView.dequeueConfiguredReusableCell(
-                using: cellRagistration,
-                for: indexPath,
-                item: item
-            )
+            guard let section = Bookmark.Section(rawValue: indexPath.section) else { return UICollectionViewCell() }
+
+            switch section {
+            case .history:
+                return collectionView.dequeueConfiguredReusableCell(
+                    using: historyCellRagistration,
+                    for: indexPath,
+                    item: item
+                )
+
+            case .playlist:
+                return collectionView.dequeueConfiguredReusableCell(
+                    using: playlistCellRagistration,
+                    for: indexPath,
+                    item: item
+                )
+            }
         }
         // 임시 데이터 소스 코드
         dataSource?.supplementaryViewProvider = { collectionView, kind, indexPath in
@@ -73,19 +91,68 @@ extension BookmarkViewController {
     }
 
     private func applySnapshot() {
-        // 임시 스냅샷 적용 코드
-        var snapshot = NSDiffableDataSourceSnapshot<Bookmark.Section, UIColorItem>()
-        snapshot.appendSections([.history])
-        snapshot.appendItems([.init(), .init(), .init()], toSection: .history)
-        snapshot.appendSections([.playlist])
-        snapshot.appendItems([.init(), .init(), .init(),.init(), .init(), .init(),.init(), .init(), .init()], toSection: .playlist)
-        dataSource?.apply(snapshot, animatingDifferences: false)
+        var snapshot = NSDiffableDataSourceSnapshot<Bookmark.Section, Bookmark.Item>()
+
+        if let history = playbackFetchedResultsController?.fetchedObjects {
+            let items = history.map { Bookmark.Item.history($0) }
+            snapshot.appendSections([.history])
+            snapshot.appendItems(items, toSection: .history)
+        }
+
+        if let playlists = playlistFetchedResultsController?.fetchedObjects {
+            let items = playlists.map { Bookmark.Item.playlist($0) }
+            snapshot.appendSections([.playlist])
+            snapshot.appendItems(items, toSection: .playlist)
+        }
+
+        dataSource?.apply(snapshot, animatingDifferences: true)
     }
 
     private func setupFetchedResultsController() {
+        let viewContext = CoreDataService.shared.viewContext
 
+        let playlistFetchRequest = PlaylistEntity.fetchRequest().apply {
+            $0.sortDescriptors = [NSSortDescriptor(keyPath: \PlaylistEntity.createdAt, ascending: true)]
+        }
+        playlistFetchedResultsController = NSFetchedResultsController(
+            fetchRequest: playlistFetchRequest,
+            managedObjectContext: viewContext,
+            sectionNameKeyPath: nil,
+            cacheName: nil
+        )
+        playlistFetchedResultsController?.delegate = self
+
+        let playbackFetchRequest = PlaybackHistoryEntity.fetchRequest().apply {
+            $0.sortDescriptors = [NSSortDescriptor(keyPath: \PlaybackHistoryEntity.createdAt, ascending: false)]
+        }
+        playbackFetchedResultsController = NSFetchedResultsController(
+            fetchRequest: playbackFetchRequest,
+            managedObjectContext: viewContext,
+            sectionNameKeyPath: nil,
+            cacheName: nil
+        )
+        playbackFetchedResultsController?.delegate = self
+
+        do {
+            try playlistFetchedResultsController?.performFetch()
+            try playbackFetchedResultsController?.performFetch()
+        } catch {
+            print("FetchedResultsController performFetch error: \(error)")
+        }
     }
 }
+
+// MARK: - NSFetchedResultsControllerDelegate
+
+extension BookmarkViewController: NSFetchedResultsControllerDelegate {
+
+    func controllerDidChangeContent(_ controller: NSFetchedResultsController<any NSFetchRequestResult>) {
+        applySnapshot()
+    }
+}
+
+
+// MARK: - UICollectionViewDelegate
 
 extension BookmarkViewController: UICollectionViewDelegate {
 
