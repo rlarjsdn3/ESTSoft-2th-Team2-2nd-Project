@@ -49,7 +49,7 @@ final class BookmarkViewController: StoryboardViewController {
 
     private func createCompositionalLayout() -> UICollectionViewCompositionalLayout {
         let sectionProvider: UICollectionViewCompositionalLayoutSectionProvider = { sectionIndex, environment in
-            guard let section = Bookmark.Section(rawValue: sectionIndex) else { return nil }
+            guard let section = Bookmark.SectionType(rawValue: sectionIndex) else { return nil }
 
             return section.buildLayout(for: environment)
         }
@@ -80,7 +80,7 @@ extension BookmarkViewController {
 
         // 임시 데이터 소스 코드
         dataSource = BookmarkDiffableDataSource(collectionView: collectionView) { collectionView, indexPath, item in
-            guard let section = Bookmark.Section(rawValue: indexPath.section) else { return UICollectionViewCell() }
+            guard let section = Bookmark.SectionType(rawValue: indexPath.section) else { return UICollectionViewCell() }
 
             switch section {
             case .history:
@@ -113,14 +113,16 @@ extension BookmarkViewController {
 
         if let history = playbackFetchedResultsController?.fetchedObjects {
             let items = history.map { Bookmark.Item.history($0) }
-            snapshot.appendSections([.history])
-            snapshot.appendItems(items, toSection: .history)
+            let historySection = Bookmark.Section(type: .history)
+            snapshot.appendSections([historySection])
+            snapshot.appendItems(items, toSection: historySection)
         }
 
         if let playlists = playlistFetchedResultsController?.fetchedObjects {
             let items = playlists.map { Bookmark.Item.playlist($0) }
-            snapshot.appendSections([.playlist])
-            snapshot.appendItems(items, toSection: .playlist)
+            let playlistSection = Bookmark.Section(type: .playlist)
+            snapshot.appendSections([playlistSection])
+            snapshot.appendItems(items, toSection: playlistSection)
         }
 
         dataSource?.apply(snapshot, animatingDifferences: true)
@@ -206,7 +208,7 @@ extension BookmarkViewController: UICollectionViewDelegate {
         point: CGPoint
     ) -> UIContextMenuConfiguration? {
         guard let indexPath = indexPaths.first,
-              let section = Bookmark.Section(rawValue: indexPath.section),
+              let section = Bookmark.SectionType(rawValue: indexPath.section),
               section != .history else {
             return nil }
 

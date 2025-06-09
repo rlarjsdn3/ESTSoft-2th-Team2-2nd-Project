@@ -9,7 +9,7 @@ import UIKit
 
 final class PlaylistVideosViewController: StoryboardViewController {
 
-    typealias PlaylistDiffableDataSource = UICollectionViewDiffableDataSource<Playlist.Section, Playlist.Item>
+    typealias PlaylistDiffableDataSource = UICollectionViewDiffableDataSource<VideoList.Section, VideoList.Item>
 
     var playlistVideos: [PlaylistVideoEntity]?
     private let coreDataService = CoreDataService.shared
@@ -69,7 +69,7 @@ extension PlaylistVideosViewController {
     
     private func setupDataSource() {
         // 임시 셀 등록
-        let cellRagistration = UICollectionView.CellRegistration<HistoryCollectionViewCell, Playlist.Item> { cell, indexPath, item in
+        let cellRagistration = UICollectionView.CellRegistration<HistoryCollectionViewCell, VideoList.Item> { cell, indexPath, item in
             cell.backgroundColor = UIColor.random
         }
 
@@ -87,11 +87,12 @@ extension PlaylistVideosViewController {
     
     private func applySnapshot() {
         guard let playlistVideos = playlistVideos else { return }
-        let playlistItems: [Playlist.Item] = playlistVideos.map { Playlist.Item.playlist($0) }
+        let playlistItems: [VideoList.Item] = playlistVideos.map { VideoList.Item.playlist($0) }
 
-        var snapshot = NSDiffableDataSourceSnapshot<Playlist.Section, Playlist.Item>()
-        snapshot.appendSections([.playlist])
-        snapshot.appendItems(playlistItems, toSection: .playlist)
+        var snapshot = NSDiffableDataSourceSnapshot<VideoList.Section, VideoList.Item>()
+        let playlistSection = VideoList.Section(type: .playlist)
+        snapshot.appendSections([playlistSection])
+        snapshot.appendItems(playlistItems, toSection: playlistSection)
         dataSource?.apply(snapshot, animatingDifferences: true)
     }
 }
