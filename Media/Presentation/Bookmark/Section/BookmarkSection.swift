@@ -8,14 +8,19 @@
 import UIKit
 
 enum Bookmark {
-
+    
+    /// <#Description#>
     enum Section: Int, CaseIterable {
+        ///
         case history
+        ///
         case playlist
     }
 
     enum Item: Hashable {
+        ///
         case history(PlaybackHistoryEntity)
+        ///
         case playlist(PlaylistEntity)
 
         func hash(into hasher: inout Hasher) {
@@ -42,8 +47,6 @@ extension Bookmark.Section {
     }
 
     private func buildHistoryLayout(for environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection {
-        // 아이폰이라면 'true', 아이패드라면 'false'
-        let isHorizontalSizeClassCompact = environment.traitCollection.horizontalSizeClass == .compact
 
         let itemSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0), // 임시 값

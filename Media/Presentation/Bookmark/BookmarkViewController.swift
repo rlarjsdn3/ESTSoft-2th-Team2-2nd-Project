@@ -83,7 +83,48 @@ extension BookmarkViewController {
     }
 
     private func setupFetchedResultsController() {
-        
+
+    }
+}
+
+extension BookmarkViewController: UICollectionViewDelegate {
+
+    func collectionView(
+        _ collectionView: UICollectionView,
+        didHighlightItemAt indexPath: IndexPath
+    ) {
+        guard let cell = collectionView.cellForItem(at: indexPath) else { return }
+        adjustAnimatedScale(for: cell, scale: 0.95)
+    }
+
+    func collectionView(_ collectionView: UICollectionView, didUnhighlightItemAt indexPath: IndexPath) {
+        guard let cell = collectionView.cellForItem(at: indexPath) else { return }
+        adjustAnimatedScale(for: cell)
+    }
+
+    func collectionView(
+        _ collectionView: UICollectionView,
+        didSelectItemAt indexPath: IndexPath
+    ) {
+        guard let cell = collectionView.cellForItem(at: indexPath) else { return }
+        adjustAnimatedScale(for: cell)
+    }
+
+    func collectionView(
+        _ collectionView: UICollectionView,
+        didDeselectItemAt indexPath: IndexPath
+    ) {
+        guard let cell = collectionView.cellForItem(at: indexPath) else { return }
+        adjustAnimatedScale(for: cell)
+    }
+
+    private func adjustAnimatedScale(for cell: UICollectionViewCell, scale: CGFloat = 1.0) {
+        UIView.animate(withDuration: 0.1) {
+            cell.transform = CGAffineTransform(
+                scaleX: scale,
+                y: scale
+            )
+        }
     }
 }
 
