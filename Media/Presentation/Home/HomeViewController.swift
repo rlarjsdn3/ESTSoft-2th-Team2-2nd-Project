@@ -28,7 +28,10 @@ final class HomeViewController: StoryboardViewController {
 
     let service = DefaultDataTransferService()
 
+    // Pixabay API에서 받아온 비디오 데이터 배열
     private var videos: [PixabayResponse.Hit] = []
+
+    
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -59,6 +62,14 @@ final class HomeViewController: StoryboardViewController {
         fetchVideo()
     }
 
+    // "mm:ss" 형식으로 문자열 변환
+    func formatDuration(seconds: Int) -> String {
+            let minutes = seconds / 60
+            let remainingSeconds = seconds % 60
+            return String(format: "%02d:%02d", minutes, remainingSeconds)
+        }
+
+    // 선택된 카테고리에 따라 Pixabay API에서 비디오 데이터 요청
     private func fetchVideo() {
         let category: Category? = selectedCategoryIndex == 0 ? nil : selectedCategories[selectedCategoryIndex - 1]
 
@@ -109,7 +120,14 @@ extension HomeViewController: UICollectionViewDataSource {
         if collectionView == videoCollectionView {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "VideoCell", for: indexPath) as! VideoCell
             let video = videos[indexPath.item]
-            cell.configure(with: video)
+            let viewModel = VideoCellViewModel(
+                    title: video.user,
+                    viewCountText: "Views: \(video.views)",
+                    durationText: formatDuration(seconds: video.duration),
+                    thumbnailURL: video.videos.medium.thumbnail,
+                    profileImageURL: video.userImageUrl
+                )
+            cell.configure(with: viewModel)
             return cell
         }
         if collectionView == categoryCollectionView {
