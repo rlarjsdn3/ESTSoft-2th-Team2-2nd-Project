@@ -7,7 +7,7 @@
 
 import UIKit
 
-class NavigationBar: UIView {
+class NavigationBar: NibView {
     @IBOutlet var view: UIView!
         
     @IBOutlet weak var centerContainerView: UIView!
@@ -24,7 +24,7 @@ class NavigationBar: UIView {
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-        loadFromXib()
+        loadFromNib(owner: self)
     }
     
     override var intrinsicContentSize: CGSize {
@@ -33,17 +33,7 @@ class NavigationBar: UIView {
         } else {
             return CGSize(width: UIView.noIntrinsicMetric, height: 44)
         }
-    }
-    
-    private func loadFromXib() {
-        Bundle.main.loadNibNamed("NavigationBar", owner: self, options: nil)
-        
-        addSubview(view)
-        view.frame = bounds
-        view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        
-        view.backgroundColor = .clear
-        self.backgroundColor = .clear
+        return CGSize(width: UIView.noIntrinsicMetric, height: height)
     }
     
     func configure(
