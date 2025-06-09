@@ -12,7 +12,7 @@
     <entity name="PlaylistEntity" representedClassName="PlaylistEntity" syncable="YES">
         <attribute name="createdAt" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="name" attributeType="String"/>
-        <relationship name="playlistVideos" optional="YES" toMany="YES" deletionRule="Cascade" ordered="YES" destinationEntity="PlaylistVideoEntity"/>
+        <relationship name="playlistVideos" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="PlaylistVideoEntity"/>
     </entity>
     <entity name="PlaylistVideoEntity" representedClassName="PlaylistVideoEntity" syncable="YES">
         <attribute name="id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
