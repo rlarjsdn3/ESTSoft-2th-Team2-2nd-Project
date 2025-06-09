@@ -9,7 +9,7 @@ import UIKit
 
 class OnBoardingTagsViewController: StoryboardViewController {
 
-    @IBOutlet weak var TegsCollectionView: UICollectionView!
+    @IBOutlet weak var TagsCollectionView: UICollectionView!
     
     
     
