@@ -12,12 +12,12 @@ class StoryboardViewController: UIViewController, StoryboardInstantiable, Alerta
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        setupUI()
+        setupHierachy()
         setupAttributes()
     }
 
     /// UI 요소들을 뷰 계층에 추가합니다.
-    func setupUI() {
+    func setupHierachy() {
     }
 
     /// 뷰의 속성(색상, 폰트 등)을 설정합니다.
