@@ -16,32 +16,14 @@ extension PlaylistEntity {
         return NSFetchRequest<PlaylistEntity>(entityName: "PlaylistEntity")
     }
 
-    @NSManaged public var name: String?
     @NSManaged public var createdAt: Date?
-    @NSManaged public var playlistVideos: [PlaylistVideoEntity]?
+    @NSManaged public var name: String?
+    @NSManaged public var playlistVideos: NSSet?
 
 }
 
 // MARK: Generated accessors for playlistVideos
 extension PlaylistEntity {
-
-    @objc(insertObject:inPlaylistVideosAtIndex:)
-    @NSManaged public func insertIntoPlaylistVideos(_ value: PlaylistVideoEntity, at idx: Int)
-
-    @objc(removeObjectFromPlaylistVideosAtIndex:)
-    @NSManaged public func removeFromPlaylistVideos(at idx: Int)
-
-    @objc(insertPlaylistVideos:atIndexes:)
-    @NSManaged public func insertIntoPlaylistVideos(_ values: [PlaylistVideoEntity], at indexes: NSIndexSet)
-
-    @objc(removePlaylistVideosAtIndexes:)
-    @NSManaged public func removeFromPlaylistVideos(at indexes: NSIndexSet)
-
-    @objc(replaceObjectInPlaylistVideosAtIndex:withObject:)
-    @NSManaged public func replacePlaylistVideos(at idx: Int, with value: PlaylistVideoEntity)
-
-    @objc(replacePlaylistVideosAtIndexes:withPlaylistVideos:)
-    @NSManaged public func replacePlaylistVideos(at indexes: NSIndexSet, with values: [PlaylistVideoEntity])
 
     @objc(addPlaylistVideosObject:)
     @NSManaged public func addToPlaylistVideos(_ value: PlaylistVideoEntity)
@@ -50,10 +32,10 @@ extension PlaylistEntity {
     @NSManaged public func removeFromPlaylistVideos(_ value: PlaylistVideoEntity)
 
     @objc(addPlaylistVideos:)
-    @NSManaged public func addToPlaylistVideos(_ values: NSOrderedSet)
+    @NSManaged public func addToPlaylistVideos(_ values: NSSet)
 
     @objc(removePlaylistVideos:)
-    @NSManaged public func removeFromPlaylistVideos(_ values: NSOrderedSet)
+    @NSManaged public func removeFromPlaylistVideos(_ values: NSSet)
 
 }
 
