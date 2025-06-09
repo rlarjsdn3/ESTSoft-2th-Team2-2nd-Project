@@ -43,6 +43,8 @@ final class BookmarkViewController: StoryboardViewController {
     }
 }
 
+// MARK: - Setup DataSource
+
 extension BookmarkViewController {
 
     private func setupDataSource() {
@@ -193,6 +195,11 @@ extension BookmarkViewController: UICollectionViewDelegate {
             return UIMenu(title: "", children: [renameAction, deleteAction])
         }
     }
+}
+
+// MARK: - Bookmark Extension
+
+extension BookmarkViewController {
     
     private func adjustAnimatedOpacity(
         for cell: UICollectionViewCell,
@@ -202,9 +209,6 @@ extension BookmarkViewController: UICollectionViewDelegate {
             cell.layer.opacity = Float(opacity)
         }
     }
-}
-
-extension BookmarkViewController {
     
     private func renamePlaylistNameAction(for indexPath: IndexPath) -> UIAction {
         return UIAction(
@@ -214,17 +218,16 @@ extension BookmarkViewController {
             guard let entity = self.playListEntityFromDatasource(for: indexPath) else { return }
             
             self.showTextFieldAlert(
-                "재생 목록 이름 변경",
-                message: "변경할 이름을 입력해 주세요.",
+                "Rename Playlist",
+                message: "Please enter a new name.",
                 defaultText: entity.name,
-                placeholder: "새 이름",
+                placeholder: "New name",
                 onConfirm: { (_, newName) in
                     self.coreDataService.update(entity, by: \.name, to: newName)
                 },
                 onCancel: { _ in
                 }
             )
-
         }
     }
 
@@ -235,7 +238,16 @@ extension BookmarkViewController {
             attributes: .destructive
         ) { _ in
             guard let entity = self.playListEntityFromDatasource(for: indexPath) else { return }
-            self.coreDataService.delete(entity)
+            
+            self.showDeleteAlert(
+                "Delete Playlist",
+                message: "Are you sure you want to delete this playlist? This action cannot be undone.",
+                onConfirm: { _ in
+                    self.coreDataService.delete(entity)
+                },
+                onCancel: { _ in
+                }
+            )
         }
     }
     
@@ -248,14 +260,6 @@ extension BookmarkViewController {
     }
 }
 
-
-
-// 임시 셀 아이템 코드
-
-struct UIColorItem: Hashable {
-    let id = UUID()
-    let color = UIColor.random
-}
 
 fileprivate extension UIColor {
 
