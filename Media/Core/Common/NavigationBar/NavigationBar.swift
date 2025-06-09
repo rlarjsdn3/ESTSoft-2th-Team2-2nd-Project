@@ -140,11 +140,11 @@ class NavigationBar: NibView {
     
     /// 왼쪽 버튼이 눌렸을 때 delegate에 이벤트 전달
     @IBAction func leftTapped(_ sender: Any) {
-        delegate?.navigationBarDidTapLeft(self)
+        delegate?.navigationBarDidTapLeft?(self)
     }
     
     /// 오른쪽 버튼이 눌렸을 때 delegate에 이벤트 전달
     @IBAction func rightTapped(_ sender: Any) {
-        delegate?.navigationBarDidTapRight(self)
+        delegate?.navigationBarDidTapRight?(self)
     }
 }
