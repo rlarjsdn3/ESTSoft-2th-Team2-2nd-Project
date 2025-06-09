@@ -108,11 +108,10 @@
         <!--Item-->
         <scene sceneID="1se-vl-cqi">
             <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="8uU-tl-0WK" sceneMemberID="viewController">
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" navigationBarHidden="YES" id="8uU-tl-0WK" sceneMemberID="viewController">
                     <tabBarItem key="tabBarItem" title="Item" id="lxw-hg-5Uh"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="2qo-kM-W4I">
-                        <rect key="frame" x="0.0" y="118" width="393" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <nil name="viewControllers"/>
