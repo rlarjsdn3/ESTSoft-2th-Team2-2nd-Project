@@ -16,7 +16,7 @@ final class HomeViewController: StoryboardViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        let list: [PlaylistEntity]? = try? CoreDataService.shared.fetch()
+        let list: [PlaybackHistoryEntity]? = try? CoreDataService.shared.fetch()
         print(list)
     }
 }
