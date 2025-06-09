@@ -27,15 +27,6 @@ class NavigationBar: NibView {
         loadFromNib(owner: self)
     }
     
-    override var intrinsicContentSize: CGSize {
-        if UIDevice.current.userInterfaceIdiom == .pad {
-            return CGSize(width: UIView.noIntrinsicMetric, height: 60)
-        } else {
-            return CGSize(width: UIView.noIntrinsicMetric, height: 44)
-        }
-        return CGSize(width: UIView.noIntrinsicMetric, height: height)
-    }
-    
     func configure(
         title: String,
         subtitle: String = "",
