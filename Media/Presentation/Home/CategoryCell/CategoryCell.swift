@@ -12,9 +12,15 @@ final class CategoryCell: UICollectionViewCell {
 
     @IBOutlet weak var titleButton: UIButton!
 
+    override func layoutSubviews() {
+        super.layoutSubviews()
+
+        titleButton.layer.cornerRadius = self.frame.height / 2
+    }
+
     override func awakeFromNib() {
         super.awakeFromNib()
-        titleButton.layer.cornerRadius = 20
+
         titleButton.layer.masksToBounds = true
         titleButton.isUserInteractionEnabled = false
     }
