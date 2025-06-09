@@ -17,6 +17,11 @@ class SearchFilterViewController: StoryboardViewController {
 
     private let categories = Category.allCases
 
+    //임시 데이터
+    private let dates = ["지난 1시간", "오늘", "이번 주", "이번 달", "올해"]
+    private let durations = ["10초 미만", "10~30초", "1분 초과"]
+//popular/ latest 추가 해야함
+
     override func viewDidLoad() {
         super.viewDidLoad()
         registerCollectionViews()
@@ -25,25 +30,19 @@ class SearchFilterViewController: StoryboardViewController {
     override func setupHierachy() {
     }
 
+    override func setupAttributes() {
+        self.view.backgroundColor = UIColor.background
+    }
+
+    @IBAction func applyButtonTapped(_ sender: UIButton) {
+        self.dismiss(animated: true)
+    }
+    
+
     private func registerCollectionViews() {
-        if let flow = filterCategoryCollectionView.collectionViewLayout as? UICollectionViewFlowLayout {
-            flow.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
-            flow.minimumInteritemSpacing = 8
-            flow.minimumLineSpacing = 8
-            flow.sectionInset = .init(top: 0, left: 16, bottom: 0, right: 16)
-        }
-        if let flow = filterDateCollectionView.collectionViewLayout as? UICollectionViewFlowLayout {
-            flow.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
-            flow.minimumInteritemSpacing = 8
-            flow.minimumLineSpacing = 8
-            flow.sectionInset = .init(top: 0, left: 16, bottom: 0, right: 16)
-        }
-        if let flow = filterVideoDurationCollectionView.collectionViewLayout as? UICollectionViewFlowLayout {
-            flow.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
-            flow.minimumInteritemSpacing = 8
-            flow.minimumLineSpacing = 8
-            flow.sectionInset = .init(top: 0, left: 16, bottom: 0, right: 16)
-        }
+        collectionViewInset(collectionView: filterCategoryCollectionView)
+        collectionViewInset(collectionView: filterDateCollectionView)
+        collectionViewInset(collectionView: filterVideoDurationCollectionView)
 
         filterCategoryCollectionView.delegate = self
         filterCategoryCollectionView.dataSource = self
@@ -55,8 +54,14 @@ class SearchFilterViewController: StoryboardViewController {
         filterVideoDurationCollectionView.dataSource = self
     }
 
-    override func setupAttributes() {
-        self.view.backgroundColor = UIColor.background
+    // collectionView Inset setting
+    private func collectionViewInset(collectionView: UICollectionView) {
+        if let flow = collectionView.collectionViewLayout as? UICollectionViewFlowLayout {
+            flow.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
+            flow.minimumInteritemSpacing = 8
+            flow.minimumLineSpacing = 8
+            flow.sectionInset = .init(top: 0, left: 16, bottom: 0, right: 16)
+        }
     }
 }
 
@@ -66,9 +71,9 @@ extension SearchFilterViewController: UICollectionViewDataSource {
         case filterCategoryCollectionView:
             return categories.count
         case filterDateCollectionView:
-            return 3
+            return dates.count
         case filterVideoDurationCollectionView:
-            return 3
+            return durations.count
         default:
             return 0
         }
@@ -80,22 +85,23 @@ extension SearchFilterViewController: UICollectionViewDataSource {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FilterCategoryCollectionViewCell.id, for: indexPath) as! FilterCategoryCollectionViewCell
 
             let target = categories[indexPath.item]
-            cell.categoryContentView.layer.cornerRadius = 12
-            cell.categoryContentView.backgroundColor = .blue
+            cell.defaultCellConfigure()
             cell.categoryLabel.text = target.rawValue
 
             return cell
         case filterDateCollectionView:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FilterDateCollectionViewCell.id, for: indexPath) as! FilterDateCollectionViewCell
-            cell.dateContentView.layer.cornerRadius = 12
-            cell.dateContentView.backgroundColor = .blue
-            cell.dateLabel.text = "12월"
+
+            let target = dates[indexPath.item]
+            cell.defaultCellConfigure()
+            cell.dateLabel.text = target
             return cell
         case filterVideoDurationCollectionView:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FilterVideoDurationCollectionViewCell.id, for: indexPath) as! FilterVideoDurationCollectionViewCell
-            cell.durationContentView.layer.cornerRadius = 12
-            cell.durationContentView.backgroundColor = .blue
-            cell.durationLabel.text = "오늘"
+
+            let target = durations[indexPath.item]
+            cell.defaultCellConfigure()
+            cell.durationLabel.text = target
             return cell
         default:
             return UICollectionViewCell()
@@ -104,7 +110,8 @@ extension SearchFilterViewController: UICollectionViewDataSource {
 }
 
 extension SearchFilterViewController: UICollectionViewDelegate {
-
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+    }
 }
 
 
