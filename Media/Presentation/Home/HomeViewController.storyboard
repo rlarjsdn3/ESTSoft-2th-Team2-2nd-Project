@@ -17,8 +17,9 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="nMB-R3-bAS">
-                                <rect key="frame" x="16" y="162" width="361" height="40"/>
-                                <color key="backgroundColor" red="0.98039215803146362" green="0.98039215803146362" blue="0.98039215803146362" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <rect key="frame" x="0.0" y="162" width="393" height="40"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <color key="tintColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="40" id="eB3-vg-toi"/>
                                 </constraints>
@@ -30,9 +31,9 @@
                                 </collectionViewFlowLayout>
                                 <cells/>
                             </collectionView>
-                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="29M-e4-Jdi">
+                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" contentInsetAdjustmentBehavior="never" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="29M-e4-Jdi">
                                 <rect key="frame" x="0.0" y="202" width="393" height="650"/>
-                                <color key="backgroundColor" red="0.98039215803146362" green="0.98039215803146362" blue="0.98039215803146362" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" automaticEstimatedItemSize="YES" minimumLineSpacing="10" minimumInteritemSpacing="10" id="A6l-sB-z61">
                                     <size key="itemSize" width="128" height="128"/>
                                     <size key="headerReferenceSize" width="0.0" height="0.0"/>
@@ -48,10 +49,10 @@
                             <constraint firstItem="nMB-R3-bAS" firstAttribute="top" secondItem="vDu-zF-Fre" secondAttribute="top" id="9JZ-6X-lvt"/>
                             <constraint firstAttribute="bottom" secondItem="29M-e4-Jdi" secondAttribute="bottom" id="Kbw-ad-N2C"/>
                             <constraint firstItem="29M-e4-Jdi" firstAttribute="top" secondItem="nMB-R3-bAS" secondAttribute="bottom" id="Phs-G7-6rt"/>
-                            <constraint firstItem="nMB-R3-bAS" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" constant="16" id="Uar-fX-TIV"/>
-                            <constraint firstItem="29M-e4-Jdi" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="bGN-2l-Hsf"/>
-                            <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="nMB-R3-bAS" secondAttribute="trailing" constant="16" id="sXA-Cm-G7u"/>
-                            <constraint firstItem="29M-e4-Jdi" firstAttribute="trailing" secondItem="vDu-zF-Fre" secondAttribute="trailing" id="ziu-VP-SOk"/>
+                            <constraint firstItem="nMB-R3-bAS" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="Uar-fX-TIV"/>
+                            <constraint firstItem="29M-e4-Jdi" firstAttribute="leading" secondItem="5EZ-qb-Rvc" secondAttribute="leading" id="bGN-2l-Hsf"/>
+                            <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="nMB-R3-bAS" secondAttribute="trailing" id="sXA-Cm-G7u"/>
+                            <constraint firstItem="29M-e4-Jdi" firstAttribute="trailing" secondItem="5EZ-qb-Rvc" secondAttribute="trailing" id="ziu-VP-SOk"/>
                         </constraints>
                     </view>
                     <toolbarItems/>

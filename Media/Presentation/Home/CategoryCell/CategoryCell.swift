@@ -29,22 +29,15 @@ final class CategoryCell: UICollectionViewCell {
         titleButton.setTitle(title, for: .normal)
 
         if selected {
-            titleButton.backgroundColor = UIColor(
-                red: CGFloat(0x4C) / 255.0,
-                green: CGFloat(0x5C) / 255.0,
-                blue: CGFloat(0x5C) / 255.0,
-                alpha: 1.0
-            )
-            titleButton.setTitleColor(.white, for: .normal)
+            titleButton.backgroundColor = .tagSelectedColor
+            titleButton.setTitleColor(.backgroundColor, for: .normal)
+            titleButton.layer.borderColor = UIColor.tagBorderColor.cgColor
         } else {
-            titleButton.backgroundColor = UIColor(
-                red: CGFloat(0xB0) / 255.0,
-                green: CGFloat(0xB0) / 255.0,
-                blue: CGFloat(0xB0) / 255.0,
-                alpha: 1.0
-            )
-            titleButton.setTitleColor(.black, for: .normal)
+            titleButton.backgroundColor = .tagUnselectedColor
+            titleButton.setTitleColor(.mainLabelColor, for: .normal)
+            titleButton.layer.borderColor = UIColor.tagBorderColor.cgColor
         }
+        titleButton.layer.borderWidth = 2.0
 
     }
 }
