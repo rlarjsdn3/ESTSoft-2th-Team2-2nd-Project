@@ -50,7 +50,7 @@ class NavigationBar: NibView {
         isLeadingAligned: Bool = false,
         searchPlaceholder: String = "Search"
     ) {
-        // 기본 설정
+        // 배경 설정
         view.backgroundColor = backgroundColor
 
         // 버튼 설정
@@ -63,7 +63,7 @@ class NavigationBar: NibView {
         leftButton.isHidden = (leftIcon == nil)
         rightButton.isHidden = (rightIcon == nil)
         
-        // 검색 모드 처리
+        // 모드 1 - 검색 모드
         if isSearchMode {
             searchBarContainerView.isHidden = false
             titleStackView.isHidden = true
@@ -77,18 +77,18 @@ class NavigationBar: NibView {
             return
         }
 
-        // 일반 모드
+        // 모드 2 - 텍스트 모드
         searchBarContainerView.isHidden = true
         titleStackView.isHidden = false
         
-        // 타이틀 및 서브타이틀 설정
+        // 타이틀/서브타이틀 설정
         titleLabel.text = title
         titleLabel.textColor = titleColor
         subtitleLabel.text = subtitle
         subtitleLabel.textColor = subtitleColor
         subtitleLabel.isHidden = subtitle.isEmpty
         
-        // 서브타이틀 유무에 따라 폰트 및 레이아웃 조정
+        // 서브타이틀 유무에 따라 폰트/레이아웃 조정
         if subtitle.isEmpty {
             // 서브타이틀 없음
             subtitleLabel.isHidden = true
@@ -100,7 +100,7 @@ class NavigationBar: NibView {
             subtitleLabel.font = UIFont.systemFont(ofSize: 14, weight: .regular)
         }
         
-        // 정렬 방식 제어
+        // 라벨 정렬 방식
         titleStackView.alignment = isLeadingAligned ? .leading : .center
         titleLabel.textAlignment = isLeadingAligned ? .left : .center
         subtitleLabel.textAlignment = isLeadingAligned ? .left : .center
