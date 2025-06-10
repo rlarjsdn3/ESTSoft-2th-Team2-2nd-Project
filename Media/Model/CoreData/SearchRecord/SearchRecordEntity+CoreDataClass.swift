@@ -2,7 +2,7 @@
 //  SearchRecordEntity+CoreDataClass.swift
 //  Media
 //
-//  Created by 백현진 on 6/9/25.
+//  Created by 김건우 on 6/11/25.
 //
 //
 

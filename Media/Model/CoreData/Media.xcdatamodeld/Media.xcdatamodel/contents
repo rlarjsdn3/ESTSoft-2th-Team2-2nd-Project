@@ -31,7 +31,7 @@
         <relationship name="playlist" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PlaylistEntity" inverseName="playlistVideos" inverseEntity="PlaylistEntity"/>
         <relationship name="video" maxCount="1" deletionRule="Cascade" destinationEntity="VideoVariantsEntity" inverseName="video" inverseEntity="VideoVariantsEntity"/>
     </entity>
-    <entity name="SearchRecordEntity" representedClassName="SearchRecordEntity" syncable="YES" codeGenerationType="class">
+    <entity name="SearchRecordEntity" representedClassName="SearchRecordEntity" syncable="YES">
         <attribute name="query" optional="YES" attributeType="String"/>
         <attribute name="timestamp" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
     </entity>
