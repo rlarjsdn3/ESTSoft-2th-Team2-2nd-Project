@@ -7,15 +7,21 @@
 
 import UIKit
 
+enum PlaylistEntityType {
+    case playback([PlaybackHistoryEntity])
+    case playlist([PlaylistVideoEntity])
+}
+
 final class PlaylistVideosViewController: StoryboardViewController {
 
     typealias PlaylistDiffableDataSource = UICollectionViewDiffableDataSource<VideoList.Section, VideoList.Item>
 
-    var playlistVideos: [PlaylistVideoEntity]?
+    var videos: PlaylistEntityType?
     private let coreDataService = CoreDataService.shared
 
     private var dataSource: PlaylistDiffableDataSource? = nil
 
+    @IBOutlet weak var navigationBar: NavigationBar!
     @IBOutlet weak var collectionView: UICollectionView!
     
     override func viewDidLoad() {
@@ -26,10 +32,35 @@ final class PlaylistVideosViewController: StoryboardViewController {
     
     override func setupAttributes() {
         super.setupAttributes()
-        
-        self.collectionView.collectionViewLayout = createCompositionalLayout()
+
+        setupNavigationBar()
+
+        collectionView.collectionViewLayout = createCompositionalLayout()
     }
-    
+
+    private func setupNavigationBar() {
+        let leftIcon = UIImage(systemName: "arrow.left")
+        let rightIcon = UIImage(systemName: "trash.fill")
+        switch videos {
+        case .playback(_):
+            navigationBar.configure(
+                title: "Playback",
+                leftIcon: leftIcon,
+                leftIconTint: .mainLabelColor,
+                rightIcon: rightIcon,
+                rightIconTint: .systemRed
+            )
+        default: // playlist
+            navigationBar.configure(
+                title: "Playlist",
+                leftIcon: leftIcon,
+                leftIconTint: .mainLabelColor
+            )
+        }
+
+        navigationBar.delegate = self
+    }
+
     private func createCompositionalLayout() -> UICollectionViewCompositionalLayout {
         let sectionProvider: UICollectionViewCompositionalLayoutSectionProvider = { _, environment in
             let isHorizontalSizeClassCompact = environment.traitCollection.horizontalSizeClass == .compact
@@ -86,8 +117,8 @@ extension PlaylistVideosViewController {
     }
     
     private func applySnapshot() {
-        guard let playlistVideos = playlistVideos else { return }
-        let playlistItems: [VideoList.Item] = playlistVideos.map { VideoList.Item.playlist($0) }
+        guard case let .playlist(entities) = videos else { return }
+        let playlistItems: [VideoList.Item] = entities.map { VideoList.Item.playlist($0) }
 
         var snapshot = NSDiffableDataSourceSnapshot<VideoList.Section, VideoList.Item>()
         let playlistSection = VideoList.Section(type: .playlist)
@@ -115,5 +146,15 @@ extension PlaylistVideosViewController: UICollectionViewDelegate {
         _ collectionView: UICollectionView,
         didUnhighlightItemAt indexPath: IndexPath
     ) {
+    }
+}
+
+
+// MARK: - NavigationBarDelegate
+
+extension PlaylistVideosViewController: NavigationBarDelegate {
+
+    func navigationBarDidTapLeft(_ navBar: NavigationBar) {
+        navigationController?.popViewController(animated: true)
     }
 }

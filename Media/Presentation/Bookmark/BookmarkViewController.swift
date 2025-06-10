@@ -12,9 +12,12 @@ final class BookmarkViewController: StoryboardViewController {
 
     private typealias BookmarkDiffableDataSource = UICollectionViewDiffableDataSource<Bookmark.Section, Bookmark.Item>
 
+    private let userDefaultsService = UserDefaultsService.shared
     private let coreDataService = CoreDataService.shared
     
     private var dataSource: BookmarkDiffableDataSource? = nil
+
+    @IBOutlet weak var navigationBar: NavigationBar!
     @IBOutlet weak var collectionView: UICollectionView!
 
     private var playbackFetchedResultsController: NSFetchedResultsController<PlaybackHistoryEntity>? = nil
@@ -37,14 +40,23 @@ final class BookmarkViewController: StoryboardViewController {
                   let playlistVideos = entity.playlistVideos?.allObjects as? [PlaylistVideoEntity] else {
                 return
             }
-            playlistVC.playlistVideos = playlistVideos
+            playlistVC.videos = .playlist(playlistVideos)
         }
     }
 
     override func setupAttributes() {
         super.setupAttributes()
 
-        self.collectionView.collectionViewLayout = createCompositionalLayout()
+        var title: String = "Bookmark"
+        if let username = userDefaultsService.userName {
+            title = "\(username)'s Bookmark"
+        }
+        navigationBar.configure(
+            title: title,
+            isLeadingAligned: true
+        )
+
+        collectionView.collectionViewLayout = createCompositionalLayout()
     }
 
     private func createCompositionalLayout() -> UICollectionViewCompositionalLayout {

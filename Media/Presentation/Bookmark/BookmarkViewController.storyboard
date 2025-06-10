@@ -16,12 +16,8 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ELa-sZ-m6x">
-                                <rect key="frame" x="0.0" y="0.0" width="393" height="118"/>
-                                <color key="backgroundColor" systemColor="systemBlueColor"/>
-                            </view>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="6kr-uA-UTS">
-                                <rect key="frame" x="0.0" y="118" width="393" height="734"/>
+                                <rect key="frame" x="0.0" y="168" width="393" height="684"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" automaticEstimatedItemSize="YES" minimumLineSpacing="10" minimumInteritemSpacing="10" id="Ohw-jW-k82">
                                     <size key="itemSize" width="128" height="128"/>
@@ -34,22 +30,28 @@
                                     <outlet property="delegate" destination="Y6W-OH-hqX" id="QNy-c3-ePf"/>
                                 </connections>
                             </collectionView>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ELa-sZ-m6x" customClass="NavigationBar" customModule="Media" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="118" width="393" height="50"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="50" id="MdG-PM-dyg"/>
+                                </constraints>
+                            </view>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="vDu-zF-Fre"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="6kr-uA-UTS" firstAttribute="trailing" secondItem="vDu-zF-Fre" secondAttribute="trailing" id="2Cf-nH-Ikf"/>
-                            <constraint firstAttribute="bottom" secondItem="6kr-uA-UTS" secondAttribute="bottom" id="85H-Zu-9qQ"/>
-                            <constraint firstItem="ELa-sZ-m6x" firstAttribute="top" secondItem="5EZ-qb-Rvc" secondAttribute="top" id="ZDP-9P-xm5"/>
-                            <constraint firstItem="ELa-sZ-m6x" firstAttribute="leading" secondItem="5EZ-qb-Rvc" secondAttribute="leading" id="i4n-r6-SJt"/>
-                            <constraint firstItem="6kr-uA-UTS" firstAttribute="top" secondItem="vDu-zF-Fre" secondAttribute="top" id="oEJ-A6-3bC"/>
-                            <constraint firstItem="vDu-zF-Fre" firstAttribute="top" secondItem="ELa-sZ-m6x" secondAttribute="bottom" id="p71-bv-kHU"/>
-                            <constraint firstItem="6kr-uA-UTS" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="vvA-fh-PQk"/>
-                            <constraint firstItem="ELa-sZ-m6x" firstAttribute="trailing" secondItem="vDu-zF-Fre" secondAttribute="trailing" id="wP2-Gb-aW3"/>
+                            <constraint firstItem="6kr-uA-UTS" firstAttribute="top" secondItem="ELa-sZ-m6x" secondAttribute="bottom" id="4DI-Ht-t7W"/>
+                            <constraint firstItem="ELa-sZ-m6x" firstAttribute="top" secondItem="vDu-zF-Fre" secondAttribute="top" id="RNV-3Y-gSN"/>
+                            <constraint firstItem="6kr-uA-UTS" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="Z8R-4j-PWO"/>
+                            <constraint firstItem="ELa-sZ-m6x" firstAttribute="trailing" secondItem="vDu-zF-Fre" secondAttribute="trailing" id="fHh-j1-9Cd"/>
+                            <constraint firstItem="ELa-sZ-m6x" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="fpx-dx-RYG"/>
+                            <constraint firstAttribute="bottom" secondItem="6kr-uA-UTS" secondAttribute="bottom" id="tJ8-Ut-Bks"/>
+                            <constraint firstItem="6kr-uA-UTS" firstAttribute="trailing" secondItem="vDu-zF-Fre" secondAttribute="trailing" id="wdW-Je-UEZ"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="collectionView" destination="6kr-uA-UTS" id="tfO-O4-3Q1"/>
+                        <outlet property="navigationBar" destination="ELa-sZ-m6x" id="tek-jG-FcX"/>
                         <segue destination="18y-81-EKP" kind="show" identifier="navigateToPlaylistVideos" id="1O2-p0-zZd"/>
                     </connections>
                 </viewController>
@@ -71,9 +73,6 @@
     <resources>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-        </systemColor>
-        <systemColor name="systemBlueColor">
-            <color red="0.0" green="0.47843137254901963" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>
