@@ -52,27 +52,32 @@ extension Bookmark.SectionType {
     }
 
     private func buildHistoryLayout(for environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection {
+        let isHorizontalSizeClassCompact = environment.traitCollection.horizontalSizeClass == .compact
 
         let itemSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1.0), // 임시 값
-            heightDimension: .fractionalHeight(1.0) // 임시 값
+            widthDimension: .fractionalWidth(1.0),
+            heightDimension: .fractionalHeight(1.0)
         )
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
+        item.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 0, bottom: 10, trailing: 0)
 
+        let groupWidthDimension: NSCollectionLayoutDimension = isHorizontalSizeClassCompact
+        ? .fractionalWidth(0.9) : .fractionalWidth(0.42)
+        let groupHeightDimension: NSCollectionLayoutDimension = isHorizontalSizeClassCompact
+        ? .fractionalWidth(0.75) : .fractionalWidth(0.36)
         let groupSize = NSCollectionLayoutSize(
-            widthDimension: .estimated(350), // 임시 값
-            heightDimension: .estimated(250) // 임시 값
+            widthDimension: groupWidthDimension,
+            heightDimension: groupHeightDimension
         )
         let group = NSCollectionLayoutGroup.horizontal(
             layoutSize: groupSize,
             subitems: [item]
         )
         group.interItemSpacing = .flexible(10)
-        group.contentInsets = .init(top: 10, leading: 10, bottom: 10, trailing: 10)
 
         let headerSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1.0), // 임시 값
-            heightDimension: .estimated(44) // 임시 값
+            widthDimension: .fractionalWidth(1.0),
+            heightDimension: .estimated(44)
         )
         let header = NSCollectionLayoutBoundarySupplementaryItem(
             layoutSize: headerSize,
@@ -82,7 +87,7 @@ extension Bookmark.SectionType {
         header.pinToVisibleBounds = true
 
         let section = NSCollectionLayoutSection(group: group)
-        section.interGroupSpacing = 8 // 임시 값
+        section.interGroupSpacing = 8
         section.orthogonalScrollingBehavior = .continuousGroupLeadingBoundary
         section.boundarySupplementaryItems = [header]
 
@@ -118,8 +123,8 @@ extension Bookmark.SectionType {
         group.contentInsets = .init(top: 10, leading: 10, bottom: 10, trailing: 10)
 
         let headerSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1.0), // 임시 값
-            heightDimension: .estimated(44) // 임시 값
+            widthDimension: .fractionalWidth(1.0),
+            heightDimension: .estimated(44)
         )
         let header = NSCollectionLayoutBoundarySupplementaryItem(
             layoutSize: headerSize,

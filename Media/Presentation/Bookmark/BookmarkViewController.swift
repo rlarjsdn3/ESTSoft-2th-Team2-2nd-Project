@@ -69,7 +69,10 @@ final class BookmarkViewController: StoryboardViewController {
 
             return section.buildLayout(for: environment)
         }
-        return UICollectionViewCompositionalLayout(sectionProvider: sectionProvider)
+        let config = UICollectionViewCompositionalLayoutConfiguration()
+        config.interSectionSpacing = 16
+
+        return UICollectionViewCompositionalLayout(sectionProvider: sectionProvider, configuration: config)
     }
 }
 
@@ -79,9 +82,18 @@ extension BookmarkViewController {
 
     private func setupDataSource() {
         // 임시 셀 등록 코드
-        let historyCellRagistration = UICollectionView.CellRegistration<HistoryCollectionViewCell, Bookmark.Item> { cell, indexPath, item in
-            cell.backgroundColor = UIColor.random
-            cell.label.text = "\(indexPath) history"
+        let historyCellRagistration = UICollectionView.CellRegistration<VideoCell, Bookmark.Item>(cellNib: VideoCell.nib) { cell, indexPath, item in
+            if case .history(let playback) = item {
+                guard let thumbnailUrl = playback.video?.medium.thumbnail else { return }
+                let viewModel = VideoCellViewModel(
+                    title: playback.tags,
+                    viewCountText: String(playback.views),
+                    durationText: String(playback.duration),
+                    thumbnailURL: thumbnailUrl,
+                    profileImageURL: playback.userImageUrl
+                )
+                cell.configure(with: viewModel)
+            }
         }
 
         let playlistCellRagistration = UICollectionView.CellRegistration<SmallVideoCell, Bookmark.Item>(cellNib: SmallVideoCell.nib) { cell, indexPath, item in
@@ -141,7 +153,9 @@ extension BookmarkViewController {
 
     private func applySnapshot() {
         var snapshot = NSDiffableDataSourceSnapshot<Bookmark.Section, Bookmark.Item>()
-
+        #warning("김건우 -> 재생 기록이 하나도 없을 때 플레이스 홀더 이미지 띄우기")
+#warning("김건우 -> 최근 재생 기록은 최신순 10개까지만 출력하기")
+#warning("김건우 -> 마지막에 + 버튼 추가하기")
         if let history = playbackFetchedResultsController?.fetchedObjects {
             let items = history.map { Bookmark.Item.history($0) }
             let historySection = Bookmark.Section(type: .history)
@@ -227,14 +241,15 @@ extension BookmarkViewController: UICollectionViewDelegate {
         _ collectionView: UICollectionView,
         didSelectItemAt indexPath: IndexPath
     ) {
-        guard let item = self.dataSource?.itemIdentifier(for: indexPath) else { return }
+        guard let item = self.dataSource?.itemIdentifier(for: indexPath),
+              case .playlist = item else { return }
         performSegue(
             withIdentifier: "navigateToPlaylistVideos",
             sender: item
         )
     }
 
-    #warning("김건우 -> Playback에도 Context Menu 적용하기")
+    #warning("김건우 -> Playback에도 Context Menu 적용하기 (고민 중..)")
     func collectionView(
         _ collectionView: UICollectionView,
         contextMenuConfigurationForItemsAt indexPaths: [IndexPath],

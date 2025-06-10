@@ -122,7 +122,7 @@ extension Alertable where Self: UIViewController {
 
         if traitCollection.horizontalSizeClass == .regular {
             alertController.viewConfiguration.size = .init(
-                width: .proportional(minimumRatio: 0.4, maximumRatio: 0.8),
+                width: .proportional(minimumRatio: 0.4, maximumRatio: 0.4),
                 height: .proportional()
             )
         }

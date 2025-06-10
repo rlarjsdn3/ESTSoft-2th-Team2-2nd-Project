@@ -1,7 +1,7 @@
 
 import UIKit
 
-final class VideoCell: UICollectionViewCell {
+final class VideoCell: UICollectionViewCell, NibLodable {
 
     @IBOutlet weak var thumbnailImage: UIImageView!
 
