@@ -6,19 +6,8 @@
 //
 
 import UIKit
+import CoreData
 
 class HistoryViewController: StoryboardViewController {
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-    }
-
-    override func setupHierachy() {
-        super.setupHierachy()
-    }
-
-    override func setupAttributes() {
-        super.setupAttributes()
-    }
-
 }
+
