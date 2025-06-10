@@ -16,8 +16,12 @@ extension VideoQualityEntity {
         return NSFetchRequest<VideoQualityEntity>(entityName: "VideoQualityEntity")
     }
 
-    @NSManaged public var url: URL?
     @NSManaged public var thumbnail: URL?
+    @NSManaged public var url: URL?
+    @NSManaged public var large: VideoVariantsEntity?
+    @NSManaged public var medium: VideoVariantsEntity?
+    @NSManaged public var small: VideoVariantsEntity?
+    @NSManaged public var tiny: VideoVariantsEntity?
 
 }
 

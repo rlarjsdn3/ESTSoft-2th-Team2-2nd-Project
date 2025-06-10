@@ -7,7 +7,6 @@
        sourceLanguage="Swift"
        userDefinedModelVersionIdentifier="">
 
-    <!-- HEAD 버전의 엔터티 -->
     <entity name="SearchRecordEntity"
             representedClassName="SearchRecordEntity"
             syncable="YES">
@@ -28,7 +27,6 @@
                    attributeType="String"/>
     </entity>
 
-    <!-- main 브랜치의 엔터티 -->
     <entity name="PlaybackHistoryEntity"
             representedClassName="PlaybackHistoryEntity"
             syncable="YES">
@@ -56,7 +54,9 @@
         <relationship name="video"
                       maxCount="1"
                       deletionRule="Cascade"
-                      destinationEntity="VideoVariantsEntity"/>
+                      destinationEntity="VideoVariantsEntity"
+                      inverseName="playback"
+                      inverseEntity="VideoVariantsEntity"/>
     </entity>
 
     <entity name="PlaylistEntity"
@@ -71,7 +71,9 @@
                       optional="YES"
                       toMany="YES"
                       deletionRule="Cascade"
-                      destinationEntity="PlaylistVideoEntity"/>
+                      destinationEntity="PlaylistVideoEntity"
+                      inverseName="playlist"
+                      inverseEntity="PlaylistVideoEntity"/>
     </entity>
 
     <entity name="PlaylistVideoEntity"
@@ -95,10 +97,19 @@
                    attributeType="Integer 64"
                    defaultValueString="0"
                    usesScalarValueType="YES"/>
+        <relationship name="playlist"
+                      optional="YES"
+                      maxCount="1"
+                      deletionRule="Nullify"
+                      destinationEntity="PlaylistEntity"
+                      inverseName="playlistVideos"
+                      inverseEntity="PlaylistEntity"/>
         <relationship name="video"
                       maxCount="1"
                       deletionRule="Cascade"
-                      destinationEntity="VideoVariantsEntity"/>
+                      destinationEntity="VideoVariantsEntity"
+                      inverseName="video"
+                      inverseEntity="VideoVariantsEntity"/>
     </entity>
 
     <entity name="VideoQualityEntity"
@@ -110,6 +121,34 @@
         <attribute name="url"
                    optional="YES"
                    attributeType="URI"/>
+        <relationship name="large"
+                      optional="YES"
+                      maxCount="1"
+                      deletionRule="Nullify"
+                      destinationEntity="VideoVariantsEntity"
+                      inverseName="large"
+                      inverseEntity="VideoVariantsEntity"/>
+        <relationship name="medium"
+                      optional="YES"
+                      maxCount="1"
+                      deletionRule="Nullify"
+                      destinationEntity="VideoVariantsEntity"
+                      inverseName="medium"
+                      inverseEntity="VideoVariantsEntity"/>
+        <relationship name="small"
+                      optional="YES"
+                      maxCount="1"
+                      deletionRule="Nullify"
+                      destinationEntity="VideoVariantsEntity"
+                      inverseName="small"
+                      inverseEntity="VideoVariantsEntity"/>
+        <relationship name="tiny"
+                      optional="YES"
+                      maxCount="1"
+                      deletionRule="Nullify"
+                      destinationEntity="VideoVariantsEntity"
+                      inverseName="tiny"
+                      inverseEntity="VideoVariantsEntity"/>
     </entity>
 
     <entity name="VideoVariantsEntity"
@@ -118,19 +157,41 @@
         <relationship name="large"
                       maxCount="1"
                       deletionRule="Cascade"
-                      destinationEntity="VideoQualityEntity"/>
+                      destinationEntity="VideoQualityEntity"
+                      inverseName="large"
+                      inverseEntity="VideoQualityEntity"/>
         <relationship name="medium"
                       maxCount="1"
                       deletionRule="Cascade"
-                      destinationEntity="VideoQualityEntity"/>
+                      destinationEntity="VideoQualityEntity"
+                      inverseName="medium"
+                      inverseEntity="VideoQualityEntity"/>
+        <relationship name="playback"
+                      optional="YES"
+                      maxCount="1"
+                      deletionRule="Nullify"
+                      destinationEntity="PlaybackHistoryEntity"
+                      inverseName="video"
+                      inverseEntity="PlaybackHistoryEntity"/>
         <relationship name="small"
                       maxCount="1"
                       deletionRule="Cascade"
-                      destinationEntity="VideoQualityEntity"/>
+                      destinationEntity="VideoQualityEntity"
+                      inverseName="small"
+                      inverseEntity="VideoQualityEntity"/>
         <relationship name="tiny"
                       maxCount="1"
                       deletionRule="Cascade"
-                      destinationEntity="VideoQualityEntity"/>
+                      destinationEntity="VideoQualityEntity"
+                      inverseName="tiny"
+                      inverseEntity="VideoQualityEntity"/>
+        <relationship name="video"
+                      optional="YES"
+                      maxCount="1"
+                      deletionRule="Nullify"
+                      destinationEntity="PlaylistVideoEntity"
+                      inverseName="video"
+                      inverseEntity="PlaylistVideoEntity"/>
     </entity>
 
 </model>

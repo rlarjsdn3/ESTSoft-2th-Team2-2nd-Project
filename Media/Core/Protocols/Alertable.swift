@@ -66,12 +66,14 @@ extension Alertable where Self: UIViewController {
     /// - Parameters:
     ///   - title: 알림창의 제목 텍스트
     ///   - message: 알림창에 표시할 메시지 내용
+    ///   - defaultText: 텍스트 필드에 처음에 쓰여질 문자열 (옵션)
     ///   - placeholder: 텍스트 필드에 표시할 플레이스홀더 문자열 (옵션)
     ///   - onConfirm: 확인 버튼을 눌렀을 때 실행될 핸들러. 사용자 입력값이 함께 전달됩니다.
     ///   - onCancel: 취소 버튼을 눌렀을 때 실행될 핸들러
     func showTextFieldAlert(
         _ title: String,
         message: String,
+        defaultText: String? = nil,
         placeholder: String? = nil,
         onConfirm: @escaping ((TSAlertAction, String)) -> Void,
         onCancel: @escaping (TSAlertAction) -> Void
@@ -79,6 +81,7 @@ extension Alertable where Self: UIViewController {
         let alertController = defaultAlertController(title, message: message)
 
         alertController.addTextField {
+            $0.text = defaultText
             $0.placeholder = placeholder
         }
 
