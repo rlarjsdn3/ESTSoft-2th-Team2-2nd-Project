@@ -25,6 +25,7 @@ class ToastView: UIView {
         messageLabel.text = message
         
         // 스타일 설정
+        self.backgroundColor = .clear
         containerView.layer.cornerRadius = 10
         containerView.layer.masksToBounds = true
         
