@@ -20,10 +20,15 @@ class SearchFilterViewController: StoryboardViewController {
     @IBOutlet weak var filterCategoryCVHeightConstraint: NSLayoutConstraint!
 
     private let categories = Category.allCases
+    private var selectedCategories: Set<Category> = []
 
     //임시 데이터
     private let dates = ["지난 1시간", "오늘", "이번 주", "이번 달", "올해"]
+    private var selectedDate: String?
+
     private let durations = ["10초 미만", "10~30초", "1분 초과"]
+    private var selectedDuration: String?
+
     //popular/ latest 추가 해야함
 
     override func viewDidLoad() {
@@ -34,6 +39,7 @@ class SearchFilterViewController: StoryboardViewController {
             flow.scrollDirection = .horizontal
         }
         filterCategoryCVHeightConstraint.constant = 40
+        filterCategoryCollectionView.allowsMultipleSelection = true
     }
 
     override func setupHierachy() {
@@ -45,16 +51,17 @@ class SearchFilterViewController: StoryboardViewController {
         filterCategoryCollectionView.backgroundColor = .clear
         filterDateCollectionView.backgroundColor = .clear
         filterVideoDurationCollectionView.backgroundColor = .clear
-	}
+    }
 
     @IBAction func applyButtonTapped(_ sender: UIButton) {
+        print(selectedCategories, selectedDate, selectedDuration)
         self.dismiss(animated: true)
     }
 
     @IBAction func cancelButtonTapped(_ sender: UIButton) {
         self.dismiss(animated: true)
     }
-    
+
 
     private func registerCollectionViews() {
         collectionViewInset(collectionView: filterCategoryCollectionView)
@@ -128,6 +135,57 @@ extension SearchFilterViewController: UICollectionViewDataSource {
 
 extension SearchFilterViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        switch collectionView {
+
+            // 카테고리 다중 선택
+        case filterCategoryCollectionView:
+            let category = categories[indexPath.item]
+            if selectedCategories.contains(category) {
+                // 이미 선택돼 있었으면 해제
+                selectedCategories.remove(category)
+                collectionView.deselectItem(at: indexPath, animated: true)
+            } else {
+
+                selectedCategories.insert(category)
+            }
+
+            // 날짜: 단일 선택
+        case filterDateCollectionView:
+            // 이전 선택이 있으면 해제
+            if let prev = selectedDate,
+               let prevIndex = dates.firstIndex(of: prev) {
+                let prevPath = IndexPath(item: prevIndex, section: 0)
+                collectionView.deselectItem(at: prevPath, animated: true)
+            }
+            // 새로 선택
+            selectedDate = dates[indexPath.item]
+
+            // 길이: 단일 선택
+        case filterVideoDurationCollectionView:
+            if let prev = selectedDuration,
+               let prevIndex = durations.firstIndex(of: prev) {
+                let prevPath = IndexPath(item: prevIndex, section: 0)
+                collectionView.deselectItem(at: prevPath, animated: true)
+            }
+            selectedDuration = durations[indexPath.item]
+
+        default:
+            break
+        }
+    }
+
+    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
+        switch collectionView {
+
+            // 카테고리는 다중 선택 → deselect 시에도 상태 업데이트
+        case filterCategoryCollectionView:
+            let category = categories[indexPath.item]
+            selectedCategories.remove(category)
+
+            // date/duration 은 위 didSelectItemAt에서 직접 해제하므로 여기선 특별히 처리할 필요 없음
+        default:
+            break
+        }
     }
 }
 

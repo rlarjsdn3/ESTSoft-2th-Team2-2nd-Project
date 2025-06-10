@@ -9,9 +9,8 @@ import UIKit
 
 class SearchTableViewCell: UITableViewCell {
     @IBOutlet weak var searchLabel: UILabel!
-    
+
     override func awakeFromNib() {
         super.awakeFromNib()
-
     }
 }

@@ -4,16 +4,10 @@ import UIKit
 final class HomeViewController: StoryboardViewController {
 
     @IBAction func SearchButton(_ sender: Any) {
-        let mockService = CoreDataService(inMemory: true)
-                let mockManager = SearchRecordManager(service: mockService)
-                ["Apple","Beer","Circle","Dear","Eagle", "Feather", "Green", "Holly", "INTP", "Japan", "Korea"].forEach { try? mockManager.save(query: $0) }
+        let sb = UIStoryboard(name: "SearchViewController", bundle: nil)
+        let searchVC = sb.instantiateViewController(identifier: "SearchViewController") as! SearchViewController
 
-                let sb = UIStoryboard(name: "SearchViewController", bundle: nil)
-                let searchVC = sb.instantiateViewController(identifier: "SearchViewController") as! SearchViewController
-
-                searchVC.recordManager = mockManager
-
-                navigationController?.pushViewController(searchVC, animated: true)
+        navigationController?.pushViewController(searchVC, animated: true)
     }
 
     @IBOutlet weak var categoryCollectionView: UICollectionView!
@@ -57,7 +51,7 @@ extension HomeViewController: UICollectionViewDelegate {
             if collectionView == categoryCollectionView {
                 selectedCategoryIndex = indexPath.item
                 categoryCollectionView.reloadData()
-                
+
                 let selectedTitle = displayedCategories[indexPath.item]
                 print("\(selectedTitle)")
             }

@@ -10,23 +10,34 @@ import UIKit
 final class SearchResultViewController: StoryboardViewController, NavigationBarDelegate {
     @IBOutlet weak var navigationBar: NavigationBar!
 
+    var keyword = ""
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        navigationBar.delegate = self
-        navigationBar.configure(
-              title: "검색",
-              leftIcon: UIImage(systemName: "arrow.left"),
-              rightIcon: UIImage(systemName: "slider.horizontal.3"),
-              isSearchMode: true
-        )
     }
 
     override func setupHierachy() {
-        self.navigationController?.isNavigationBarHidden = true
+        configureSearchBar()
     }
 
     override func setupAttributes() {
+    }
+
+    // 네비게이션 바 기본 설정
+    private func configureSearchBar() {
+        self.navigationController?.isNavigationBarHidden = true
+        navigationBar.searchBar.delegate = self
+        navigationBar.searchBar.returnKeyType = .search
+        navigationBar.searchBar.searchTextField.enablesReturnKeyAutomatically = true
+        navigationBar.delegate = self
+        navigationBar.configure(
+            title: keyword,
+            leftIcon: UIImage(systemName: "arrow.left"),
+            rightIcon: UIImage(systemName: "slider.horizontal.3"),
+            isSearchMode: true
+        )
+        navigationBar.searchBar.text = keyword
     }
 
     //naviationBar event
@@ -58,5 +69,16 @@ final class SearchResultViewController: StoryboardViewController, NavigationBarD
         }
 
         present(vc, animated: true)
+    }
+}
+
+
+extension SearchResultViewController: UISearchBarDelegate {
+
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        guard let keyword = searchBar.text, !keyword.isEmpty else { return }
+
+        // 키보드 내리기
+        searchBar.resignFirstResponder()
     }
 }
