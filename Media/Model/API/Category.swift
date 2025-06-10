@@ -23,7 +23,7 @@ enum Category: String, CaseIterable {
     case computer
     case food
     case sports
-    case trasnportation
+    case transportation
     case travel
     case buildings
     case business
