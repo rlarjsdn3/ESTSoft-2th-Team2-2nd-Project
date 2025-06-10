@@ -4,10 +4,10 @@ import UIKit
 final class HomeViewController: StoryboardViewController {
 
     @IBAction func SearchButton(_ sender: Any) {
-        let storyboard = UIStoryboard(name: "SearchViewController", bundle: nil)
-        if let searchVC = storyboard.instantiateViewController(withIdentifier: "SearchViewController") as? SearchViewController {
-            navigationController?.pushViewController(searchVC, animated: true)
-        }
+        let sb = UIStoryboard(name: "SearchViewController", bundle: nil)
+        let searchVC = sb.instantiateViewController(identifier: "SearchViewController") as! SearchViewController
+
+        navigationController?.pushViewController(searchVC, animated: true)
     }
 
     @IBOutlet weak var categoryCollectionView: UICollectionView!
@@ -102,7 +102,12 @@ extension HomeViewController: UICollectionViewDelegate {
                 selectedCategoryIndex = indexPath.item
                 categoryCollectionView.reloadData()
 
+
+                let selectedTitle = displayedCategories[indexPath.item]
+                print("\(selectedTitle)")
+
                 fetchVideo()
+
             }
         }
     }

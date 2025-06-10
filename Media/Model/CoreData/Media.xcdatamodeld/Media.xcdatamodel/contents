@@ -1,44 +1,197 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23605" systemVersion="24E263" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
-    <entity name="PlaybackHistoryEntity" representedClassName="PlaybackHistoryEntity" syncable="YES">
-        <attribute name="createdAt" attributeType="Date" usesScalarValueType="NO"/>
-        <attribute name="id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="pageUrl" attributeType="URI"/>
-        <attribute name="user" attributeType="String"/>
-        <attribute name="userId" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="userImageUrl" attributeType="URI"/>
-        <attribute name="views" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
-        <relationship name="video" maxCount="1" deletionRule="Cascade" destinationEntity="VideoVariantsEntity" inverseName="playback" inverseEntity="VideoVariantsEntity"/>
+<model type="com.apple.IDECoreDataModeler.DataModel"
+       documentVersion="1.0"
+       lastSavedToolsVersion="23788"
+       systemVersion="24F74"
+       minimumToolsVersion="Automatic"
+       sourceLanguage="Swift"
+       userDefinedModelVersionIdentifier="">
+
+    <entity name="SearchRecordEntity"
+            representedClassName="SearchRecordEntity"
+            syncable="YES">
+        <attribute name="query"
+                   optional="YES"
+                   attributeType="String"/>
+        <attribute name="timestamp"
+                   optional="YES"
+                   attributeType="Date"
+                   usesScalarValueType="NO"/>
     </entity>
-    <entity name="PlaylistEntity" representedClassName="PlaylistEntity" syncable="YES">
-        <attribute name="createdAt" attributeType="Date" usesScalarValueType="NO"/>
-        <attribute name="name" attributeType="String"/>
-        <relationship name="playlistVideos" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="PlaylistVideoEntity" inverseName="playlist" inverseEntity="PlaylistVideoEntity"/>
+
+    <entity name="TodoEntity"
+            representedClassName="TodoEntity"
+            syncable="YES">
+        <attribute name="title"
+                   optional="YES"
+                   attributeType="String"/>
     </entity>
-    <entity name="PlaylistVideoEntity" representedClassName="PlaylistVideoEntity" syncable="YES">
-        <attribute name="id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="pageUrl" attributeType="URI"/>
-        <attribute name="user" attributeType="String"/>
-        <attribute name="userId" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="userImageUrl" attributeType="URI"/>
-        <attribute name="views" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
-        <relationship name="playlist" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PlaylistEntity" inverseName="playlistVideos" inverseEntity="PlaylistEntity"/>
-        <relationship name="video" maxCount="1" deletionRule="Cascade" destinationEntity="VideoVariantsEntity" inverseName="video" inverseEntity="VideoVariantsEntity"/>
+
+    <entity name="PlaybackHistoryEntity"
+            representedClassName="PlaybackHistoryEntity"
+            syncable="YES">
+        <attribute name="createdAt"
+                   attributeType="Date"
+                   usesScalarValueType="NO"/>
+        <attribute name="id"
+                   attributeType="Integer 64"
+                   defaultValueString="0"
+                   usesScalarValueType="YES"/>
+        <attribute name="pageUrl"
+                   attributeType="URI"/>
+        <attribute name="user"
+                   attributeType="String"/>
+        <attribute name="userId"
+                   attributeType="Integer 64"
+                   defaultValueString="0"
+                   usesScalarValueType="YES"/>
+        <attribute name="userImageUrl"
+                   attributeType="URI"/>
+        <attribute name="views"
+                   attributeType="Integer 64"
+                   defaultValueString="0"
+                   usesScalarValueType="YES"/>
+        <relationship name="video"
+                      maxCount="1"
+                      deletionRule="Cascade"
+                      destinationEntity="VideoVariantsEntity"
+                      inverseName="playback"
+                      inverseEntity="VideoVariantsEntity"/>
     </entity>
-    <entity name="VideoQualityEntity" representedClassName="VideoQualityEntity" syncable="YES">
-        <attribute name="thumbnail" optional="YES" attributeType="URI"/>
-        <attribute name="url" optional="YES" attributeType="URI"/>
-        <relationship name="large" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="VideoVariantsEntity" inverseName="large" inverseEntity="VideoVariantsEntity"/>
-        <relationship name="medium" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="VideoVariantsEntity" inverseName="medium" inverseEntity="VideoVariantsEntity"/>
-        <relationship name="small" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="VideoVariantsEntity" inverseName="small" inverseEntity="VideoVariantsEntity"/>
-        <relationship name="tiny" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="VideoVariantsEntity" inverseName="tiny" inverseEntity="VideoVariantsEntity"/>
+
+    <entity name="PlaylistEntity"
+            representedClassName="PlaylistEntity"
+            syncable="YES">
+        <attribute name="createdAt"
+                   attributeType="Date"
+                   usesScalarValueType="NO"/>
+        <attribute name="name"
+                   attributeType="String"/>
+        <relationship name="playlistVideos"
+                      optional="YES"
+                      toMany="YES"
+                      deletionRule="Cascade"
+                      destinationEntity="PlaylistVideoEntity"
+                      inverseName="playlist"
+                      inverseEntity="PlaylistVideoEntity"/>
     </entity>
-    <entity name="VideoVariantsEntity" representedClassName="VideoVariantsEntity" syncable="YES">
-        <relationship name="large" maxCount="1" deletionRule="Cascade" destinationEntity="VideoQualityEntity" inverseName="large" inverseEntity="VideoQualityEntity"/>
-        <relationship name="medium" maxCount="1" deletionRule="Cascade" destinationEntity="VideoQualityEntity" inverseName="medium" inverseEntity="VideoQualityEntity"/>
-        <relationship name="playback" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PlaybackHistoryEntity" inverseName="video" inverseEntity="PlaybackHistoryEntity"/>
-        <relationship name="small" maxCount="1" deletionRule="Cascade" destinationEntity="VideoQualityEntity" inverseName="small" inverseEntity="VideoQualityEntity"/>
-        <relationship name="tiny" maxCount="1" deletionRule="Cascade" destinationEntity="VideoQualityEntity" inverseName="tiny" inverseEntity="VideoQualityEntity"/>
-        <relationship name="video" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="PlaylistVideoEntity" inverseName="video" inverseEntity="PlaylistVideoEntity"/>
+
+    <entity name="PlaylistVideoEntity"
+            representedClassName="PlaylistVideoEntity"
+            syncable="YES">
+        <attribute name="id"
+                   attributeType="Integer 64"
+                   defaultValueString="0"
+                   usesScalarValueType="YES"/>
+        <attribute name="pageUrl"
+                   attributeType="URI"/>
+        <attribute name="user"
+                   attributeType="String"/>
+        <attribute name="userId"
+                   attributeType="Integer 64"
+                   defaultValueString="0"
+                   usesScalarValueType="YES"/>
+        <attribute name="userImageUrl"
+                   attributeType="URI"/>
+        <attribute name="views"
+                   attributeType="Integer 64"
+                   defaultValueString="0"
+                   usesScalarValueType="YES"/>
+        <relationship name="playlist"
+                      optional="YES"
+                      maxCount="1"
+                      deletionRule="Nullify"
+                      destinationEntity="PlaylistEntity"
+                      inverseName="playlistVideos"
+                      inverseEntity="PlaylistEntity"/>
+        <relationship name="video"
+                      maxCount="1"
+                      deletionRule="Cascade"
+                      destinationEntity="VideoVariantsEntity"
+                      inverseName="video"
+                      inverseEntity="VideoVariantsEntity"/>
     </entity>
+
+    <entity name="VideoQualityEntity"
+            representedClassName="VideoQualityEntity"
+            syncable="YES">
+        <attribute name="thumbnail"
+                   optional="YES"
+                   attributeType="URI"/>
+        <attribute name="url"
+                   optional="YES"
+                   attributeType="URI"/>
+        <relationship name="large"
+                      optional="YES"
+                      maxCount="1"
+                      deletionRule="Nullify"
+                      destinationEntity="VideoVariantsEntity"
+                      inverseName="large"
+                      inverseEntity="VideoVariantsEntity"/>
+        <relationship name="medium"
+                      optional="YES"
+                      maxCount="1"
+                      deletionRule="Nullify"
+                      destinationEntity="VideoVariantsEntity"
+                      inverseName="medium"
+                      inverseEntity="VideoVariantsEntity"/>
+        <relationship name="small"
+                      optional="YES"
+                      maxCount="1"
+                      deletionRule="Nullify"
+                      destinationEntity="VideoVariantsEntity"
+                      inverseName="small"
+                      inverseEntity="VideoVariantsEntity"/>
+        <relationship name="tiny"
+                      optional="YES"
+                      maxCount="1"
+                      deletionRule="Nullify"
+                      destinationEntity="VideoVariantsEntity"
+                      inverseName="tiny"
+                      inverseEntity="VideoVariantsEntity"/>
+    </entity>
+
+    <entity name="VideoVariantsEntity"
+            representedClassName="VideoVariantsEntity"
+            syncable="YES">
+        <relationship name="large"
+                      maxCount="1"
+                      deletionRule="Cascade"
+                      destinationEntity="VideoQualityEntity"
+                      inverseName="large"
+                      inverseEntity="VideoQualityEntity"/>
+        <relationship name="medium"
+                      maxCount="1"
+                      deletionRule="Cascade"
+                      destinationEntity="VideoQualityEntity"
+                      inverseName="medium"
+                      inverseEntity="VideoQualityEntity"/>
+        <relationship name="playback"
+                      optional="YES"
+                      maxCount="1"
+                      deletionRule="Nullify"
+                      destinationEntity="PlaybackHistoryEntity"
+                      inverseName="video"
+                      inverseEntity="PlaybackHistoryEntity"/>
+        <relationship name="small"
+                      maxCount="1"
+                      deletionRule="Cascade"
+                      destinationEntity="VideoQualityEntity"
+                      inverseName="small"
+                      inverseEntity="VideoQualityEntity"/>
+        <relationship name="tiny"
+                      maxCount="1"
+                      deletionRule="Cascade"
+                      destinationEntity="VideoQualityEntity"
+                      inverseName="tiny"
+                      inverseEntity="VideoQualityEntity"/>
+        <relationship name="video"
+                      optional="YES"
+                      maxCount="1"
+                      deletionRule="Nullify"
+                      destinationEntity="PlaylistVideoEntity"
+                      inverseName="video"
+                      inverseEntity="PlaylistVideoEntity"/>
+    </entity>
+
 </model>
