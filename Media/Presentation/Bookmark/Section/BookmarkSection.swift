@@ -10,11 +10,16 @@ import UIKit
 enum Bookmark {
     
     /// <#Description#>
-    enum Section: Int, CaseIterable {
+    enum SectionType: Int, CaseIterable {
         ///
         case history
         ///
         case playlist
+    }
+
+    struct Section: Hashable {
+        ///
+        let type: SectionType
     }
 
     enum Item: Hashable {
@@ -35,7 +40,7 @@ enum Bookmark {
 }
 
 
-extension Bookmark.Section {
+extension Bookmark.SectionType {
 
     func buildLayout(for environment: any NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection {
         switch self {

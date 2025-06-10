@@ -12,9 +12,12 @@ final class BookmarkViewController: StoryboardViewController {
 
     private typealias BookmarkDiffableDataSource = UICollectionViewDiffableDataSource<Bookmark.Section, Bookmark.Item>
 
+    private let userDefaultsService = UserDefaultsService.shared
     private let coreDataService = CoreDataService.shared
     
     private var dataSource: BookmarkDiffableDataSource? = nil
+
+    @IBOutlet weak var navigationBar: NavigationBar!
     @IBOutlet weak var collectionView: UICollectionView!
 
     private var playbackFetchedResultsController: NSFetchedResultsController<PlaybackHistoryEntity>? = nil
@@ -31,25 +34,34 @@ final class BookmarkViewController: StoryboardViewController {
         for segue: UIStoryboardSegue,
         sender: Any?
     ) {
-        if let playlistVC = segue.destination as? PlaylistVideosViewController {
+        if let playlistVC = segue.destination as? VideoListViewController {
             guard let indexPath = sender as? IndexPath,
                   case let .playlist(entity) = dataSource?.itemIdentifier(for: indexPath),
                   let playlistVideos = entity.playlistVideos?.allObjects as? [PlaylistVideoEntity] else {
                 return
             }
-            playlistVC.playlistVideos = playlistVideos
+            playlistVC.videos = .playlist(playlistVideos)
         }
     }
 
     override func setupAttributes() {
         super.setupAttributes()
 
-        self.collectionView.collectionViewLayout = createCompositionalLayout()
+        var title: String = "Bookmark"
+        if let username = userDefaultsService.userName {
+            title = "\(username)'s Bookmark"
+        }
+        navigationBar.configure(
+            title: title,
+            isLeadingAligned: true
+        )
+
+        collectionView.collectionViewLayout = createCompositionalLayout()
     }
 
     private func createCompositionalLayout() -> UICollectionViewCompositionalLayout {
         let sectionProvider: UICollectionViewCompositionalLayoutSectionProvider = { sectionIndex, environment in
-            guard let section = Bookmark.Section(rawValue: sectionIndex) else { return nil }
+            guard let section = Bookmark.SectionType(rawValue: sectionIndex) else { return nil }
 
             return section.buildLayout(for: environment)
         }
@@ -80,7 +92,7 @@ extension BookmarkViewController {
 
         // 임시 데이터 소스 코드
         dataSource = BookmarkDiffableDataSource(collectionView: collectionView) { collectionView, indexPath, item in
-            guard let section = Bookmark.Section(rawValue: indexPath.section) else { return UICollectionViewCell() }
+            guard let section = Bookmark.SectionType(rawValue: indexPath.section) else { return UICollectionViewCell() }
 
             switch section {
             case .history:
@@ -113,14 +125,16 @@ extension BookmarkViewController {
 
         if let history = playbackFetchedResultsController?.fetchedObjects {
             let items = history.map { Bookmark.Item.history($0) }
-            snapshot.appendSections([.history])
-            snapshot.appendItems(items, toSection: .history)
+            let historySection = Bookmark.Section(type: .history)
+            snapshot.appendSections([historySection])
+            snapshot.appendItems(items, toSection: historySection)
         }
 
         if let playlists = playlistFetchedResultsController?.fetchedObjects {
             let items = playlists.map { Bookmark.Item.playlist($0) }
-            snapshot.appendSections([.playlist])
-            snapshot.appendItems(items, toSection: .playlist)
+            let playlistSection = Bookmark.Section(type: .playlist)
+            snapshot.appendSections([playlistSection])
+            snapshot.appendItems(items, toSection: playlistSection)
         }
 
         dataSource?.apply(snapshot, animatingDifferences: true)
@@ -206,7 +220,7 @@ extension BookmarkViewController: UICollectionViewDelegate {
         point: CGPoint
     ) -> UIContextMenuConfiguration? {
         guard let indexPath = indexPaths.first,
-              let section = Bookmark.Section(rawValue: indexPath.section),
+              let section = Bookmark.SectionType(rawValue: indexPath.section),
               section != .history else {
             return nil }
 
@@ -235,6 +249,8 @@ extension BookmarkViewController {
     }
     
     private func renamePlaylistNameAction(for indexPath: IndexPath) -> UIAction {
+        #warning("김건우 -> '북마크로 표시된 재생목록'은 이름 변경 불가능하게 만들기")
+        #warning("김건우 -> 빈 문자열로 이름 변경 시, 예외 처리하기 / 10글자로 제한하기")
         return UIAction(
             title: "Rename Playlist",
             image: UIImage(systemName: "square.and.pencil")

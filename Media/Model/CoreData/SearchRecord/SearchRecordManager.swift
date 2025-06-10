@@ -1,0 +1,53 @@
+//
+//  SearchRecordEntity+Manager.swift
+//  Media
+//
+//  Created by 백현진 on 6/9/25.
+//
+
+import CoreData
+import UIKit
+
+protocol SearchRecordManaging {
+    /// 새로운 검색 기록을 저장
+    func save(query: String) throws
+
+    /// 최신 검색 기록을 불러옴
+    /// - Parameter limit: 가져올 최대 레코드 수 (기본 20)
+    func fetchRecent(limit: Int) throws -> [SearchRecordEntity]
+
+    /// 특정 검색 기록을 삭제
+    func delete(record: SearchRecordEntity) throws
+
+    /// 모든 검색 기록을 일괄 삭제
+    func deleteAll() throws
+}
+
+final class SearchRecordManager: SearchRecordManaging {
+
+    private let service: CoreDataService
+
+    init(service: CoreDataService = .shared) {
+            self.service = service
+        }
+
+    func save(query: String) throws {
+        let record = SearchRecordEntity(context: service.viewContext, query: query)
+        service.insert(record)
+    }
+
+    func fetchRecent(limit: Int = 20) throws -> [SearchRecordEntity] {
+        let sort = NSSortDescriptor(key: "timestamp", ascending: false)
+        let all: [SearchRecordEntity] = try service.fetch(nil, sortDescriptors: [sort])
+        return Array(all.prefix(limit))
+    }
+
+    func delete(record: SearchRecordEntity) throws {
+        service.delete(record)
+    }
+
+    func deleteAll() throws {
+        try service.clear(type: SearchRecordEntity.self)
+    }
+}
+

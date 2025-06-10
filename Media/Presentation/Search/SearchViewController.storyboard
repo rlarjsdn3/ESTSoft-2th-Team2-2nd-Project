@@ -8,23 +8,68 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--Search View Controller-->
+        <!--네비게이션 바-->
         <scene sceneID="s0d-6b-0kx">
             <objects>
                 <viewController storyboardIdentifier="SearchViewController" id="Y6W-OH-hqX" customClass="SearchViewController" customModule="Media" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="5EZ-qb-Rvc">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="Ase-Rr-RAE">
+                                <rect key="frame" x="0.0" y="158" width="393" height="577"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <prototypes>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="SearchTableViewCell" id="3L3-yX-MKS" customClass="SearchTableViewCell" customModule="Media" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="50" width="393" height="45"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="3L3-yX-MKS" id="frf-sm-pxC">
+                                            <rect key="frame" x="0.0" y="0.0" width="393" height="45"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                        </tableViewCellContentView>
+                                    </tableViewCell>
+                                </prototypes>
+                            </tableView>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="2oi-2c-qVG" customClass="NavigationBar" customModule="Media" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="118" width="393" height="40"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="40" id="M89-nx-KOv"/>
+                                </constraints>
+                            </view>
+                        </subviews>
                         <viewLayoutGuide key="safeArea" id="vDu-zF-Fre"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="2oi-2c-qVG" secondAttribute="trailing" id="3DV-Kn-Wsi"/>
+                            <constraint firstItem="vDu-zF-Fre" firstAttribute="bottom" secondItem="Ase-Rr-RAE" secondAttribute="bottom" id="Bo7-nd-AOu"/>
+                            <constraint firstItem="Ase-Rr-RAE" firstAttribute="top" secondItem="2oi-2c-qVG" secondAttribute="bottom" id="Ekb-01-L0r"/>
+                            <constraint firstItem="2oi-2c-qVG" firstAttribute="top" secondItem="vDu-zF-Fre" secondAttribute="top" id="S3h-ty-OXD"/>
+                            <constraint firstItem="Ase-Rr-RAE" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="WoM-C9-c2Y"/>
+                            <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="Ase-Rr-RAE" secondAttribute="trailing" id="X4j-7L-unB"/>
+                            <constraint firstItem="2oi-2c-qVG" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="xfc-tF-Qn8"/>
+                        </constraints>
                     </view>
+                    <navigationItem key="navigationItem" title="네비게이션 바" id="v0y-1H-4Nc">
+                        <barButtonItem key="rightBarButtonItem" image="line.3.horizontal.decrease" catalog="system" id="6ZP-Rf-wEL">
+                            <connections>
+                                <action selector="showSheet:" destination="Y6W-OH-hqX" id="MVd-k7-Jbn"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
+                    <simulatedTabBarMetrics key="simulatedBottomBarMetrics"/>
+                    <connections>
+                        <outlet property="navigationBar" destination="2oi-2c-qVG" id="fnP-Kv-eNm"/>
+                        <outlet property="searchTableView" destination="Ase-Rr-RAE" id="7PO-e9-ew5"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Ief-a0-LHa" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="87" y="-34"/>
+            <point key="canvasLocation" x="3134" y="-46"/>
         </scene>
     </scenes>
     <resources>
+        <image name="line.3.horizontal.decrease" catalog="system" width="128" height="73"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
