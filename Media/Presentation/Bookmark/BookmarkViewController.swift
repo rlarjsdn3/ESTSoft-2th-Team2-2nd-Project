@@ -42,7 +42,7 @@ final class BookmarkViewController: StoryboardViewController {
                 playlistVC.videos = .playlist(playlistVideos)
             }
 
-            if case let .history(_) = dataSource?.itemIdentifier(for: indexPath),
+            if case .history(_) = dataSource?.itemIdentifier(for: indexPath),
                let playbackVideos = playbackFetchedResultsController?.fetchedObjects {
                 playlistVC.videos = .playback(playbackVideos)
             }
@@ -219,6 +219,7 @@ extension BookmarkViewController: UICollectionViewDelegate {
         )
     }
 
+    #warning("김건우 -> Playback에도 Context Menu 적용하기")
     func collectionView(
         _ collectionView: UICollectionView,
         contextMenuConfigurationForItemsAt indexPaths: [IndexPath],
