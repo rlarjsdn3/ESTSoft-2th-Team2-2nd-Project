@@ -67,6 +67,8 @@ extension Bookmark.SectionType {
             layoutSize: groupSize,
             subitems: [item]
         )
+        group.interItemSpacing = .flexible(10)
+        group.contentInsets = .init(top: 10, leading: 10, bottom: 10, trailing: 10)
 
         let headerSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0), // 임시 값
@@ -74,14 +76,13 @@ extension Bookmark.SectionType {
         )
         let header = NSCollectionLayoutBoundarySupplementaryItem(
             layoutSize: headerSize,
-            elementKind: ColorCollectiorReusableView.id,
+            elementKind: HeaderReusableView.id,
             alignment: .top
         )
         header.pinToVisibleBounds = true
 
         let section = NSCollectionLayoutSection(group: group)
         section.interGroupSpacing = 8 // 임시 값
-        section.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 8, bottom: 8, trailing: 8)
         section.orthogonalScrollingBehavior = .continuousGroupLeadingBoundary
         section.boundarySupplementaryItems = [header]
 
@@ -92,27 +93,29 @@ extension Bookmark.SectionType {
         let isHorizontalSizeClassCompact = environment.traitCollection.horizontalSizeClass == .compact
 
         let itemWidthDimension: NSCollectionLayoutDimension = isHorizontalSizeClassCompact
-        ? .fractionalWidth(0.5) : .fractionalWidth(0.33) // 임시 값
-        let itemHeightDeimension: NSCollectionLayoutDimension = isHorizontalSizeClassCompact
-        ? .fractionalWidth(0.33) : .fractionalWidth(0.33) // 임시 값
+        ? .fractionalWidth(0.5) : .fractionalWidth(0.33)
 
         let itemSize = NSCollectionLayoutSize(
             widthDimension: itemWidthDimension,
-            heightDimension: itemHeightDeimension
+            heightDimension: .fractionalHeight(1.0)
         )
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
 
         let colmnCount = isHorizontalSizeClassCompact ? 2 : 3
+        let groupHeightDimension: NSCollectionLayoutDimension = isHorizontalSizeClassCompact
+        ? .fractionalWidth(0.4) : .fractionalWidth(0.24)
+
         let groupSize = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1.0), // 임시 값
-            heightDimension: .fractionalWidth(0.33) // 임시 값
+            widthDimension: .fractionalWidth(1.0),
+            heightDimension: groupHeightDimension
         )
         let group = NSCollectionLayoutGroup.horizontal(
             layoutSize: groupSize,
             repeatingSubitem: item,
             count: colmnCount
         )
-        group.interItemSpacing = .flexible(8) // 임시 값
+        group.interItemSpacing = .flexible(10)
+        group.contentInsets = .init(top: 10, leading: 10, bottom: 10, trailing: 10)
 
         let headerSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0), // 임시 값
@@ -120,14 +123,13 @@ extension Bookmark.SectionType {
         )
         let header = NSCollectionLayoutBoundarySupplementaryItem(
             layoutSize: headerSize,
-            elementKind: ColorCollectiorReusableView.id,
+            elementKind: HeaderReusableView.id,
             alignment: .top
         )
         header.pinToVisibleBounds = true
 
         let section = NSCollectionLayoutSection(group: group)
         section.interGroupSpacing = 4 // 임시 값
-        section.contentInsets = .init(top: 8, leading: 8, bottom: 8, trailing: 8) // 임시 값
         section.boundarySupplementaryItems = [header]
         return section
     }

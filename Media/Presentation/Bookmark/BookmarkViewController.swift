@@ -35,15 +35,14 @@ final class BookmarkViewController: StoryboardViewController {
         sender: Any?
     ) {
         if let playlistVC = segue.destination as? VideoListViewController {
-            guard let indexPath = sender as? IndexPath else { return }
-
-            if case let .playlist(entity) = dataSource?.itemIdentifier(for: indexPath),
-               let playlistVideos = entity.playlistVideos?.allObjects as? [PlaylistVideoEntity] {
+            if let item = sender as? Bookmark.Item {
+                guard case let .playlist(playlistEntity) = item,
+                      let playlistVideos = playlistEntity.playlistVideos?.allObjects as? [PlaylistVideoEntity] else {
+                    return
+                }
                 playlistVC.videos = .playlist(playlistVideos)
-            }
-
-            if case .history(_) = dataSource?.itemIdentifier(for: indexPath),
-               let playbackVideos = playbackFetchedResultsController?.fetchedObjects {
+            } else {
+                guard let playbackVideos = playbackFetchedResultsController?.fetchedObjects else { return }
                 playlistVC.videos = .playback(playbackVideos)
             }
         }
@@ -85,14 +84,29 @@ extension BookmarkViewController {
             cell.label.text = "\(indexPath) history"
         }
 
-        let playlistCellRagistration = UICollectionView.CellRegistration<PlaylistCollectionViewCell, Bookmark.Item> { cell, indexPath, item in
-            cell.backgroundColor = UIColor.random
-            cell.label.text = "\(indexPath) playlist"
+        let playlistCellRagistration = UICollectionView.CellRegistration<SmallVideoCell, Bookmark.Item>(cellNib: SmallVideoCell.nib) { cell, indexPath, item in
+            if case .playlist(let playlist) = item {
+                guard let playlistVideoEntity = (playlist.playlistVideos?.allObjects.first as? PlaylistVideoEntity),
+                      let thumbnailUrl = playlistVideoEntity.video?.medium.thumbnail,
+                      let playlistName = playlistVideoEntity.playlist?.name else { return }
+                cell.configure(url: thumbnailUrl, title: playlistName, isLast: false)
+            }
         }
 
         // 임시 헤더 등록 코드
-        let headerRegistration = UICollectionView.SupplementaryRegistration<ColorCollectiorReusableView>(elementKind: ColorCollectiorReusableView.id) { supplementaryView, elementKind, indexPath in
-            supplementaryView.backgroundColor = UIColor.random
+        let headerRegistration = UICollectionView.SupplementaryRegistration<HeaderReusableView>(
+            supplementaryNib: HeaderReusableView.nib,
+            elementKind: HeaderReusableView.id
+        ) { [weak self] supplementaryView, elementKind, indexPath in
+            guard let section = self?.dataSource?.sectionIdentifier(for: indexPath.section) else { return }
+
+            switch section.type {
+            case .history:
+                supplementaryView.delegate = self
+                supplementaryView.configure(title: "재생 기록", hasEvent: true)
+            case .playlist:
+                supplementaryView.configure(title: "재생 목록")
+            }
         }
 
         // 임시 데이터 소스 코드
@@ -213,9 +227,10 @@ extension BookmarkViewController: UICollectionViewDelegate {
         _ collectionView: UICollectionView,
         didSelectItemAt indexPath: IndexPath
     ) {
+        guard let item = self.dataSource?.itemIdentifier(for: indexPath) else { return }
         performSegue(
             withIdentifier: "navigateToPlaylistVideos",
-            sender: indexPath
+            sender: item
         )
     }
 
@@ -303,6 +318,19 @@ extension BookmarkViewController {
             return nil
         }
         return entity
+    }
+}
+
+
+// MARK: - Header Delegate
+
+extension BookmarkViewController: HeaderButtonDelegate {
+
+    func HeaderButtonDidTap(_ headerView: UICollectionReusableView) {
+        performSegue(
+            withIdentifier: "navigateToPlaylistVideos",
+            sender: nil
+        )
     }
 }
 

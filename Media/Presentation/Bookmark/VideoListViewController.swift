@@ -62,9 +62,9 @@ final class VideoListViewController: StoryboardViewController {
 
     private func setupNavigationBar() {
         let leftIcon = UIImage(systemName: "arrow.left")
-        let rightIcon = UIImage(systemName: "trash.fill")
+        let rightIcon = UIImage(systemName: "trash")
         switch videos {
-        case .playback(_):
+        case .playback:
             navigationBar.configure(
                 title: "Playback",
                 leftIcon: leftIcon,
@@ -74,9 +74,11 @@ final class VideoListViewController: StoryboardViewController {
             )
         default: // playlist
             navigationBar.configure(
-                title: "Playlist",
+                title: "Playback",
                 leftIcon: leftIcon,
-                leftIconTint: .mainLabelColor
+                leftIconTint: .mainLabelColor,
+                rightIcon: rightIcon, // rightIcon이 없으면 버튼이 표시 x
+                rightIconTint: .systemRed
             )
         }
 
@@ -145,8 +147,9 @@ extension VideoListViewController {
 
         // 임시 헤더 등록
         let headerRagistration = UICollectionView.SupplementaryRegistration<ColorCollectiorReusableView>(elementKind: ColorCollectiorReusableView.id) { supplementaryView, elementKind, indexPath in
-            guard let section = self.dataSource?.sectionIdentifier(for: indexPath.section) else { return }
-            supplementaryView.label.text = "\(section.name)"
+            guard let section = self.dataSource?.sectionIdentifier(for: indexPath.section),
+            let createdAt = section.name else { return }
+            supplementaryView.label.text = "\(createdAt)"
             supplementaryView.backgroundColor = UIColor.random
         }
 
@@ -170,11 +173,18 @@ extension VideoListViewController {
         }
 
         applySnapshot()
-        applyPlaybackSnapshot()
+    }
+    
+    private func applySnapshot() {
+        switch videos {
+        case .playback(_):
+            applyPlaybackSnapshot()
+        default: // playlist
+            applyPlaylistSnapshot()
+        }
     }
 
-    #warning("김건우 -> 넘겨받은 비디오 종류에 따라 스냅샷 분기 처리 - 시청 기록이면 날짜 헤더 추가")
-    private func applySnapshot() {
+    private func applyPlaylistSnapshot() {
         guard case let .playlist(entities) = videos else { return }
         let playlistItems: [VideoList.Item] = entities.map { VideoList.Item.playlist($0) }
 
@@ -190,9 +200,10 @@ extension VideoListViewController {
         let groupedEntities = Dictionary(grouping: entities) { entity in
             Calendar.current.startOfDay(for: entity.createdAt ?? .now)
         }
+        let descendingGroupedEntities = groupedEntities.sorted { $0.key > $1.key }
 
         var snapshot = NSDiffableDataSourceSnapshot<VideoList.Section, VideoList.Item>()
-        groupedEntities.forEach { date, entities in
+        descendingGroupedEntities.forEach { date, entities in
             let playbackItems = entities.map { VideoList.Item.playback($0) }
             let playbackSection = VideoList.Section(
                 type: .playback,

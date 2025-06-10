@@ -8,7 +8,7 @@
 import UIKit
 
 /// 재생기록 섹션 헤더에 사용되는 커스텀 뷰
-class HeaderReusableView: UICollectionReusableView {
+class HeaderReusableView: UICollectionReusableView, NibLodable {
 
     /// 헤더의 타이틀을 표시하는 라벨
     @IBOutlet weak var titleLabel: UILabel!
