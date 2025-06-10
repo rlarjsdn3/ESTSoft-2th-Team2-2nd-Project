@@ -2,20 +2,15 @@
 //  SearchTableViewCell.swift
 //  Media
 //
-//  Created by Jaehun Kim on 6/8/25.
+//  Created by 백현진 on 6/9/25.
 //
 
 import UIKit
 
 class SearchTableViewCell: UITableViewCell {
+    @IBOutlet weak var searchLabel: UILabel!
 
     override func awakeFromNib() {
         super.awakeFromNib()
-
-    }
-
-    override func setSelected(_ selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
-
     }
 }
