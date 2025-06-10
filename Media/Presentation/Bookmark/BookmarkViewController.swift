@@ -249,6 +249,8 @@ extension BookmarkViewController {
     }
     
     private func renamePlaylistNameAction(for indexPath: IndexPath) -> UIAction {
+        #warning("김건우 -> '북마크로 표시된 재생목록'은 이름 변경 불가능하게 만들기")
+        #warning("김건우 -> 빈 문자열로 이름 변경 시, 예외 처리하기 / 10글자로 제한하기")
         return UIAction(
             title: "Rename Playlist",
             image: UIImage(systemName: "square.and.pencil")

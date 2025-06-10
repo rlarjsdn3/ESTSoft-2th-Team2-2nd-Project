@@ -237,7 +237,7 @@ extension VideoListViewController: UITextFieldDelegate {
         }
 
         let updatedText = currentText.replacingCharacters(in: textRange, with: string)
-        #warning("검색 연산 구현")
+        #warning("김건우 -> 재생 목록 및 시청 기록에서 검색 연산 구현")
 
         return true
     }
