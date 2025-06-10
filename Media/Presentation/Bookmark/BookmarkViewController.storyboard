@@ -59,10 +59,10 @@
             </objects>
             <point key="canvasLocation" x="-16.030534351145036" y="3.5211267605633805"/>
         </scene>
-        <!--PlaylistVideosViewController-->
+        <!--VideoListViewController-->
         <scene sceneID="mwN-2s-rUh">
             <objects>
-                <viewControllerPlaceholder storyboardName="PlaylistVideosViewController" referencedIdentifier="PlaylistVideosViewController" id="18y-81-EKP" sceneMemberID="viewController">
+                <viewControllerPlaceholder storyboardName="VideoListViewController" referencedIdentifier="VideoListViewController" id="18y-81-EKP" sceneMemberID="viewController">
                     <navigationItem key="navigationItem" id="W67-R0-6cu"/>
                 </viewControllerPlaceholder>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="2bA-y2-Uuu" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>

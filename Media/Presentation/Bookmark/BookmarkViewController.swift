@@ -34,7 +34,7 @@ final class BookmarkViewController: StoryboardViewController {
         for segue: UIStoryboardSegue,
         sender: Any?
     ) {
-        if let playlistVC = segue.destination as? PlaylistVideosViewController {
+        if let playlistVC = segue.destination as? VideoListViewController {
             guard let indexPath = sender as? IndexPath,
                   case let .playlist(entity) = dataSource?.itemIdentifier(for: indexPath),
                   let playlistVideos = entity.playlistVideos?.allObjects as? [PlaylistVideoEntity] else {
