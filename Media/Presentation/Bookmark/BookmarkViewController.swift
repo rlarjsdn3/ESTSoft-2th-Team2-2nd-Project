@@ -35,12 +35,17 @@ final class BookmarkViewController: StoryboardViewController {
         sender: Any?
     ) {
         if let playlistVC = segue.destination as? VideoListViewController {
-            guard let indexPath = sender as? IndexPath,
-                  case let .playlist(entity) = dataSource?.itemIdentifier(for: indexPath),
-                  let playlistVideos = entity.playlistVideos?.allObjects as? [PlaylistVideoEntity] else {
-                return
+            guard let indexPath = sender as? IndexPath else { return }
+
+            if case let .playlist(entity) = dataSource?.itemIdentifier(for: indexPath),
+               let playlistVideos = entity.playlistVideos?.allObjects as? [PlaylistVideoEntity] {
+                playlistVC.videos = .playlist(playlistVideos)
             }
-            playlistVC.videos = .playlist(playlistVideos)
+
+            if case let .history(_) = dataSource?.itemIdentifier(for: indexPath),
+               let playbackVideos = playbackFetchedResultsController?.fetchedObjects {
+                playlistVC.videos = .playback(playbackVideos)
+            }
         }
     }
 
@@ -248,9 +253,9 @@ extension BookmarkViewController {
         }
     }
     
+#warning("김건우 -> '북마크로 표시된 재생목록'은 이름 변경 불가능하게 만들기")
+#warning("김건우 -> 빈 문자열로 이름 변경 시, 예외 처리하기 / 10글자로 제한하기")
     private func renamePlaylistNameAction(for indexPath: IndexPath) -> UIAction {
-        #warning("김건우 -> '북마크로 표시된 재생목록'은 이름 변경 불가능하게 만들기")
-        #warning("김건우 -> 빈 문자열로 이름 변경 시, 예외 처리하기 / 10글자로 제한하기")
         return UIAction(
             title: "Rename Playlist",
             image: UIImage(systemName: "square.and.pencil")
