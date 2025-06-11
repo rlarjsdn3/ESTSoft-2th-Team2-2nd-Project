@@ -167,7 +167,6 @@ extension BookmarkViewController {
 #warning("김건우 -> 코드 리팩토링")
     private func applySnapshot() {
         var snapshot = NSDiffableDataSourceSnapshot<Bookmark.Section, Bookmark.Item>()
-        #warning("김건우 -> 재생 기록이 하나도 없을 때 플레이스 8홀더 이미지 띄우기 / empty section")
         if let history = playbackFetchedResultsController?.fetchedObjects, !history.isEmpty {
             let items = history.map { Bookmark.Item.history($0) }.prefix(10)
             let section = Bookmark.Section(type: .history)
