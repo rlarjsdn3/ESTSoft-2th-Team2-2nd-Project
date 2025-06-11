@@ -27,8 +27,7 @@ extension PixabayResponse.Hit {
         entity.likes = Int64(self.likes)
         entity.userId = Int64(self.userId)
         entity.user = self.user
-        //entity.userImageUrl = self.userImageUrl
-        entity.userImageUrl = self.userImageToUrl ?? URL(string: "https://cdn.pixabay.com/user/2024/02/05/16-05-14-742_250x250.jpg")!
+        entity.userImageUrl = self.userImageUrl
         return entity
     }
 

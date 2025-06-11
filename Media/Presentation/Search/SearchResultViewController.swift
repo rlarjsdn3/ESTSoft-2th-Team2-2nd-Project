@@ -196,6 +196,28 @@ extension SearchResultViewController: UICollectionViewDataSource {
         return String(format: "%02d:%02d", minutes, remainingSeconds)
     }
 
+    // 조회 수 포맷
+    func formatViewCount(_ count: Int) -> String {
+        if count >= 10_000 {
+            let value = Double(count) / 10_000
+            // 소수점 검사이후 Int or Double
+            if abs(value.rounded() - value) < 0.01 {
+                return "\(Int(value))만 회"
+            } else {
+                return String(format: "%.1f만 회", value)
+            }
+        } else if count >= 1_000 {
+            let value = Double(count) / 1_000
+            if abs(value.rounded() - value) < 0.01 {
+                return "\(Int(value))천 회"
+            } else {
+                return String(format: "%.1f천 회", value)
+            }
+        } else {
+            return "\(count)회"
+        }
+    }
+
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return hits.count
     }
@@ -207,10 +229,12 @@ extension SearchResultViewController: UICollectionViewDataSource {
 
         let viewModel = VideoCellViewModel(
             title: video.user,
-            viewCountText: "Views: \(video.views)",
+            viewCountText: formatViewCount(video.views),
             durationText: formatDuration(seconds: video.duration),
             thumbnailURL: video.videos.medium.thumbnail,
-            profileImageURL: video.userImageToUrl
+            profileImageURL: video.userImageUrl,
+            likeCountText: formatViewCount(video.likes),
+            tags: video.tags
         )
 
         cell.configure(with: viewModel)
