@@ -163,7 +163,7 @@ extension BookmarkViewController {
 
     private func applySnapshot() {
         var snapshot = NSDiffableDataSourceSnapshot<Bookmark.Section, Bookmark.Item>()
-        #warning("김건우 -> 재생 기록이 하나도 없을 때 플레이스 홀더 이미지 띄우기 / empty section")
+        #warning("김건우 -> 재생 기록이 하나도 없을 때 플레이스 8홀더 이미지 띄우기 / empty section")
         if let history = playbackFetchedResultsController?.fetchedObjects {
             let slicedItems = history.map { Bookmark.Item.history($0) }.prefix(10) // 재생 기록을 최근 10개까지만 출력하기
             let items = Array(slicedItems)
@@ -174,7 +174,6 @@ extension BookmarkViewController {
 
         if let playlists = playlistFetchedResultsController?.fetchedObjects {
             let items = playlists.map { Bookmark.Item.playlist($0) }
-            print("플레이리스트 아이템: ", items)
             let playlistSection = Bookmark.Section(type: .playlist)
             snapshot.appendSections([playlistSection])
             snapshot.appendItems(items, toSection: playlistSection)
@@ -222,8 +221,45 @@ extension BookmarkViewController {
 
 extension BookmarkViewController: NSFetchedResultsControllerDelegate {
 
-    func controllerDidChangeContent(_ controller: NSFetchedResultsController<any NSFetchRequestResult>) {
-        applySnapshot()
+    #warning("김건우 -> 시청 기록이 제대로 갱신되는지 다시 확인하기")
+    func controller(
+        _ controller: NSFetchedResultsController<any NSFetchRequestResult>,
+        didChange anObject: Any,
+        at indexPath: IndexPath?,
+        for type: NSFetchedResultsChangeType,
+        newIndexPath: IndexPath?
+    ) {
+        guard let dataSource = dataSource else { return }
+        var currentSnapshot = dataSource.snapshot()
+
+        switch type {
+        case .insert:
+            if let newPlaylist = anObject as? PlaylistEntity {
+                currentSnapshot.insertItems([.playlist(newPlaylist)], beforeItem: .addPlaylist)
+            }
+        case .delete:
+            if let oldPlaylist = anObject as? PlaylistEntity {
+                currentSnapshot.deleteItems([.playlist(oldPlaylist)])
+            }
+        case .update:
+            if let updatedPlaylist = anObject as? PlaylistEntity {
+                let itemToReconfigure = Bookmark.Item.playlist(updatedPlaylist)
+                if currentSnapshot.itemIdentifiers.contains(itemToReconfigure) {
+                    currentSnapshot.reconfigureItems([itemToReconfigure])
+                }
+            }
+        case .move:
+            if let movedPlaylist = anObject as? PlaylistEntity {
+                let itemToReconfigure = Bookmark.Item.playlist(movedPlaylist)
+                if currentSnapshot.itemIdentifiers.contains(itemToReconfigure) {
+                    currentSnapshot.reconfigureItems([itemToReconfigure])
+                }
+            }
+        @unknown default:
+            fatalError("can not handle change type")
+        }
+
+        dataSource.apply(currentSnapshot, animatingDifferences: true)
     }
 }
 
@@ -261,7 +297,6 @@ extension BookmarkViewController: UICollectionViewDelegate {
             )
         }
 
-#warning("김건우 -> 재생 목록 추가 및 글자 수 제한 기능 추가")
         if case .addPlaylist = item {
             showTextFieldAlert(
                 "새로운 재생 목록 추가",
@@ -272,7 +307,6 @@ extension BookmarkViewController: UICollectionViewDelegate {
                     )
                     self.coreDataService.insert(newPlaylist)
             } onCancel: { action in
-                    // ...
             }
 
         }
@@ -317,7 +351,6 @@ extension BookmarkViewController {
     }
     
 #warning("김건우 -> '북마크로 표시된 재생목록'은 이름 변경 불가능하게 만들기")
-#warning("김건우 -> 빈 문자열로 이름 변경 시, 예외 처리하기 / 10글자로 제한하기")
 #warning("김건우 -> 동일한 문자열 재생목록 이름 입력 시 예외 처리하기")
     private func renamePlaylistNameAction(for indexPath: IndexPath) -> UIAction {
         return UIAction(
@@ -332,7 +365,10 @@ extension BookmarkViewController {
                 defaultText: entity.name,
                 placeholder: "New name",
                 onConfirm: { (_, newName) in
-                    self.coreDataService.update(entity, by: \.name, to: newName)
+                    if entity.name != newName {
+                        self.coreDataService.update(entity, by: \.name, to: newName)
+//                        self.reconfigurePlaylistItem(for: indexPath)
+                    }
                 },
                 onCancel: { _ in
                 }

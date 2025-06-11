@@ -33,11 +33,24 @@ enum Bookmark {
         func hash(into hasher: inout Hasher) {
             switch self {
             case .history(let entity):
-                hasher.combine(entity.id)
+                hasher.combine(entity.objectID)
             case .playlist(let entity):
-                hasher.combine(entity.id)
+                hasher.combine(entity.objectID)
             case .addPlaylist:
                 hasher.combine("addPlaylist")
+            }
+        }
+
+        static func == (lhs: Item, rhs: Item) -> Bool {
+            switch (lhs, rhs) {
+            case (.history(let a), .history(let b)):
+                return a.objectID == b.objectID
+            case (.playlist(let a), .playlist(let b)):
+                return a.objectID == b.objectID
+            case (.addPlaylist, .addPlaylist):
+                return true
+            default:
+                return false
             }
         }
     }
