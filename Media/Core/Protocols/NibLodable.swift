@@ -13,6 +13,10 @@ protocol NibLodable {
     /// 연결된 Nib 파일의 이름입니다.
     /// 기본 구현에서는 타입 이름을 그대로 반환합니다.
     static var nibName: String { get }
+    
+    /// nibName과 연결된 UINib 인스턴스를 생성합니다.
+    /// - Returns: 번들에서 로드된 UINib 객체
+    static var nib: UINib { get }
 
     /// Nib 파일에서 뷰를 로드합니다.
     /// - Parameters:

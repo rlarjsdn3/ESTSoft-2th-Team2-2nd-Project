@@ -25,9 +25,6 @@ final class VideoListViewController: StoryboardViewController {
 
     private var dataSource: PlaylistDiffableDataSource? = nil
 
-    ///
-    private var shouldAnimateSearchBarByScrolling = true
-
     @IBOutlet weak var closeButton: UIButton!
     @IBOutlet weak var navigationBar: NavigationBar!
     @IBOutlet weak var collectionView: UICollectionView!
@@ -35,15 +32,9 @@ final class VideoListViewController: StoryboardViewController {
     @IBOutlet weak var searchContainer: UIView!
     @IBOutlet weak var searchBar: UITextField!
 
-
-    @IBOutlet weak var searchContainerTopToSafeAreaConstraint: NSLayoutConstraint!
-    @IBOutlet weak var searchContainerTopToNavigationBarConstraint: NSLayoutConstraint!
-
-    @IBOutlet weak var searchContainerLeadingConstraint: NSLayoutConstraint!
-    @IBOutlet weak var searchContainerTrailingConstraint: NSLayoutConstraint!
-
-
-
+    @IBOutlet weak var searchContainerTopConstraint: NSLayoutConstraint!
+    @IBOutlet weak var closeButtonTrailingConstraint: NSLayoutConstraint!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -53,8 +44,7 @@ final class VideoListViewController: StoryboardViewController {
     @IBAction func didTapCloseButton(_ sender: Any) {
         searchBar.text = nil
         searchBar.endEditing(true)
-
-        moveSearchContainer(toTop: false)
+        moveCloseButton(toRight: true)
     }
 
     override func setupAttributes() {
@@ -62,32 +52,19 @@ final class VideoListViewController: StoryboardViewController {
 
         setupNavigationBar()
 
-        searchContainer.apply {
-            $0.layer.cornerRadius = 14
-            $0.layer.masksToBounds = true
-        }
-
         searchBar.apply {
-            $0.placeholder = "search qeury..."
             $0.delegate = self
+            $0.placeholder = "title, author, "
         }
-
-        collectionView.apply {
-            $0.collectionViewLayout = createCompositionalLayout()
-            $0.contentInset = UIEdgeInsets(
-                top: Metric.collectionViewTopInset, left: 0,
-                bottom: 0, right: 0
-            )
-        }
-
-        closeButton.alpha = 0
+        collectionView.collectionViewLayout = createCompositionalLayout()
+        closeButtonTrailingConstraint.constant = -50
     }
 
     private func setupNavigationBar() {
         let leftIcon = UIImage(systemName: "arrow.left")
-        let rightIcon = UIImage(systemName: "trash.fill")
+        let rightIcon = UIImage(systemName: "trash")
         switch videos {
-        case .playback(_):
+        case .playback:
             navigationBar.configure(
                 title: "Playback",
                 leftIcon: leftIcon,
@@ -97,9 +74,11 @@ final class VideoListViewController: StoryboardViewController {
             )
         default: // playlist
             navigationBar.configure(
-                title: "Playlist",
+                title: "Playback",
                 leftIcon: leftIcon,
-                leftIconTint: .mainLabelColor
+                leftIconTint: .mainLabelColor,
+                rightIcon: rightIcon, // rightIcon이 없으면 버튼이 표시 x
+                rightIconTint: .systemRed
             )
         }
 
@@ -107,7 +86,9 @@ final class VideoListViewController: StoryboardViewController {
     }
 
     private func createCompositionalLayout() -> UICollectionViewCompositionalLayout {
-        let sectionProvider: UICollectionViewCompositionalLayoutSectionProvider = { _, environment in
+        let sectionProvider: UICollectionViewCompositionalLayoutSectionProvider = { [weak self] sectionIndex, environment in
+            guard let self = self else { return nil }
+
             let isHorizontalSizeClassCompact = environment.traitCollection.horizontalSizeClass == .compact
             
             let itemWidthDimension: NSCollectionLayoutDimension = isHorizontalSizeClassCompact
@@ -132,9 +113,24 @@ final class VideoListViewController: StoryboardViewController {
 
             let section = NSCollectionLayoutSection(group: group)
             section.interGroupSpacing = 8 // 임시 값
+
+            if case .playback(_) = self.videos {
+                let headerSize = NSCollectionLayoutSize(
+                    widthDimension: .fractionalWidth(1.0),
+                    heightDimension: .estimated(50)
+                )
+                let header = NSCollectionLayoutBoundarySupplementaryItem(
+                    layoutSize: headerSize,
+                    elementKind: ColorCollectiorReusableView.id,
+                    alignment: .topLeading
+                )
+                header.pinToVisibleBounds = true
+                section.boundarySupplementaryItems = [header]
+            }
+
             return section
         }
-        
+
         return UICollectionViewCompositionalLayout(sectionProvider: sectionProvider)
     }
 }
@@ -149,6 +145,14 @@ extension VideoListViewController {
             cell.backgroundColor = UIColor.random
         }
 
+        // 임시 헤더 등록
+        let headerRagistration = UICollectionView.SupplementaryRegistration<ColorCollectiorReusableView>(elementKind: ColorCollectiorReusableView.id) { supplementaryView, elementKind, indexPath in
+            guard let section = self.dataSource?.sectionIdentifier(for: indexPath.section),
+            let createdAt = section.name else { return }
+            supplementaryView.label.text = "\(createdAt)"
+            supplementaryView.backgroundColor = UIColor.random
+        }
+
         // 임시 데이터 소스 코드
         dataSource = PlaylistDiffableDataSource(collectionView: collectionView) { collectionView, indexPath, item in
             return collectionView.dequeueConfiguredReusableCell(
@@ -158,10 +162,29 @@ extension VideoListViewController {
             )
         }
 
+        // 임시 데이터 소스 코드
+        dataSource?.supplementaryViewProvider = { [weak self] collectionView, kind, indexPath in
+            guard case .playback(_) = self?.videos else { return .init() }
+
+            return collectionView.dequeueConfiguredReusableSupplementary(
+                using: headerRagistration,
+                for: indexPath
+            )
+        }
+
         applySnapshot()
     }
     
     private func applySnapshot() {
+        switch videos {
+        case .playback(_):
+            applyPlaybackSnapshot()
+        default: // playlist
+            applyPlaylistSnapshot()
+        }
+    }
+
+    private func applyPlaylistSnapshot() {
         guard case let .playlist(entities) = videos else { return }
         let playlistItems: [VideoList.Item] = entities.map { VideoList.Item.playlist($0) }
 
@@ -171,6 +194,27 @@ extension VideoListViewController {
         snapshot.appendItems(playlistItems, toSection: playlistSection)
         dataSource?.apply(snapshot, animatingDifferences: true)
     }
+
+    private func applyPlaybackSnapshot() {
+        guard case let .playback(entities) = videos else { return }
+        let groupedEntities = Dictionary(grouping: entities) { entity in
+            Calendar.current.startOfDay(for: entity.createdAt ?? .now)
+        }
+        let descendingGroupedEntities = groupedEntities.sorted { $0.key > $1.key }
+
+        var snapshot = NSDiffableDataSourceSnapshot<VideoList.Section, VideoList.Item>()
+        descendingGroupedEntities.forEach { date, entities in
+            let playbackItems = entities.map { VideoList.Item.playback($0) }
+            let playbackSection = VideoList.Section(
+                type: .playback,
+                name: date.formatter(.yyyyMMdd)
+            )
+
+            snapshot.appendSections([playbackSection])
+            snapshot.appendItems(playbackItems, toSection: playbackSection)
+        }
+        dataSource?.apply(snapshot, animatingDifferences: true)
+    }
 }
 
 
@@ -178,26 +222,10 @@ extension VideoListViewController {
 
 extension VideoListViewController: UICollectionViewDelegate {
 
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        let contentInset = scrollView.contentInset
-        let contentOffset = scrollView.contentOffset
-        let offsetY = contentOffset.y + contentInset.top
-
-        if shouldAnimateSearchBarByScrolling {
-            // 검색바 투명도 조절
-            let alpha = 1 - offsetY / 12.5
-            searchContainer.alpha = alpha < 0 ? 0 : alpha
-
-            // 검색 바 스케일 조절
-            let rawScale = 1 - offsetY / 200
-            let scalingFactor = (1 * rawScale) >= 0.925 ? (1 * rawScale) : 0.925
-            let clampedScale = scalingFactor >= 1 ? 1 : scalingFactor
-            searchContainer.transform = CGAffineTransform(scaleX: clampedScale, y: clampedScale)
-
-        }
-    }
-
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+    func collectionView(
+        _ collectionView: UICollectionView,
+        didSelectItemAt indexPath: IndexPath
+    ) {
     }
     
     func collectionView(
@@ -219,11 +247,18 @@ extension VideoListViewController: UICollectionViewDelegate {
 extension VideoListViewController: UITextFieldDelegate {
 
     func textFieldDidBeginEditing(_ textField: UITextField) {
-        moveSearchContainer(toTop: true)
+        collectionView.scrollToTop()
+
+        moveCloseButton(toRight: false)
     }
 
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        guard let currentText = textField.text else { return true }
+        if currentText.isEmpty {
+            moveCloseButton(toRight: true)
+        }
         searchBar.endEditing(true)
+        return true
     }
 
     func textField(
@@ -239,31 +274,15 @@ extension VideoListViewController: UITextFieldDelegate {
         let updatedText = currentText.replacingCharacters(in: textRange, with: string)
         #warning("김건우 -> 재생 목록 및 시청 기록에서 검색 연산 구현")
 
+        collectionView.scrollToTop()
         return true
     }
 
-    private func moveSearchContainer(toTop bool: Bool) {
-        shouldAnimateSearchBarByScrolling = false
-
-        searchContainerTopToSafeAreaConstraint.priority = bool ? .defaultHigh : .defaultLow
-        searchContainerTopToNavigationBarConstraint.priority = bool ? .defaultLow : .defaultHigh
-        searchContainerLeadingConstraint.constant = bool ? 48 : 8
-        searchContainerTrailingConstraint.constant = bool ? 48 : 8
-
+    private func moveCloseButton(toRight bool: Bool) {
+        closeButtonTrailingConstraint.constant = bool ? -50 : 0
         UIView.animate(withDuration: 0.25) {
             self.view.layoutIfNeeded()
-            self.closeButton.alpha = bool ? 1 : 0
-            self.collectionView.contentInset.top = bool ? 4 : Metric.collectionViewTopInset
-            self.navigationBar.titleLabel.alpha = bool ? 0 : 1
-        } completion: { _ in
-            self.shouldAnimateSearchBarByScrolling = true
         }
-
-        if !bool {
-            let rect = CGRect(x: 0, y: 0, width: 1, height: 1)
-            self.collectionView.scrollRectToVisible(rect, animated: true)
-        }
-
     }
 }
 

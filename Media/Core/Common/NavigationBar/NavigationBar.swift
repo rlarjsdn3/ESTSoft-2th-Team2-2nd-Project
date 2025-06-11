@@ -46,6 +46,14 @@ class NavigationBar: NibView {
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         loadFromNib(owner: self)
+        setupButtonActions()
+    }
+    
+    // MARK: - Setup
+    /// 버튼 액션을 코드로 연결
+    private func setupButtonActions() {
+        leftButton.addTarget(self, action: #selector(leftTapped(_:)), for: .touchUpInside)
+        rightButton.addTarget(self, action: #selector(rightTapped(_:)), for: .touchUpInside)
     }
     
     // MARK: - Configuration
@@ -139,12 +147,12 @@ class NavigationBar: NibView {
     // MARK: - Button Actions
     
     /// 왼쪽 버튼이 눌렸을 때 delegate에 이벤트 전달
-    @IBAction func leftTapped(_ sender: Any) {
+    @objc private func leftTapped(_ sender: Any) {
         delegate?.navigationBarDidTapLeft?(self)
     }
     
     /// 오른쪽 버튼이 눌렸을 때 delegate에 이벤트 전달
-    @IBAction func rightTapped(_ sender: Any) {
+    @objc private func rightTapped(_ sender: Any) {
         delegate?.navigationBarDidTapRight?(self)
     }
 }

@@ -1,7 +1,7 @@
 
 import UIKit
 
-final class VideoCell: UICollectionViewCell {
+final class VideoCell: UICollectionViewCell, NibLodable {
 
     @IBOutlet weak var thumbnailImage: UIImageView!
 
@@ -14,7 +14,14 @@ final class VideoCell: UICollectionViewCell {
     @IBOutlet weak var durationLabel: UILabel!
 
     @IBOutlet weak var ellipsisButton: UIButton!
-    
+
+    @IBOutlet weak var likeCountLabel: UILabel!
+
+    @IBOutlet weak var viewIcon: UIImageView!
+
+    @IBOutlet weak var tagLabel: UILabel!
+
+    @IBOutlet weak var likeIcon: UIImageView!
     override func awakeFromNib() {
         super.awakeFromNib()
 
@@ -30,8 +37,19 @@ final class VideoCell: UICollectionViewCell {
         viewCountLabel.textColor = .subLabelColor
         viewCountLabel.backgroundColor = .backgroundColor
 
-        durationLabel.textColor = .subLabelColor
-        durationLabel.backgroundColor = .backgroundColor
+        durationLabel.textColor = .white
+        durationLabel.backgroundColor = .black.withAlphaComponent(0.6)
+        durationLabel.layer.cornerRadius = 2
+        durationLabel.clipsToBounds = true
+
+        likeCountLabel.textColor = .subLabelColor
+        likeCountLabel.backgroundColor = .backgroundColor
+
+        tagLabel.textColor = .white
+        tagLabel.backgroundColor = .black.withAlphaComponent(0.6)
+        tagLabel.layer.cornerRadius = 2
+        tagLabel.clipsToBounds = true
+
     }
 
     override func layoutSubviews() {
@@ -53,6 +71,9 @@ final class VideoCell: UICollectionViewCell {
         titleLabel.text = viewModel.title
         viewCountLabel.text = viewModel.viewCountText
         durationLabel.text = viewModel.durationText
+        likeCountLabel.text = viewModel.likeCountText
+        tagLabel.text = viewModel.categoryText
+
 
         if let thumbnailURL = viewModel.thumbnailURL {
             loadImage(from: thumbnailURL, into: thumbnailImage)

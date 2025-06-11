@@ -8,7 +8,7 @@
 import UIKit
 
 /// 재생기록 섹션 헤더에 사용되는 커스텀 뷰
-class HeaderReusableView: UICollectionReusableView {
+class HeaderReusableView: UICollectionReusableView, NibLodable {
 
     /// 헤더의 타이틀을 표시하는 라벨
     @IBOutlet weak var titleLabel: UILabel!
@@ -53,7 +53,7 @@ extension HeaderReusableView {
     ///   - hasEvent: 버튼을 표시할지 여부 (기본값은 false)
     func configure(
         title: String,
-        hasEvent: Bool = false,
+        hasEvent: Bool = false
     ) {
         titleLabel.text = title
         guard !hasEvent else {
