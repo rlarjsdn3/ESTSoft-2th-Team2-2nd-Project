@@ -93,6 +93,7 @@ extension BookmarkViewController {
                     profileImageURL: playback.userImageUrl,
                     likeCount: Int(playback.likes),
                     tags: playback.tags
+
                 )
                 cell.configure(with: viewModel)
             }
