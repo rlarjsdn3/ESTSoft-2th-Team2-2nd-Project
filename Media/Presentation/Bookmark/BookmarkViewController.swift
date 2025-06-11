@@ -14,7 +14,7 @@ final class BookmarkViewController: StoryboardViewController {
 
     private let userDefaultsService = UserDefaultsService.shared
     private let coreDataService = CoreDataService.shared
-    
+
     private var dataSource: BookmarkDiffableDataSource? = nil
 
     @IBOutlet weak var navigationBar: NavigationBar!
@@ -28,6 +28,8 @@ final class BookmarkViewController: StoryboardViewController {
 
         setupFetchedResultsController()
         setupDataSource()
+
+        collectionView.collectionViewLayout = createCompositionalLayout()
     }
 
     override func prepare(
@@ -59,15 +61,16 @@ final class BookmarkViewController: StoryboardViewController {
             title: title,
             isLeadingAligned: true
         )
-
-        collectionView.collectionViewLayout = createCompositionalLayout()
     }
 
     private func createCompositionalLayout() -> UICollectionViewCompositionalLayout {
-        let sectionProvider: UICollectionViewCompositionalLayoutSectionProvider = { sectionIndex, environment in
-            guard let section = Bookmark.SectionType(rawValue: sectionIndex) else { return nil }
-
-            return section.buildLayout(for: environment)
+        let sectionProvider: UICollectionViewCompositionalLayoutSectionProvider = { [weak self] sectionIndex, environment in
+            guard let self = self,
+                  let sectionIdentifier = self.dataSource?.snapshot().sectionIdentifiers[safe: sectionIndex]
+            else {
+                return nil
+            }
+            return sectionIdentifier.type.buildLayout(for: environment)
         }
         let config = UICollectionViewCompositionalLayoutConfiguration()
         config.interSectionSpacing = 16
@@ -75,7 +78,11 @@ final class BookmarkViewController: StoryboardViewController {
         return UICollectionViewCompositionalLayout(sectionProvider: sectionProvider, configuration: config)
     }
 }
-
+extension Collection {
+    subscript(safe index: Index) -> Element? {
+        return indices.contains(index) ? self[index] : nil
+    }
+}
 // MARK: - Setup DataSource
 
 extension BookmarkViewController {
@@ -133,17 +140,14 @@ extension BookmarkViewController {
 
         // 임시 데이터 소스 코드
         dataSource = BookmarkDiffableDataSource(collectionView: collectionView) { collectionView, indexPath, item in
-            guard let section = Bookmark.SectionType(rawValue: indexPath.section) else { return UICollectionViewCell() }
-
-            switch section {
+            switch item {
             case .history:
                 return collectionView.dequeueConfiguredReusableCell(
                     using: historyCellRagistration,
                     for: indexPath,
                     item: item
                 )
-
-            case .playlist:
+            case .playlist, .addPlaylist:
                 return collectionView.dequeueConfiguredReusableCell(
                     using: playlistCellRagistration,
                     for: indexPath,
@@ -164,20 +168,18 @@ extension BookmarkViewController {
     private func applySnapshot() {
         var snapshot = NSDiffableDataSourceSnapshot<Bookmark.Section, Bookmark.Item>()
         #warning("김건우 -> 재생 기록이 하나도 없을 때 플레이스 8홀더 이미지 띄우기 / empty section")
-        if let history = playbackFetchedResultsController?.fetchedObjects {
-            let slicedItems = history.map { Bookmark.Item.history($0) }.prefix(10) // 재생 기록을 최근 10개까지만 출력하기
-            let items = Array(slicedItems)
-            let historySection = Bookmark.Section(type: .history)
-            snapshot.appendSections([historySection])
-            snapshot.appendItems(items, toSection: historySection)
+        if let history = playbackFetchedResultsController?.fetchedObjects, !history.isEmpty {
+            let items = history.map { Bookmark.Item.history($0) }.prefix(10)
+            let section = Bookmark.Section(type: .history)
+            snapshot.appendSections([section])
+            snapshot.appendItems(Array(items), toSection: section)
         }
 
-        if let playlists = playlistFetchedResultsController?.fetchedObjects {
-            let items = playlists.map { Bookmark.Item.playlist($0) }
-            let playlistSection = Bookmark.Section(type: .playlist)
-            snapshot.appendSections([playlistSection])
-            snapshot.appendItems(items, toSection: playlistSection)
-            snapshot.appendItems([Bookmark.Item.addPlaylist], toSection: playlistSection)
+        if let playlists = playlistFetchedResultsController?.fetchedObjects, !playlists.isEmpty {
+            let items = playlists.map { Bookmark.Item.playlist($0) } + [.addPlaylist]
+            let section = Bookmark.Section(type: .playlist)
+            snapshot.appendSections([section])
+            snapshot.appendItems(items, toSection: section)
         }
 
         dataSource?.apply(snapshot, animatingDifferences: true)
@@ -221,7 +223,6 @@ extension BookmarkViewController {
 
 extension BookmarkViewController: NSFetchedResultsControllerDelegate {
 
-    #warning("김건우 -> 시청 기록이 제대로 갱신되는지 다시 확인하기")
     func controller(
         _ controller: NSFetchedResultsController<any NSFetchRequestResult>,
         didChange anObject: Any,
@@ -237,6 +238,7 @@ extension BookmarkViewController: NSFetchedResultsControllerDelegate {
             if let newPlaylist = anObject as? PlaylistEntity {
                 currentSnapshot.insertItems([.playlist(newPlaylist)], beforeItem: .addPlaylist)
             }
+            #warning("김건우 -> 시청 기록이 제대로 갱신되는지 다시 확인하기")
         case .delete:
             if let oldPlaylist = anObject as? PlaylistEntity {
                 currentSnapshot.deleteItems([.playlist(oldPlaylist)])
@@ -309,13 +311,13 @@ extension BookmarkViewController: UICollectionViewDelegate {
         point: CGPoint
     ) -> UIContextMenuConfiguration? {
         guard let indexPath = indexPaths.first,
-              let section = Bookmark.SectionType(rawValue: indexPath.section),
+              let section = self.dataSource?.snapshot().sectionIdentifiers[safe: indexPath.section],
               let item = self.dataSource?.itemIdentifier(for: indexPath),
               let entity = self.playListEntityFromDatasource(for: indexPath) else {
             return nil
         }
 
-        if section != .history, item != .addPlaylist, entity.name != "북마크를 표시한 재생목록" {
+        if section.type != .history, item != .addPlaylist, entity.name != "북마크를 표시한 재생목록" {
             return UIContextMenuConfiguration(
                 identifier: nil,
                 previewProvider: nil
@@ -332,7 +334,7 @@ extension BookmarkViewController: UICollectionViewDelegate {
 // MARK: - Bookmark Extension
 
 extension BookmarkViewController {
-    
+
     private func adjustAnimatedOpacity(
         for cell: UICollectionViewCell,
         opacity: CGFloat = 0.75
@@ -365,7 +367,7 @@ extension BookmarkViewController {
             image: UIImage(systemName: "square.and.pencil")
         ) { _ in
             guard let entity = self.playListEntityFromDatasource(for: indexPath) else { return }
-            
+
             self.showTextFieldAlert(
                 "재생 목록 이름 변경",
                 message: "새로운 이름을 입력해 주세요.",
@@ -390,7 +392,7 @@ extension BookmarkViewController {
             attributes: .destructive
         ) { _ in
             guard let entity = self.playListEntityFromDatasource(for: indexPath) else { return }
-            
+
             self.showDeleteAlert(
                 "Delete Playlist",
                 message: "Are you sure you want to delete this playlist? This action cannot be undone.",
