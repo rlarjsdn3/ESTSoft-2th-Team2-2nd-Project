@@ -38,19 +38,19 @@
                         <rect key="frame" x="0.0" y="87" width="144" height="44"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="북마크를 표시한 재생목록" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="sLp-6q-rJ0">
-                                <rect key="frame" x="0.0" y="7" width="129" height="36"/>
+                                <rect key="frame" x="0.0" y="7" width="144" height="36"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                         </subviews>
                         <constraints>
-                            <constraint firstAttribute="trailing" secondItem="sLp-6q-rJ0" secondAttribute="trailing" constant="15" id="9Jm-RB-cnP"/>
+                            <constraint firstAttribute="trailing" secondItem="sLp-6q-rJ0" secondAttribute="trailing" id="9Jm-RB-cnP"/>
                             <constraint firstItem="sLp-6q-rJ0" firstAttribute="top" secondItem="Bmc-Gi-lCx" secondAttribute="top" constant="7" id="IOK-yV-n3i"/>
                             <constraint firstItem="sLp-6q-rJ0" firstAttribute="leading" secondItem="Bmc-Gi-lCx" secondAttribute="leading" id="Ij2-fR-ye4"/>
                         </constraints>
                     </view>
-                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="J29-oZ-cku">
+                    <button opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="J29-oZ-cku">
                         <rect key="frame" x="54.666666666666657" y="26" width="35" height="35"/>
                         <color key="tintColor" systemColor="labelColor"/>
                         <state key="normal" title="Button"/>

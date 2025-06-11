@@ -54,7 +54,12 @@ extension PixabayResponse {
         /// 업로더의 사용자 이름
         let user: String
         /// 업로더의 프로필 이미지 URL
-        let userImageUrl: URL
+        let userImageUrlAbsoulteString: String
+        
+        /// <#Description#>
+        var userImageUrl: URL? {
+            URL(string: userImageUrlAbsoulteString)
+        }
 
         enum CodingKeys: String, CodingKey {
             case id
@@ -69,7 +74,7 @@ extension PixabayResponse {
             case comments
             case userId = "user_id"
             case user
-            case userImageUrl = "userImageURL"
+            case userImageUrlAbsoulteString = "userImageURL"
         }
     }
 }

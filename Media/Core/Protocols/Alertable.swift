@@ -75,23 +75,46 @@ extension Alertable where Self: UIViewController {
         message: String,
         defaultText: String? = nil,
         placeholder: String? = nil,
+        maxLength: Int = 20,
         onConfirm: @escaping ((TSAlertAction, String)) -> Void,
         onCancel: @escaping (TSAlertAction) -> Void
     ) {
         let alertController = defaultAlertController(title, message: message)
 
-        alertController.addTextField {
-            $0.text = defaultText
-            $0.placeholder = placeholder
-        }
+        var observer: NSObjectProtocol?
 
         let okAction = TSAlertAction(title: "확인", style: .default) { action in
+            if let observer = observer {
+                NotificationCenter.default.removeObserver(observer)
+            }
             onConfirm((action, alertController.textFields?.first?.text ?? ""))
         }
         okAction.configuration.backgroundColor = UIColor.systemBlue // 임시 색상
         okAction.configuration.titleAttributes?[.foregroundColor] = UIColor.systemBackground
+        okAction.isEnabled = false
         alertController.addAction(okAction)
         alertController.preferredAction = okAction
+
+        alertController.addTextField { textfield in
+            textfield.text = defaultText
+            textfield.placeholder = placeholder
+            #warning("김건우 -> 버튼 틴트 컬러 수정")
+            #warning("김건우 -> 참조 사이클 문제 다시 확인해보기")
+            observer = NotificationCenter.default.addObserver(
+                forName: UITextField.textDidChangeNotification,
+                object: textfield,
+                queue: .main
+            ) { [weak okAction] _ in
+                guard let currentText = textfield.text else { return }
+
+                if currentText.count > maxLength {
+                    textfield.text = String(currentText.prefix(maxLength))
+                }
+
+                okAction?.isEnabled = !currentText.isEmpty
+            }
+        }
+
 
         let cancelAction = TSAlertAction(title: "취소", style: .cancel, handler: onCancel)
         alertController.addAction(cancelAction)
