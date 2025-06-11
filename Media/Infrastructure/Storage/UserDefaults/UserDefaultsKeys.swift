@@ -16,4 +16,8 @@ extension UserDefaultsKeys {
     var hasCompletedOnboarding: UserDefaultsKey<Bool> {
         UserDefaultsKey(name: "hasCompletedOnboarding_v1", defaultValue: false)
     }
+    ///
+    var userName: UserDefaultsKey<String?> {
+        UserDefaultsKey(name: "userName", defaultValue: nil)
+    }
 }

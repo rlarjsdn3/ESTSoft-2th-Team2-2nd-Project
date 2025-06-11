@@ -12,9 +12,12 @@ final class BookmarkViewController: StoryboardViewController {
 
     private typealias BookmarkDiffableDataSource = UICollectionViewDiffableDataSource<Bookmark.Section, Bookmark.Item>
 
+    private let userDefaultsService = UserDefaultsService.shared
     private let coreDataService = CoreDataService.shared
     
     private var dataSource: BookmarkDiffableDataSource? = nil
+
+    @IBOutlet weak var navigationBar: NavigationBar!
     @IBOutlet weak var collectionView: UICollectionView!
 
     private var playbackFetchedResultsController: NSFetchedResultsController<PlaybackHistoryEntity>? = nil
@@ -31,29 +34,45 @@ final class BookmarkViewController: StoryboardViewController {
         for segue: UIStoryboardSegue,
         sender: Any?
     ) {
-        if let playlistVC = segue.destination as? PlaylistVideosViewController {
-            guard let indexPath = sender as? IndexPath,
-                  case let .playlist(entity) = dataSource?.itemIdentifier(for: indexPath),
-                  let playlistVideos = entity.playlistVideos?.allObjects as? [PlaylistVideoEntity] else {
-                return
+        if let playlistVC = segue.destination as? VideoListViewController {
+            if let item = sender as? Bookmark.Item {
+                guard case let .playlist(playlistEntity) = item,
+                      let playlistVideos = playlistEntity.playlistVideos?.allObjects as? [PlaylistVideoEntity] else {
+                    return
+                }
+                playlistVC.videos = .playlist(playlistVideos)
+            } else {
+                guard let playbackVideos = playbackFetchedResultsController?.fetchedObjects else { return }
+                playlistVC.videos = .playback(playbackVideos)
             }
-            playlistVC.playlistVideos = playlistVideos
         }
     }
 
     override func setupAttributes() {
         super.setupAttributes()
 
-        self.collectionView.collectionViewLayout = createCompositionalLayout()
+        var title: String = "Bookmark"
+        if let username = userDefaultsService.userName {
+            title = "\(username)'s Bookmark"
+        }
+        navigationBar.configure(
+            title: title,
+            isLeadingAligned: true
+        )
+
+        collectionView.collectionViewLayout = createCompositionalLayout()
     }
 
     private func createCompositionalLayout() -> UICollectionViewCompositionalLayout {
         let sectionProvider: UICollectionViewCompositionalLayoutSectionProvider = { sectionIndex, environment in
-            guard let section = Bookmark.Section(rawValue: sectionIndex) else { return nil }
+            guard let section = Bookmark.SectionType(rawValue: sectionIndex) else { return nil }
 
             return section.buildLayout(for: environment)
         }
-        return UICollectionViewCompositionalLayout(sectionProvider: sectionProvider)
+        let config = UICollectionViewCompositionalLayoutConfiguration()
+        config.interSectionSpacing = 16
+
+        return UICollectionViewCompositionalLayout(sectionProvider: sectionProvider, configuration: config)
     }
 }
 
@@ -63,24 +82,48 @@ extension BookmarkViewController {
 
     private func setupDataSource() {
         // 임시 셀 등록 코드
-        let historyCellRagistration = UICollectionView.CellRegistration<HistoryCollectionViewCell, Bookmark.Item> { cell, indexPath, item in
-            cell.backgroundColor = UIColor.random
-            cell.label.text = "\(indexPath) history"
+        let historyCellRagistration = UICollectionView.CellRegistration<VideoCell, Bookmark.Item>(cellNib: VideoCell.nib) { cell, indexPath, item in
+            if case .history(let playback) = item {
+                guard let thumbnailUrl = playback.video?.medium.thumbnail else { return }
+                let viewModel = VideoCellViewModel(
+                    title: playback.tags,
+                    viewCountText: String(playback.views),
+                    durationText: String(playback.duration),
+                    thumbnailURL: thumbnailUrl,
+                    profileImageURL: playback.userImageUrl
+                )
+                cell.configure(with: viewModel)
+            }
         }
 
-        let playlistCellRagistration = UICollectionView.CellRegistration<PlaylistCollectionViewCell, Bookmark.Item> { cell, indexPath, item in
-            cell.backgroundColor = UIColor.random
-            cell.label.text = "\(indexPath) playlist"
+        let playlistCellRagistration = UICollectionView.CellRegistration<SmallVideoCell, Bookmark.Item>(cellNib: SmallVideoCell.nib) { cell, indexPath, item in
+            if case .playlist(let playlist) = item {
+                guard let playlistVideoEntity = (playlist.playlistVideos?.allObjects.first as? PlaylistVideoEntity),
+                      let thumbnailUrl = playlistVideoEntity.video?.medium.thumbnail,
+                      let playlistName = playlistVideoEntity.playlist?.name else { return }
+                cell.configure(url: thumbnailUrl, title: playlistName, isLast: false)
+            }
         }
 
         // 임시 헤더 등록 코드
-        let headerRegistration = UICollectionView.SupplementaryRegistration<ColorCollectiorReusableView>(elementKind: ColorCollectiorReusableView.id) { supplementaryView, elementKind, indexPath in
-            supplementaryView.backgroundColor = UIColor.random
+        let headerRegistration = UICollectionView.SupplementaryRegistration<HeaderReusableView>(
+            supplementaryNib: HeaderReusableView.nib,
+            elementKind: HeaderReusableView.id
+        ) { [weak self] supplementaryView, elementKind, indexPath in
+            guard let section = self?.dataSource?.sectionIdentifier(for: indexPath.section) else { return }
+
+            switch section.type {
+            case .history:
+                supplementaryView.delegate = self
+                supplementaryView.configure(title: "재생 기록", hasEvent: true)
+            case .playlist:
+                supplementaryView.configure(title: "재생 목록")
+            }
         }
 
         // 임시 데이터 소스 코드
         dataSource = BookmarkDiffableDataSource(collectionView: collectionView) { collectionView, indexPath, item in
-            guard let section = Bookmark.Section(rawValue: indexPath.section) else { return UICollectionViewCell() }
+            guard let section = Bookmark.SectionType(rawValue: indexPath.section) else { return UICollectionViewCell() }
 
             switch section {
             case .history:
@@ -110,17 +153,21 @@ extension BookmarkViewController {
 
     private func applySnapshot() {
         var snapshot = NSDiffableDataSourceSnapshot<Bookmark.Section, Bookmark.Item>()
-
+        #warning("김건우 -> 재생 기록이 하나도 없을 때 플레이스 홀더 이미지 띄우기")
+#warning("김건우 -> 최근 재생 기록은 최신순 10개까지만 출력하기")
+#warning("김건우 -> 마지막에 + 버튼 추가하기")
         if let history = playbackFetchedResultsController?.fetchedObjects {
             let items = history.map { Bookmark.Item.history($0) }
-            snapshot.appendSections([.history])
-            snapshot.appendItems(items, toSection: .history)
+            let historySection = Bookmark.Section(type: .history)
+            snapshot.appendSections([historySection])
+            snapshot.appendItems(items, toSection: historySection)
         }
 
         if let playlists = playlistFetchedResultsController?.fetchedObjects {
             let items = playlists.map { Bookmark.Item.playlist($0) }
-            snapshot.appendSections([.playlist])
-            snapshot.appendItems(items, toSection: .playlist)
+            let playlistSection = Bookmark.Section(type: .playlist)
+            snapshot.appendSections([playlistSection])
+            snapshot.appendItems(items, toSection: playlistSection)
         }
 
         dataSource?.apply(snapshot, animatingDifferences: true)
@@ -194,19 +241,22 @@ extension BookmarkViewController: UICollectionViewDelegate {
         _ collectionView: UICollectionView,
         didSelectItemAt indexPath: IndexPath
     ) {
+        guard let item = self.dataSource?.itemIdentifier(for: indexPath),
+              case .playlist = item else { return }
         performSegue(
             withIdentifier: "navigateToPlaylistVideos",
-            sender: indexPath
+            sender: item
         )
     }
 
+    #warning("김건우 -> Playback에도 Context Menu 적용하기 (고민 중..)")
     func collectionView(
         _ collectionView: UICollectionView,
         contextMenuConfigurationForItemsAt indexPaths: [IndexPath],
         point: CGPoint
     ) -> UIContextMenuConfiguration? {
         guard let indexPath = indexPaths.first,
-              let section = Bookmark.Section(rawValue: indexPath.section),
+              let section = Bookmark.SectionType(rawValue: indexPath.section),
               section != .history else {
             return nil }
 
@@ -234,6 +284,8 @@ extension BookmarkViewController {
         }
     }
     
+#warning("김건우 -> '북마크로 표시된 재생목록'은 이름 변경 불가능하게 만들기")
+#warning("김건우 -> 빈 문자열로 이름 변경 시, 예외 처리하기 / 10글자로 제한하기")
     private func renamePlaylistNameAction(for indexPath: IndexPath) -> UIAction {
         return UIAction(
             title: "Rename Playlist",
@@ -281,6 +333,19 @@ extension BookmarkViewController {
             return nil
         }
         return entity
+    }
+}
+
+
+// MARK: - Header Delegate
+
+extension BookmarkViewController: HeaderButtonDelegate {
+
+    func HeaderButtonDidTap(_ headerView: UICollectionReusableView) {
+        performSegue(
+            withIdentifier: "navigateToPlaylistVideos",
+            sender: nil
+        )
     }
 }
 

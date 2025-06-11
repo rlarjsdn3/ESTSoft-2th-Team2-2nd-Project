@@ -53,13 +53,8 @@ extension PixabayResponse {
         let userId: Int
         /// 업로더의 사용자 이름
         let user: String
-        /// 업로더의 프로필 이미지 URL(String)
-        let userImageUrl: String
-
         /// 업로더의 프로필 이미지 URL
-        var userImageToUrl: URL? {
-			URL(string: userImageUrl)
-        }
+        let userImageUrl: URL
 
         enum CodingKeys: String, CodingKey {
             case id

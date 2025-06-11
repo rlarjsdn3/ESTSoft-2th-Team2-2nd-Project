@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		C714D8EC2DF434B800E601E9 /* TSAlertController in Frameworks */ = {isa = PBXBuildFile; productRef = C714D8EB2DF434B800E601E9 /* TSAlertController */; };
+		C7411FEE2DF8F91F00471BAE /* TSAlertController in Frameworks */ = {isa = PBXBuildFile; productRef = C7411FED2DF8F91F00471BAE /* TSAlertController */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -56,7 +56,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C714D8EC2DF434B800E601E9 /* TSAlertController in Frameworks */,
+				C7411FEE2DF8F91F00471BAE /* TSAlertController in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -116,7 +116,7 @@
 			);
 			name = Media;
 			packageProductDependencies = (
-				C714D8EB2DF434B800E601E9 /* TSAlertController */,
+				C7411FED2DF8F91F00471BAE /* TSAlertController */,
 			);
 			productName = Media;
 			productReference = C70213022DF131EF007037B7 /* Media.app */;
@@ -174,7 +174,7 @@
 			mainGroup = C70212F92DF131EF007037B7;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				C714D8E92DF4348100E601E9 /* XCRemoteSwiftPackageReference "TSAlertController-iOS" */,
+				C7411FEC2DF8F91900471BAE /* XCRemoteSwiftPackageReference "TSAlertController-iOS" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = C70213032DF131EF007037B7 /* Products */;
@@ -489,7 +489,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		C714D8E92DF4348100E601E9 /* XCRemoteSwiftPackageReference "TSAlertController-iOS" */ = {
+		C7411FEC2DF8F91900471BAE /* XCRemoteSwiftPackageReference "TSAlertController-iOS" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/rlarjsdn3/TSAlertController-iOS.git";
 			requirement = {
@@ -500,9 +500,9 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		C714D8EB2DF434B800E601E9 /* TSAlertController */ = {
+		C7411FED2DF8F91F00471BAE /* TSAlertController */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = C714D8E92DF4348100E601E9 /* XCRemoteSwiftPackageReference "TSAlertController-iOS" */;
+			package = C7411FEC2DF8F91900471BAE /* XCRemoteSwiftPackageReference "TSAlertController-iOS" */;
 			productName = TSAlertController;
 		};
 /* End XCSwiftPackageProductDependency section */

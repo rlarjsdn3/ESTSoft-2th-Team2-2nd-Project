@@ -14,15 +14,17 @@ extension PixabayResponse.Hit {
     ///
     /// - Parameter context: Core Data에 객체를 삽입할 NSManagedObjectContext입니다.
     /// - Returns: 생성된 PlaylistVideoEntity 객체입니다.
-    @available(*, deprecated, message: "not yet implemented")
     func mapToPlaylistVideoEntity(
         insertInto context: NSManagedObjectContext
     ) -> PlaylistVideoEntity {
         let entity = PlaylistVideoEntity(context: context)
         entity.id = Int64(self.id)
         entity.pageUrl = self.pageUrl
+        entity.tags = self.tags
+        entity.duration = Int64(self.duration)
         entity.video = self.videos.mapToVideoVariantsEntity(insertInto: context)
         entity.views = Int64(self.views)
+        entity.likes = Int64(self.likes)
         entity.userId = Int64(self.userId)
         entity.user = self.user
         //entity.userImageUrl = self.userImageUrl
@@ -34,7 +36,6 @@ extension PixabayResponse.Hit {
     ///
     /// - Parameter context: Core Data에 객체를 삽입할 NSManagedObjectContext입니다.
     /// - Returns: 생성된 PlaybackHistoryEntity 객체입니다.
-    @available(*, deprecated, message: "not yet implemented")
     func mapToPlaybackHistoryEntity(
         insertInto context: NSManagedObjectContext
     ) -> PlaybackHistoryEntity {
@@ -45,13 +46,15 @@ extension PixabayResponse.Hit {
         entity.createdAt = Date()
         #endif
         entity.id = Int64(self.id)
+        entity.tags = self.tags
+        entity.duration = Int64(self.duration)
         entity.pageUrl = self.pageUrl
         entity.video = self.videos.mapToVideoVariantsEntity(insertInto: context)
         entity.views = Int64(self.views)
+        entity.likes = Int64(self.likes)
         entity.userId = Int64(self.userId)
         entity.user = self.user
-        //entity.userImageUrl = self.userImageUrl
-        entity.userImageUrl = self.userImageToUrl
+        entity.userImageUrl = self.userImageUrl
         return entity
     }
 }
