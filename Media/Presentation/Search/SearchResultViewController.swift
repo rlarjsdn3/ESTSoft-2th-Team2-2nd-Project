@@ -132,7 +132,7 @@ final class SearchResultViewController: StoryboardViewController {
         order: Order?,
         duration: Duration? = nil
     ) {
-        
+
         let endpoint = APIEndpoints.pixabay(
             query: keyword,
             category: category,
@@ -157,32 +157,26 @@ final class SearchResultViewController: StoryboardViewController {
                 self.hits = response.hits
 
                 // duration필터 조건이 nil이 아닐 때
-//                if let durationFilter = duration {
-//                    self.hits = self.hits.filter { hit in
-//                        let last = Duration(seconds: hit.duration)
-//                        return last ==  durationFilter
-//                    }
-//                }
+                //                if let durationFilter = duration {
+                //                    self.hits = self.hits.filter { hit in
+                //                        let last = Duration(seconds: hit.duration)
+                //                        return last ==  durationFilter
+                //                    }
+                //                }
 
                 DispatchQueue.main.async {
                     self.videoCollectionView.reloadData()
                 }
 
             case .failure(let error):
-                if case let .networkFailiure(error) = error {
-                        print("네트워크 오류:", error)
-                } else if case let .parsing(error) = error {
-                        print("디코딩 오류:", error)
-                    } else {
-                        print("기타 오류:", error)
+
+                DispatchQueue.main.async {
+                    self.showAlert("오류", message: "영상을 불러오는 중 문제가 발생했습니다.") { _ in
+                        print("확인", error)
+                    } onCancel: { _ in
+                        print("취소", error)
                     }
-//                DispatchQueue.main.async {
-//                    self.showAlert("오류", message: "영상을 불러오는 중 문제가 발생했습니다.") { _ in
-//                        print("확인", error)
-//                    } onCancel: { _ in
-//                        print("취소", error)
-//                    }
-//                }
+                }
             }
         }
     }
@@ -280,6 +274,16 @@ extension SearchResultViewController: UISearchBarDelegate {
 
         // 키보드 내리기
         searchBar.resignFirstResponder()
+
+        self.keyword = keyword
+        self.activityIndicator.startAnimating()
+        self.videoCollectionView.isHidden = true
+
+        fetchVideos(
+            category: getCategories,
+            order: getOrder,
+            duration: getDuration
+        )
     }
 }
 
