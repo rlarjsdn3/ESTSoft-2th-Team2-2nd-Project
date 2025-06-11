@@ -28,7 +28,7 @@ extension PlaylistVideoEntity {
             comments: 0,  // placeholder
             userId: Int(self.userId),
             user: self.user,
-            userImageUrl: self.userImageUrl
+            userImageUrlAbsoulteString: self.userImageUrl?.absoluteString ?? ""
         )
     }
 }
