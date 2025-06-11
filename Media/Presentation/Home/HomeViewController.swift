@@ -192,9 +192,9 @@ final class HomeViewController: StoryboardViewController {
         super.viewDidAppear(animated)
 
         // 테스트용
-                if let testURL = URL(string: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4") {
-                    playVideo(with: testURL)
-                }
+//                if let testURL = URL(string: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4") {
+//                    playVideo(with: testURL)
+//                }
 
         //        if let testURL = URL(string: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4") {
         //            playVideo(with: testURL)
