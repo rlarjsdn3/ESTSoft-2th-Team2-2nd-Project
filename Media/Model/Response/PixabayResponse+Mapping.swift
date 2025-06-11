@@ -25,7 +25,8 @@ extension PixabayResponse.Hit {
         entity.views = Int64(self.views)
         entity.userId = Int64(self.userId)
         entity.user = self.user
-        entity.userImageUrl = self.userImageUrl
+        //entity.userImageUrl = self.userImageUrl
+        entity.userImageUrl = self.userImageToUrl ?? URL(string: "https://cdn.pixabay.com/user/2024/02/05/16-05-14-742_250x250.jpg")!
         return entity
     }
 
@@ -49,7 +50,8 @@ extension PixabayResponse.Hit {
         entity.views = Int64(self.views)
         entity.userId = Int64(self.userId)
         entity.user = self.user
-        entity.userImageUrl = self.userImageUrl
+        //entity.userImageUrl = self.userImageUrl
+        entity.userImageUrl = self.userImageToUrl
         return entity
     }
 }

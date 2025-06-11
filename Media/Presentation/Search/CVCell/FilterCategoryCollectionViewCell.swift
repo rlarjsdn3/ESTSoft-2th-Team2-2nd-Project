@@ -20,15 +20,15 @@ class FilterCategoryCollectionViewCell: UICollectionViewCell {
         categoryLabel.textColor = .black
     }
 
-    override var isSelected: Bool {
-        didSet {
-            if isSelected {
-                categoryContentView.backgroundColor = UIColor.tagSelected
-                categoryLabel.textColor = .white
-            } else {
-                categoryContentView.backgroundColor = UIColor.tagBorder
-                categoryLabel.textColor = .black
-            }
+    override func layoutSubviews() {
+        super.layoutSubviews()
+
+        if isSelected {
+            categoryContentView.backgroundColor = UIColor.tagSelected
+            categoryLabel.textColor = .white
+        } else {
+            categoryContentView.backgroundColor = UIColor.tagBorder
+            categoryLabel.textColor = .label
         }
     }
 }

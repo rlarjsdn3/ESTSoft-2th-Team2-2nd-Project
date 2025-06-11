@@ -130,7 +130,7 @@ extension HomeViewController: UICollectionViewDataSource {
                     viewCountText: "Views: \(video.views)",
                     durationText: formatDuration(seconds: video.duration),
                     thumbnailURL: video.videos.medium.thumbnail,
-                    profileImageURL: video.userImageUrl
+                    profileImageURL: video.userImageToUrl
                 )
             cell.configure(with: viewModel)
             return cell
