@@ -14,7 +14,7 @@ final class BookmarkViewController: StoryboardViewController {
 
     private let userDefaultsService = UserDefaultsService.shared
     private let coreDataService = CoreDataService.shared
-    
+
     private var dataSource: BookmarkDiffableDataSource? = nil
 
     @IBOutlet weak var navigationBar: NavigationBar!
@@ -87,12 +87,13 @@ extension BookmarkViewController {
                 guard let thumbnailUrl = playback.video?.medium.thumbnail else { return }
                 let viewModel = VideoCellViewModel(
                     title: playback.tags,
-                    viewCountText: String(playback.views),
-                    durationText: String(playback.duration),
+                    viewCount: Int(playback.views),
+                    duration: Int(playback.duration),
                     thumbnailURL: thumbnailUrl,
                     profileImageURL: playback.userImageUrl,
-                    likeCountText: String(playback.likes),
+                    likeCount: Int(playback.likes),
                     tags: playback.tags
+
                 )
                 cell.configure(with: viewModel)
             }
@@ -163,7 +164,9 @@ extension BookmarkViewController {
 #warning("김건우 -> 코드 리팩토링")
     private func applySnapshot() {
         var snapshot = NSDiffableDataSourceSnapshot<Bookmark.Section, Bookmark.Item>()
+
         #warning("김건우 -> 재생 기록이 하나도 없을 때 플레이스 8홀더 이미지 띄우기 / empty section")
+
         if let history = playbackFetchedResultsController?.fetchedObjects {
             let slicedItems = history.map { Bookmark.Item.history($0) }.prefix(10) // 재생 기록을 최근 10개까지만 출력하기
             let items = Array(slicedItems)
@@ -302,7 +305,9 @@ extension BookmarkViewController: UICollectionViewDelegate {
         }
     }
 
+
     #warning("김건우 -> 코드 리팩토링")
+
     func collectionView(
         _ collectionView: UICollectionView,
         contextMenuConfigurationForItemsAt indexPaths: [IndexPath],
@@ -332,7 +337,7 @@ extension BookmarkViewController: UICollectionViewDelegate {
 // MARK: - Bookmark Extension
 
 extension BookmarkViewController {
-    
+
     private func adjustAnimatedOpacity(
         for cell: UICollectionViewCell,
         opacity: CGFloat = 0.75
@@ -341,6 +346,7 @@ extension BookmarkViewController {
             cell.layer.opacity = Float(opacity)
         }
     }
+
 
     private func addPlaylistAction() {
         showTextFieldAlert(
@@ -360,12 +366,13 @@ extension BookmarkViewController {
     }
 
     private func renamePlaylistAction(for indexPath: IndexPath) -> UIAction {
+
         return UIAction(
             title: "재생 목록 이름 변경",
             image: UIImage(systemName: "square.and.pencil")
         ) { _ in
             guard let entity = self.playListEntityFromDatasource(for: indexPath) else { return }
-            
+
             self.showTextFieldAlert(
                 "재생 목록 이름 변경",
                 message: "새로운 이름을 입력해 주세요.",
@@ -390,7 +397,7 @@ extension BookmarkViewController {
             attributes: .destructive
         ) { _ in
             guard let entity = self.playListEntityFromDatasource(for: indexPath) else { return }
-            
+
             self.showDeleteAlert(
                 "Delete Playlist",
                 message: "Are you sure you want to delete this playlist? This action cannot be undone.",

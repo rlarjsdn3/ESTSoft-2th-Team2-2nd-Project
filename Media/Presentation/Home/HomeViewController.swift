@@ -3,13 +3,18 @@ import UIKit
 import AVKit
 import AVFoundation
 
+
 final class HomeViewController: StoryboardViewController {
+    private var selectedVideoURL: URL?
+
+    private var observation: NSKeyValueObservation?
+
 
     @IBAction func SearchButton(_ sender: Any) {
-        let sb = UIStoryboard(name: "SearchViewController", bundle: nil)
-        let searchVC = sb.instantiateViewController(identifier: "SearchViewController") as! SearchViewController
-
-        navigationController?.pushViewController(searchVC, animated: true)
+        let storyboard = UIStoryboard(name: "SearchViewController", bundle: nil)
+        if let searchVC = storyboard.instantiateViewController(withIdentifier: "SearchViewController") as? SearchViewController {
+            navigationController?.pushViewController(searchVC, animated: true)
+        }
     }
 
     @IBOutlet weak var categoryCollectionView: UICollectionView!
@@ -20,6 +25,7 @@ final class HomeViewController: StoryboardViewController {
     // 임시 코드 수정예정
     var selectedCategories: [String] = ["Flower", "Nature", "Animals", "Travel", "Food"]
 
+    // 카테고리 배열 순서
     var displayedCategories: [String] {
 
         return ["All"] + selectedCategories
@@ -47,32 +53,17 @@ final class HomeViewController: StoryboardViewController {
     // Pixabay API에서 받아온 비디오 데이터 배열
     private var videos: [PixabayResponse.Hit] = []
 
-    // 조회 수 포맷
-    func formatViewCount(_ count: Int) -> String {
-        if count >= 10_000 {
-            let value = Double(count) / 10_000
-            // 소수점 검사이후 Int or Double
-            if abs(value.rounded() - value) < 0.01 {
-                return "\(Int(value))만 회"
-            } else {
-                return String(format: "%.1f만 회", value)
-            }
-        } else if count >= 1_000 {
-            let value = Double(count) / 1_000
-            if abs(value.rounded() - value) < 0.01 {
-                return "\(Int(value))천 회"
-            } else {
-                return String(format: "%.1f천 회", value)
-            }
-        } else {
-            return "\(count)회"
-        }
-    }
-
-
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        //AVAudioSession 설정
+        do {
+            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
+            try AVAudioSession.sharedInstance().setActive(true)
+        } catch {
+            print("AVAudioSession 설정 실패: \(error)")
+        }
+        // CollectionView 델리게이트 & 데이터 소스
         videoCollectionView.contentInsetAdjustmentBehavior = .never
 
         categoryCollectionView.delegate = self
@@ -98,17 +89,45 @@ final class HomeViewController: StoryboardViewController {
         refreshControl.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
         videoCollectionView.refreshControl = refreshControl
 
-
-
-
         fetchVideo()
+
+
     }
 
-    // "mm:ss" 형식으로 문자열 변환
-    func formatDuration(seconds: Int) -> String {
-        let minutes = seconds / 60
-        let remainingSeconds = seconds % 60
-        return String(format: "%02d:%02d", minutes, remainingSeconds)
+    // 비디오 재생
+    func playVideo(with url: URL) {
+        print("▶️ playVideo called with URL: \(url.absoluteString)")
+        // #1. PlayerItem 생성
+        let item = AVPlayerItem(url: url)
+        print("🔹 AVPlayerItem created")
+        // #2. Player 생성
+        let player = AVPlayer(playerItem: item)
+        print("🔹 AVPlayer created")
+        // #3. PlayerVC 생성
+        let vc = AVPlayerViewController()
+        print("🔹 AVPlayerViewController created")
+        // #4. 연결
+        vc.player = player
+        print("🔹 Player connected to PlayerViewController")
+        // #5. 표시
+        present(vc, animated: true) {
+            print("🔹 PlayerViewController presented")
+        }
+
+        observation?.invalidate()
+        print("🔹 Previous observation invalidated")
+
+        observation = item.observe(\.status) { playerItem, _ in
+            print("🔸 PlayerItem status changed: \(playerItem.status.rawValue)")
+
+            if playerItem.status == .readyToPlay {
+                print("✅ PlayerItem is ready to play, starting playback")
+
+                player.play()
+            } else if playerItem.status == .failed {
+                print("❌ PlayerItem failed to load")
+            }
+        }
     }
 
     // 선택된 카테고리에 따라 Pixabay API에서 비디오 데이터 요청
@@ -145,52 +164,61 @@ final class HomeViewController: StoryboardViewController {
                             // 선택한 카테고리(소문자)
                             let filterCategory = selectedCategory.lowercased()
                             // 첫번째 태그 기준 필터링
-                            fetchedVideos = fetchedVideos.filter { hit in
-                                let firstTag = hit.tags.split(separator: ",").first?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-                                return firstTag == filterCategory
-                            }
+                            fetchedVideos = fetchedVideos
+                                .filter { hit in
+                                    let tags = hit.tags.split(separator: ",")
+                                        .map { $0.trimmingCharacters(in: .whitespacesAndNewlines)
+                                                .lowercased()
+                                        }
+                                    return tags.contains(filterCategory)
+                                }
                         }
                         self.videos = fetchedVideos
                         self.categoryCollectionView.reloadData()
                         self.videoCollectionView.reloadData()
 
                     case .failure(let error):
-                        print("Fetch videos error:", error)
+                        print(error)
                     }
                 }
             }
         }
+    }
+
+    // 재생목록 비어있는지 체크
+    var playlistIsEmmpty: Bool = false
+
+
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+
+        // 테스트용
+//                if let testURL = URL(string: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4") {
+//                    playVideo(with: testURL)
+//                }
+
+        //        if let testURL = URL(string: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4") {
+        //            playVideo(with: testURL)
+        //        }
+
+        //        if let testURL = URL(string: "https://kxc.blob.core.windows.net/est2/video-vert.mp4") {
+        //            playVideo(with: testURL)
+        //        }
     }
 }
 
 extension HomeViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if collectionView == categoryCollectionView {
-            if selectedCategoryIndex != indexPath.item {
-                selectedCategoryIndex = indexPath.item
-                categoryCollectionView.reloadData()
-
-                let selectedTitle = displayedCategories[indexPath.item]
-                print("\(selectedTitle)")
-
-                fetchVideo()
-
-            }
+            // 선택한 카테고리 인덱스 업데이트
+            selectedCategoryIndex = indexPath.item
+            // 카테고리 컬렉션뷰 다시 그리기 (선택 상태 반영)
+            categoryCollectionView.reloadData()
+            // 선택한 카테고리에 맞춰 비디오 재요청
+            fetchVideo()
         } else if collectionView == videoCollectionView {
-            let video = videos[indexPath.item]
-            let urlString = video.videos.medium.url
 
-            guard let url = video.videos.medium.url else {
-                return
-            }
-
-
-            let player = AVPlayer(url: url)
-            let playerViewController = AVPlayerViewController()
-            playerViewController.player = player
-            present(playerViewController, animated: true) {
-                player.play()
-            }
         }
     }
 }
@@ -211,14 +239,40 @@ extension HomeViewController: UICollectionViewDataSource {
 
             let viewModel = VideoCellViewModel(
                 title: video.user,
-                viewCountText: formatViewCount(video.views),
-                durationText: formatDuration(seconds: video.duration),
+                viewCount: video.views,
+                duration: video.duration,
                 thumbnailURL: video.videos.medium.thumbnail,
                 profileImageURL: video.userImageUrl,
-                likeCountText: formatViewCount(video.likes),
+                likeCount: video.likes,
                 tags: video.tags
             )
             cell.configure(with: viewModel)
+
+            // 썸네일 터치시 영상 재생
+            cell.onThumbnailTap = { [weak self] in
+                guard let self = self, let videoURL = video.videos.medium.url else { return }
+                self.playVideo(with: videoURL)
+            }
+
+            // Ellipsis 버튼 실행
+            cell.configureMenu(
+                bookmarkAction: { [weak self] in
+                    guard let self = self else { return }
+                    // 실제 북마크 처리 코드
+                   // let toast = Toast.makeToast("추가되었습니다", systemName: "checkmark").present()
+                },
+                playlistAction: { [weak self] in
+                    guard let self = self else { return }
+                    // 재생목록 추가 처리 코드
+                },
+                deleteAction: { [weak self] in
+                    guard let self = self else { return }
+                    // 삭제 처리 코드
+                },
+                cancelAction: {
+
+                }
+            )
             return cell
         }
 
@@ -229,12 +283,7 @@ extension HomeViewController: UICollectionViewDataSource {
             let isSelected = (indexPath.item == selectedCategoryIndex)
             cell.configure(with: title.capitalized, selected: isSelected)
             return cell
-        } else if collectionView == videoCollectionView {
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "VideoCell", for: indexPath) as! VideoCell
-            return cell
-
         }
-
         fatalError("Unknown collection view")
     }
 }
