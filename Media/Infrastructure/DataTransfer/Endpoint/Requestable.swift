@@ -66,7 +66,6 @@ extension Requestable {
             : config.baseUrl + "/"
             return url.appending(path)
         }()
-        print(baseUrl)
 
         guard var urlComponents = URLComponents(
             string: baseUrl

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23727" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23727" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="sec-zY-Dbp">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
-        <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -22,14 +22,16 @@
                                     <constraint firstAttribute="height" constant="60" id="ZX7-Do-sOU"/>
                                 </constraints>
                                 <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="filled" title="Continue" cornerStyle="large"/>
+                                <buttonConfiguration key="configuration" style="filled" title="Continue" cornerStyle="large">
+                                    <color key="baseBackgroundColor" name="Primary"/>
+                                </buttonConfiguration>
                                 <connections>
-                                    <segue destination="OhO-Dk-3P1" kind="show" id="mmO-BN-fFq"/>
+                                    <segue destination="DY6-Hq-rdv" kind="show" id="B5w-oz-Tf6"/>
                                 </connections>
                             </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="vDu-zF-Fre"/>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <color key="backgroundColor" name="Background"/>
                         <constraints>
                             <constraint firstItem="vDu-zF-Fre" firstAttribute="bottom" secondItem="NQ1-xI-WMX" secondAttribute="bottom" constant="40" id="0xS-RX-XBH"/>
                             <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="NQ1-xI-WMX" secondAttribute="trailing" constant="16" id="993-zO-K5e"/>
@@ -43,22 +45,21 @@
             <point key="canvasLocation" x="973.28244274809151" y="18.30985915492958"/>
         </scene>
         <!--OnBoardingTagsViewController-->
-        <scene sceneID="d2E-lf-BIV">
+        <scene sceneID="YxC-uy-z6R">
             <objects>
-                <viewControllerPlaceholder storyboardName="OnBoardingTagsViewController" referencedIdentifier="OnBoardingTagsViewController" id="OhO-Dk-3P1" sceneMemberID="viewController">
-                    <navigationItem key="navigationItem" id="bG7-qc-3e9"/>
+                <viewControllerPlaceholder storyboardName="OnBoardingTagsViewController" id="DY6-Hq-rdv" sceneMemberID="viewController">
+                    <navigationItem key="navigationItem" id="ZRS-ux-CSD"/>
                 </viewControllerPlaceholder>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="Yiz-Iu-Iw3" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="YBt-Ay-Zr8" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1661" y="53"/>
+            <point key="canvasLocation" x="1702" y="49"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="B7M-JD-QTk">
             <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="sec-zY-Dbp" sceneMemberID="viewController">
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" navigationBarHidden="YES" id="sec-zY-Dbp" sceneMemberID="viewController">
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="SSf-mv-cfz">
-                        <rect key="frame" x="0.0" y="118" width="393" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <nil name="viewControllers"/>
@@ -72,8 +73,11 @@
         </scene>
     </scenes>
     <resources>
-        <systemColor name="systemBackgroundColor">
-            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-        </systemColor>
+        <namedColor name="Background">
+            <color red="0.98039215686274506" green="0.98039215686274506" blue="0.98039215686274506" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="Primary">
+            <color red="0.29803921568627451" green="0.36078431372549019" blue="0.36078431372549019" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
     </resources>
 </document>
