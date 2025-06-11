@@ -298,20 +298,11 @@ extension BookmarkViewController: UICollectionViewDelegate {
         }
 
         if case .addPlaylist = item {
-            showTextFieldAlert(
-                "새로운 재생 목록 추가",
-                message: "새로운 재생 목록 이름을 입력하세요.") { (action, newText) in
-                    let newPlaylist = PlaylistEntity(
-                        name: newText,
-                        insertInto: self.coreDataService.viewContext
-                    )
-                    self.coreDataService.insert(newPlaylist)
-            } onCancel: { action in
-            }
-
+            addPlaylistAction()
         }
     }
 
+    #warning("김건우 -> 코드 리팩토링")
     func collectionView(
         _ collectionView: UICollectionView,
         contextMenuConfigurationForItemsAt indexPaths: [IndexPath],
@@ -319,16 +310,17 @@ extension BookmarkViewController: UICollectionViewDelegate {
     ) -> UIContextMenuConfiguration? {
         guard let indexPath = indexPaths.first,
               let section = Bookmark.SectionType(rawValue: indexPath.section),
-              let item = self.dataSource?.itemIdentifier(for: indexPath) else {
+              let item = self.dataSource?.itemIdentifier(for: indexPath),
+              let entity = self.playListEntityFromDatasource(for: indexPath) else {
             return nil
         }
 
-        if section != .history, item != .addPlaylist {
+        if section != .history, item != .addPlaylist, entity.name != "북마크를 표시한 재생목록" {
             return UIContextMenuConfiguration(
                 identifier: nil,
                 previewProvider: nil
             ) { suggestedActions in
-                let renameAction = self.renamePlaylistNameAction(for: indexPath)
+                let renameAction = self.renamePlaylistAction(for: indexPath)
                 let deleteAction = self.deletePlaylistAction(for: indexPath)
                 return UIMenu(title: "", children: [renameAction, deleteAction])
             }
@@ -349,29 +341,44 @@ extension BookmarkViewController {
             cell.layer.opacity = Float(opacity)
         }
     }
-    
-#warning("김건우 -> '북마크로 표시된 재생목록'은 이름 변경 불가능하게 만들기")
-#warning("김건우 -> 동일한 문자열 재생목록 이름 입력 시 예외 처리하기")
-    private func renamePlaylistNameAction(for indexPath: IndexPath) -> UIAction {
+
+    private func addPlaylistAction() {
+        showTextFieldAlert(
+            "새로운 재생 목록 추가",
+            message: "새로운 재생 목록 이름을 입력하세요.") { (action, newText) in
+                if !PlaylistEntity.isExist(newText) {
+                    let newPlaylist = PlaylistEntity(
+                        name: newText,
+                        insertInto: self.coreDataService.viewContext
+                    )
+                    self.coreDataService.insert(newPlaylist)
+                } else {
+                    Toast.makeToast("이미 존재하는 재생 목록 이름입니다.").present()
+                }
+        } onCancel: { action in
+        }
+    }
+
+    private func renamePlaylistAction(for indexPath: IndexPath) -> UIAction {
         return UIAction(
-            title: "Rename Playlist",
+            title: "재생 목록 이름 변경",
             image: UIImage(systemName: "square.and.pencil")
         ) { _ in
             guard let entity = self.playListEntityFromDatasource(for: indexPath) else { return }
             
             self.showTextFieldAlert(
-                "Rename Playlist",
-                message: "Please enter a new name.",
+                "재생 목록 이름 변경",
+                message: "새로운 이름을 입력해 주세요.",
                 defaultText: entity.name,
-                placeholder: "New name",
+                placeholder: "새 이름",
                 onConfirm: { (_, newName) in
-                    if entity.name != newName {
+                    if entity.name != newName, !PlaylistEntity.isExist(newName) {
                         self.coreDataService.update(entity, by: \.name, to: newName)
-//                        self.reconfigurePlaylistItem(for: indexPath)
+                    } else {
+                        Toast.makeToast("이미 존재하는 재생 목록 이름입니다.").present()
                     }
                 },
-                onCancel: { _ in
-                }
+                onCancel: { _ in }
             )
         }
     }
@@ -395,7 +402,7 @@ extension BookmarkViewController {
             )
         }
     }
-    
+
     private func playListEntityFromDatasource(for indexPath: IndexPath) -> PlaylistEntity? {
         guard let item = self.dataSource?.itemIdentifier(for: indexPath),
               case let .playlist(entity) = item  else {

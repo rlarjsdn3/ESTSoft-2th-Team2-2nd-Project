@@ -98,6 +98,7 @@ extension Alertable where Self: UIViewController {
         alertController.addTextField { textfield in
             textfield.text = defaultText
             textfield.placeholder = placeholder
+            #warning("김건우 -> 버튼 틴트 컬러 수정")
             #warning("김건우 -> 참조 사이클 문제 다시 확인해보기")
             observer = NotificationCenter.default.addObserver(
                 forName: UITextField.textDidChangeNotification,
