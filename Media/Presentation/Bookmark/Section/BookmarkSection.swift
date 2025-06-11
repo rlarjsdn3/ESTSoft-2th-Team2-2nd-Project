@@ -27,6 +27,8 @@ enum Bookmark {
         case history(PlaybackHistoryEntity)
         ///
         case playlist(PlaylistEntity)
+        ///
+        case addPlaylist
 
         func hash(into hasher: inout Hasher) {
             switch self {
@@ -34,6 +36,8 @@ enum Bookmark {
                 hasher.combine(entity.id)
             case .playlist(let entity):
                 hasher.combine(entity.id)
+            case .addPlaylist:
+                hasher.combine("addPlaylist")
             }
         }
     }

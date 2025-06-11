@@ -90,7 +90,9 @@ extension BookmarkViewController {
                     viewCountText: String(playback.views),
                     durationText: String(playback.duration),
                     thumbnailURL: thumbnailUrl,
-                    profileImageURL: playback.userImageUrl
+                    profileImageURL: playback.userImageUrl,
+                    likeCountText: String(playback.likes),
+                    tags: playback.tags
                 )
                 cell.configure(with: viewModel)
             }
@@ -98,10 +100,18 @@ extension BookmarkViewController {
 
         let playlistCellRagistration = UICollectionView.CellRegistration<SmallVideoCell, Bookmark.Item>(cellNib: SmallVideoCell.nib) { cell, indexPath, item in
             if case .playlist(let playlist) = item {
-                guard let playlistVideoEntity = (playlist.playlistVideos?.allObjects.first as? PlaylistVideoEntity),
-                      let thumbnailUrl = playlistVideoEntity.video?.medium.thumbnail,
-                      let playlistName = playlistVideoEntity.playlist?.name else { return }
-                cell.configure(url: thumbnailUrl, title: playlistName, isLast: false)
+                guard let playlistName = playlist.name else { return }
+
+                if let playlistVideoEntity = (playlist.playlistVideos?.allObjects.first as? PlaylistVideoEntity),
+                   let thumbnailUrl = playlistVideoEntity.video?.medium.thumbnail {
+                    cell.configure(url: thumbnailUrl, title: playlistName, isLast: false)
+                } else {
+                    cell.configure(title: playlistName, isLast: false)
+                }
+            }
+
+            if case .addPlaylist = item {
+                cell.configure(title: "", isLast: true)
             }
         }
 
@@ -153,11 +163,10 @@ extension BookmarkViewController {
 
     private func applySnapshot() {
         var snapshot = NSDiffableDataSourceSnapshot<Bookmark.Section, Bookmark.Item>()
-        #warning("김건우 -> 재생 기록이 하나도 없을 때 플레이스 홀더 이미지 띄우기")
-#warning("김건우 -> 최근 재생 기록은 최신순 10개까지만 출력하기")
-#warning("김건우 -> 마지막에 + 버튼 추가하기")
+        #warning("김건우 -> 재생 기록이 하나도 없을 때 플레이스 홀더 이미지 띄우기 / empty section")
         if let history = playbackFetchedResultsController?.fetchedObjects {
-            let items = history.map { Bookmark.Item.history($0) }
+            let slicedItems = history.map { Bookmark.Item.history($0) }.prefix(10) // 재생 기록을 최근 10개까지만 출력하기
+            let items = Array(slicedItems)
             let historySection = Bookmark.Section(type: .history)
             snapshot.appendSections([historySection])
             snapshot.appendItems(items, toSection: historySection)
@@ -165,9 +174,11 @@ extension BookmarkViewController {
 
         if let playlists = playlistFetchedResultsController?.fetchedObjects {
             let items = playlists.map { Bookmark.Item.playlist($0) }
+            print("플레이리스트 아이템: ", items)
             let playlistSection = Bookmark.Section(type: .playlist)
             snapshot.appendSections([playlistSection])
             snapshot.appendItems(items, toSection: playlistSection)
+            snapshot.appendItems([Bookmark.Item.addPlaylist], toSection: playlistSection)
         }
 
         dataSource?.apply(snapshot, animatingDifferences: true)
@@ -241,15 +252,32 @@ extension BookmarkViewController: UICollectionViewDelegate {
         _ collectionView: UICollectionView,
         didSelectItemAt indexPath: IndexPath
     ) {
-        guard let item = self.dataSource?.itemIdentifier(for: indexPath),
-              case .playlist = item else { return }
-        performSegue(
-            withIdentifier: "navigateToPlaylistVideos",
-            sender: item
-        )
+        guard let item = self.dataSource?.itemIdentifier(for: indexPath) else { return }
+
+        if case .playlist = item {
+            performSegue(
+                withIdentifier: "navigateToPlaylistVideos",
+                sender: item
+            )
+        }
+
+#warning("김건우 -> 재생 목록 추가 및 글자 수 제한 기능 추가")
+        if case .addPlaylist = item {
+            showTextFieldAlert(
+                "새로운 재생 목록 추가",
+                message: "새로운 재생 목록 이름을 입력하세요.") { (action, newText) in
+                    let newPlaylist = PlaylistEntity(
+                        name: newText,
+                        insertInto: self.coreDataService.viewContext
+                    )
+                    self.coreDataService.insert(newPlaylist)
+            } onCancel: { action in
+                    // ...
+            }
+
+        }
     }
 
-    #warning("김건우 -> Playback에도 Context Menu 적용하기 (고민 중..)")
     func collectionView(
         _ collectionView: UICollectionView,
         contextMenuConfigurationForItemsAt indexPaths: [IndexPath],
@@ -257,17 +285,21 @@ extension BookmarkViewController: UICollectionViewDelegate {
     ) -> UIContextMenuConfiguration? {
         guard let indexPath = indexPaths.first,
               let section = Bookmark.SectionType(rawValue: indexPath.section),
-              section != .history else {
-            return nil }
-
-        return UIContextMenuConfiguration(
-            identifier: nil,
-            previewProvider: nil
-        ) { suggestedActions in
-            let renameAction = self.renamePlaylistNameAction(for: indexPath)
-            let deleteAction = self.deletePlaylistAction(for: indexPath)
-            return UIMenu(title: "", children: [renameAction, deleteAction])
+              let item = self.dataSource?.itemIdentifier(for: indexPath) else {
+            return nil
         }
+
+        if section != .history, item != .addPlaylist {
+            return UIContextMenuConfiguration(
+                identifier: nil,
+                previewProvider: nil
+            ) { suggestedActions in
+                let renameAction = self.renamePlaylistNameAction(for: indexPath)
+                let deleteAction = self.deletePlaylistAction(for: indexPath)
+                return UIMenu(title: "", children: [renameAction, deleteAction])
+            }
+        }
+        return nil
     }
 }
 
@@ -286,6 +318,7 @@ extension BookmarkViewController {
     
 #warning("김건우 -> '북마크로 표시된 재생목록'은 이름 변경 불가능하게 만들기")
 #warning("김건우 -> 빈 문자열로 이름 변경 시, 예외 처리하기 / 10글자로 제한하기")
+#warning("김건우 -> 동일한 문자열 재생목록 이름 입력 시 예외 처리하기")
     private func renamePlaylistNameAction(for indexPath: IndexPath) -> UIAction {
         return UIAction(
             title: "Rename Playlist",
