@@ -22,6 +22,9 @@ final class VideoCell: UICollectionViewCell, NibLodable {
     @IBOutlet weak var tagLabel: UILabel!
 
     @IBOutlet weak var likeIcon: UIImageView!
+
+    var onThumbnailTap: (() -> Void)?
+
     override func awakeFromNib() {
         super.awakeFromNib()
 
@@ -50,6 +53,13 @@ final class VideoCell: UICollectionViewCell, NibLodable {
         tagLabel.layer.cornerRadius = 2
         tagLabel.clipsToBounds = true
 
+        thumbnailImage.isUserInteractionEnabled = true
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(thumbnailTapped))
+        thumbnailImage.addGestureRecognizer(tapGesture)
+    }
+
+    @objc private func thumbnailTapped() {
+        onThumbnailTap?()
     }
 
     override func layoutSubviews() {
@@ -74,7 +84,6 @@ final class VideoCell: UICollectionViewCell, NibLodable {
         likeCountLabel.text = viewModel.likeCountText
         tagLabel.text = viewModel.categoryText
 
-
         if let thumbnailURL = viewModel.thumbnailURL {
             loadImage(from: thumbnailURL, into: thumbnailImage)
         } else {
@@ -87,12 +96,6 @@ final class VideoCell: UICollectionViewCell, NibLodable {
         }
     }
 
-    private func formatDuration(seconds: Int) -> String {
-        let minutes = seconds / 60
-        let remainingSeconds = seconds % 60
-        return String(format: "%02d:%02d", minutes, remainingSeconds)
-    }
-    
     private func loadImage(from url: URL, into imageView: UIImageView) {
         DispatchQueue.global().async {
             if let data = try? Data(contentsOf: url),

@@ -14,7 +14,7 @@ final class BookmarkViewController: StoryboardViewController {
 
     private let userDefaultsService = UserDefaultsService.shared
     private let coreDataService = CoreDataService.shared
-    
+
     private var dataSource: BookmarkDiffableDataSource? = nil
 
     @IBOutlet weak var navigationBar: NavigationBar!
@@ -87,10 +87,13 @@ extension BookmarkViewController {
                 guard let thumbnailUrl = playback.video?.medium.thumbnail else { return }
                 let viewModel = VideoCellViewModel(
                     title: playback.tags,
-                    viewCountText: String(playback.views),
-                    durationText: String(playback.duration),
+                    viewCount: Int(playback.views),
+                    duration: Int(playback.duration),
                     thumbnailURL: thumbnailUrl,
-                    profileImageURL: playback.userImageUrl
+                    profileImageURL: playback.userImageUrl,
+                    likeCount: Int(playback.likes),
+                    tags: playback.tags
+
                 )
                 cell.configure(with: viewModel)
             }
@@ -153,7 +156,7 @@ extension BookmarkViewController {
 
     private func applySnapshot() {
         var snapshot = NSDiffableDataSourceSnapshot<Bookmark.Section, Bookmark.Item>()
-        #warning("김건우 -> 재생 기록이 하나도 없을 때 플레이스 홀더 이미지 띄우기")
+#warning("김건우 -> 재생 기록이 하나도 없을 때 플레이스 홀더 이미지 띄우기")
 #warning("김건우 -> 최근 재생 기록은 최신순 10개까지만 출력하기")
 #warning("김건우 -> 마지막에 + 버튼 추가하기")
         if let history = playbackFetchedResultsController?.fetchedObjects {
@@ -249,7 +252,7 @@ extension BookmarkViewController: UICollectionViewDelegate {
         )
     }
 
-    #warning("김건우 -> Playback에도 Context Menu 적용하기 (고민 중..)")
+#warning("김건우 -> Playback에도 Context Menu 적용하기 (고민 중..)")
     func collectionView(
         _ collectionView: UICollectionView,
         contextMenuConfigurationForItemsAt indexPaths: [IndexPath],
@@ -274,7 +277,7 @@ extension BookmarkViewController: UICollectionViewDelegate {
 // MARK: - Bookmark Extension
 
 extension BookmarkViewController {
-    
+
     private func adjustAnimatedOpacity(
         for cell: UICollectionViewCell,
         opacity: CGFloat = 0.75
@@ -283,7 +286,7 @@ extension BookmarkViewController {
             cell.layer.opacity = Float(opacity)
         }
     }
-    
+
 #warning("김건우 -> '북마크로 표시된 재생목록'은 이름 변경 불가능하게 만들기")
 #warning("김건우 -> 빈 문자열로 이름 변경 시, 예외 처리하기 / 10글자로 제한하기")
     private func renamePlaylistNameAction(for indexPath: IndexPath) -> UIAction {
@@ -292,7 +295,7 @@ extension BookmarkViewController {
             image: UIImage(systemName: "square.and.pencil")
         ) { _ in
             guard let entity = self.playListEntityFromDatasource(for: indexPath) else { return }
-            
+
             self.showTextFieldAlert(
                 "Rename Playlist",
                 message: "Please enter a new name.",
@@ -314,7 +317,7 @@ extension BookmarkViewController {
             attributes: .destructive
         ) { _ in
             guard let entity = self.playListEntityFromDatasource(for: indexPath) else { return }
-            
+
             self.showDeleteAlert(
                 "Delete Playlist",
                 message: "Are you sure you want to delete this playlist? This action cannot be undone.",
@@ -326,7 +329,7 @@ extension BookmarkViewController {
             )
         }
     }
-    
+
     private func playListEntityFromDatasource(for indexPath: IndexPath) -> PlaylistEntity? {
         guard let item = self.dataSource?.itemIdentifier(for: indexPath),
               case let .playlist(entity) = item  else {
