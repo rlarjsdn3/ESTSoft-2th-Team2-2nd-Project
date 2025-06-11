@@ -92,12 +92,13 @@ extension BookmarkViewController {
                 guard let thumbnailUrl = playback.video?.medium.thumbnail else { return }
                 let viewModel = VideoCellViewModel(
                     title: playback.tags,
-                    viewCountText: String(playback.views),
-                    durationText: String(playback.duration),
+                    viewCount: Int(playback.views),
+                    duration: Int(playback.duration),
                     thumbnailURL: thumbnailUrl,
                     profileImageURL: playback.userImageUrl,
-                    likeCountText: String(playback.likes),
+                    likeCount: Int(playback.likes),
                     tags: playback.tags
+
                 )
                 cell.configure(with: viewModel)
             }
@@ -165,11 +166,23 @@ extension BookmarkViewController {
 #warning("김건우 -> 스냅샷 관련 코드 리팩토링")
     private func applySnapshot() {
         var snapshot = NSDiffableDataSourceSnapshot<Bookmark.Section, Bookmark.Item>()
+//<<<<<<< HEAD
         if let history = playbackFetchedResultsController?.fetchedObjects, !history.isEmpty {
             let items = history.map { Bookmark.Item.playback($0) }.prefix(10)
             let section = Bookmark.Section(type: .playback)
             snapshot.appendSections([section])
             snapshot.appendItems(Array(items), toSection: section)
+//=======
+
+        #warning("김건우 -> 재생 기록이 하나도 없을 때 플레이스 8홀더 이미지 띄우기 / empty section")
+
+//        if let history = playbackFetchedResultsController?.fetchedObjects {
+//            let slicedItems = history.map { Bookmark.Item.history($0) }.prefix(10) // 재생 기록을 최근 10개까지만 출력하기
+//            let items = Array(slicedItems)
+//            let historySection = Bookmark.Section(type: .history)
+//            snapshot.appendSections([historySection])
+//            snapshot.appendItems(items, toSection: historySection)
+//>>>>>>> bf6ac0e4c7cd537fd9ad80a2c99257765d7e46b5
         }
 
         if let playlists = playlistFetchedResultsController?.fetchedObjects, !playlists.isEmpty {
@@ -337,6 +350,8 @@ extension BookmarkViewController: UICollectionViewDelegate {
         }
     }
 
+    #warning("김건우 -> 코드 리팩토링")
+
     func collectionView(
         _ collectionView: UICollectionView,
         contextMenuConfigurationForItemsAt indexPaths: [IndexPath],
@@ -373,6 +388,7 @@ extension BookmarkViewController: UICollectionViewDelegate {
 extension BookmarkViewController {
     
     private func showAddPlaylistAlert() {
+
         showTextFieldAlert(
             "새로운 재생 목록 추가",
             message: "새로운 재생 목록 이름을 입력하세요.") { (action, newText) in
@@ -390,6 +406,7 @@ extension BookmarkViewController {
     }
 
     private func renamePlaylistAction(for indexPath: IndexPath) -> UIAction {
+
         return UIAction(
             title: "재생 목록 이름 변경",
             image: UIImage(systemName: "square.and.pencil")
