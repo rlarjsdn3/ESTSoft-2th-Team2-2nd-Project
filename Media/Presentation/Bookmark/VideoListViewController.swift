@@ -35,6 +35,8 @@ final class VideoListViewController: StoryboardViewController {
     @IBOutlet weak var searchContainerTopConstraint: NSLayoutConstraint!
     @IBOutlet weak var closeButtonTrailingConstraint: NSLayoutConstraint!
     
+    // MARK: - Lifecycles
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 

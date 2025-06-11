@@ -21,6 +21,9 @@ final class SmallVideoCell: UICollectionViewCell, NibLodable {
     /// 마지막 셀에 표시될 플러스 버튼 (새 항목 추가용)
     @IBOutlet weak var plusButton: UIButton!
 
+    /// 현재 셀에 로드 중인 썸네일 이미지의 URL입니다.
+    private var currentThumbnailURL: URL?
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
     }
@@ -58,7 +61,7 @@ extension SmallVideoCell {
         title: String,
         isLast: Bool = false
     ) {
-
+        currentThumbnailURL = url
         titleLabel.text = title
 
         guard !isLast else {
@@ -74,6 +77,9 @@ extension SmallVideoCell {
         if let url {
             Task {
                 let (data, _) = try await session.data(from: url)
+                
+                guard self.currentThumbnailURL == url else { return }
+                
                 thumbnailImageView.image = UIImage(data: data)
             }
         } else {
