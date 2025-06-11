@@ -20,7 +20,7 @@ extension PlaylistVideoEntity {
     @NSManaged public var pageUrl: URL
     @NSManaged public var user: String
     @NSManaged public var userId: Int64
-    @NSManaged public var userImageUrl: URL
+    @NSManaged public var userImageUrl: URL?
     @NSManaged public var views: Int64
     @NSManaged public var tags: String
     @NSManaged public var likes: Int64
