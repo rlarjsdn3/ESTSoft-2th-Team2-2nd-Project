@@ -66,7 +66,7 @@ extension Requestable {
             : config.baseUrl + "/"
             return url.appending(path)
         }()
-// 여기찍어보세요
+
         guard var urlComponents = URLComponents(
             string: baseUrl
         ) else { throw RequestGenerationError.components }

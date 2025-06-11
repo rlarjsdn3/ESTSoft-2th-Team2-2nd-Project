@@ -14,7 +14,7 @@ enum VideoList {
         ///
         case playlist
         ///
-        case history
+        case playback
     }
 
     struct Section: Hashable {
@@ -31,19 +31,24 @@ enum VideoList {
             self.type = type
             self.name = name
         }
+
+        func hash(into hasher: inout Hasher) {
+            hasher.combine(type)
+            hasher.combine(name)
+        }
     }
 
     enum Item: Hashable {
         ///
         case playlist(PlaylistVideoEntity)
         ///
-        case history(PlaybackHistoryEntity)
+        case playback(PlaybackHistoryEntity)
 
         func hash(into hasher: inout Hasher) {
             switch self {
             case .playlist(let entity):
                 hasher.combine(entity.id)
-            case .history(let entity):
+            case .playback(let entity):
                 hasher.combine(entity.id)
             }
         }

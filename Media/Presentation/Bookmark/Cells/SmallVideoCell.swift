@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class SmallVideoCell: UICollectionViewCell {
+final class SmallVideoCell: UICollectionViewCell, NibLodable {
 
     /// 썸네일 이미지를 표시하는 이미지 뷰
     @IBOutlet weak var thumbnailImageView: UIImageView!
