@@ -7,6 +7,8 @@
 
 import UIKit
 
+/// 재생목록의 썸네일을 보여주는 셀.
+/// 마지막 셀일 경우 "재생목록 추가" UI를 표시합니다.
 final class SmallVideoCell: UICollectionViewCell, NibLodable {
 
     /// 썸네일 이미지를 표시하는 이미지 뷰
@@ -18,17 +20,22 @@ final class SmallVideoCell: UICollectionViewCell, NibLodable {
     /// 동영상 재생목록 타이틀을 표시하는 라벨
     @IBOutlet weak var titleLabel: UILabel!
 
-    /// 마지막 셀에 표시될 플러스 버튼 (새 항목 추가용)
+    /// 마지막 셀에만 표시되는 '+' 아이콘 이미지 뷰
     @IBOutlet weak var plusImageView: UIImageView!
 
+    /// 비디오 개수 뷰의 배경이 되는 스택 뷰
     @IBOutlet weak var videoCountBackgroundView: UIStackView!
 
+    /// 재생목록에 포함된 비디오 개수 라벨
     @IBOutlet weak var videoCountLabel: UILabel!
-    
+
+    /// 이미지 다운로드를 위한 데이터 전송 서비스
     var dataTransferService: (any DataTransferService)?
 
+    /// 마지막 셀인지 여부를 나타내는 플래그
     var isLast: Bool = false {
         didSet {
+            // 마지막 셀일 경우 '+' 버튼을 보여주고 일반 셀 UI는 숨김 처리
             plusImageView.isHidden = !isLast
             thumbnailImageView.isHidden = isLast
             shadowView.isHidden = isLast
@@ -69,11 +76,11 @@ final class SmallVideoCell: UICollectionViewCell, NibLodable {
 }
 
 extension SmallVideoCell {
-    /// 셀의 내용을 구성하는 메서드
-    /// - Parameters:
-    ///   - url: 썸네일 이미지의 URL (nil이면 기본 이미지 사용)
-    ///   - title: 동영상 제목
-    ///   - isLast: 마지막 셀인지 여부 (true면 플러스 버튼 표시)
+    /// 셀을 외부에서 구성할 때 사용하는 기본 설정 메서드
+      /// - Parameters:
+      ///   - url: 썸네일 이미지 URL
+      ///   - title: 재생목록 제목
+      ///   - isLast: 마지막 셀 여부
     func configure(
         url: URL? = nil,
         title: String,
@@ -84,6 +91,8 @@ extension SmallVideoCell {
         configureThumbnail(from: url)
     }
 
+    /// PlaylistEntity를 기반으로 셀을 구성
+     /// - Parameter playlist: 재생목록 객체
     func configure(_ playlist: PlaylistEntity) {
         guard let playlistVideoEntity = (playlist.playlistVideos?.allObjects.first as? PlaylistVideoEntity),
               let thumbnailUrl = playlistVideoEntity.video?.medium.thumbnail,
@@ -120,7 +129,7 @@ extension SmallVideoCell {
         }
     }
 
-    func configureVideoCount(_ count: Int) {
+    private func configureVideoCount(_ count: Int) {
         videoCountLabel.text = "\(count)"
     }
 }
