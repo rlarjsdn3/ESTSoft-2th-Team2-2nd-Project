@@ -17,6 +17,10 @@ extension UserDefaultsKeys {
         UserDefaultsKey(name: "hasCompletedOnboarding_v1", defaultValue: false)
     }
     ///
+    var isFirstLaunch: UserDefaultsKey<Bool> {
+        UserDefaultsKey(name: "isFirstLaunch", defaultValue: true)
+    }
+    ///
     var userName: UserDefaultsKey<String?> {
         UserDefaultsKey(name: "userName", defaultValue: nil)
     }

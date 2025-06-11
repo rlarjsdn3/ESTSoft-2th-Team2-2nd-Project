@@ -8,5 +8,5 @@
 import UIKit
 
 @objc protocol HeaderButtonDelegate: NSObjectProtocol {
-    @objc optional func HeaderButtonDidTap(_ headerView: UICollectionReusableView)
+    @objc optional func headerButtonDidTap(_ headerView: UICollectionReusableView)
 }
