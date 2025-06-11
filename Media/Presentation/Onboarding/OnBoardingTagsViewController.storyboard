@@ -62,8 +62,8 @@
                                         <color key="backgroundColor" name="TagBorder"/>
                                         <size key="customSize" width="300" height="300"/>
                                         <connections>
-                                            <outlet property="TagsTitle" destination="Kst-C5-bJE" id="wMQ-Eh-XNc"/>
                                             <outlet property="tagsImageView" destination="4w8-Qq-7bN" id="fHm-gQ-w3b"/>
+                                            <outlet property="tagsTitle" destination="Kst-C5-bJE" id="wMQ-Eh-XNc"/>
                                         </connections>
                                     </collectionViewCell>
                                 </cells>

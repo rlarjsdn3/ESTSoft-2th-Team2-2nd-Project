@@ -22,7 +22,7 @@ class OnBoardingTagsViewController: StoryboardViewController {
         
     }
     
-    let Tags: [Category] = Category.allCases
+    let tags: [Category] = Category.allCases
     
     var selectIndexPath: Set<IndexPath> = []
     
@@ -83,13 +83,13 @@ class OnBoardingTagsViewController: StoryboardViewController {
 
 extension OnBoardingTagsViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return Tags.count
+        return tags.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "OnboardingTagsViewCell", for: indexPath) as? OnboardingTagsViewCell else { return UICollectionViewCell() }
         
-        let target = Tags[indexPath.item]
+        let target = tags[indexPath.item]
         
         if selectIndexPath.contains(indexPath) {
             cell.contentView.backgroundColor = .tagSelected
@@ -97,7 +97,7 @@ extension OnBoardingTagsViewController: UICollectionViewDataSource {
             cell.contentView.backgroundColor = .tagBorder
         }
         
-        cell.TagsTitle.text = target.rawValue.capitalized
+        cell.tagsTitle.text = target.rawValue.capitalized
         cell.tagsImageView.image = target.symbolImage
 
         return cell
@@ -108,6 +108,13 @@ extension OnBoardingTagsViewController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if selectIndexPath.count >= 5 {
+            
+            showAlert("🔔Notification", message: "Only up to five categories can be selected") { _ in
+                self.dismiss(animated: true)
+            } onCancel: { _ in
+                self.dismiss(animated: true)
+            }
+
             collectionView.deselectItem(at: indexPath, animated: false)
             return
         }
