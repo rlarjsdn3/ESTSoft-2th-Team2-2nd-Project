@@ -25,6 +25,7 @@ final class HomeViewController: StoryboardViewController {
     // 임시 코드 수정예정
     var selectedCategories: [String] = ["Flower", "Nature", "Animals", "Travel", "Food"]
 
+    // 카테고리 배열 순서
     var displayedCategories: [String] {
 
         return ["All"] + selectedCategories
@@ -129,8 +130,6 @@ final class HomeViewController: StoryboardViewController {
         }
     }
 
-
-
     // 선택된 카테고리에 따라 Pixabay API에서 비디오 데이터 요청
     private func fetchVideo() {
         let query = selectedCategoryName
@@ -185,6 +184,9 @@ final class HomeViewController: StoryboardViewController {
             }
         }
     }
+
+    // 재생목록 비어있는지 체크
+    var playlistIsEmmpty: Bool = false
 
 
 
@@ -245,11 +247,32 @@ extension HomeViewController: UICollectionViewDataSource {
                 tags: video.tags
             )
             cell.configure(with: viewModel)
+
             // 썸네일 터치시 영상 재생
             cell.onThumbnailTap = { [weak self] in
                 guard let self = self, let videoURL = video.videos.medium.url else { return }
                 self.playVideo(with: videoURL)
             }
+
+            // Ellipsis 버튼 실행
+            cell.configureMenu(
+                bookmarkAction: { [weak self] in
+                    guard let self = self else { return }
+                    // 실제 북마크 처리 코드
+                   // let toast = Toast.makeToast("추가되었습니다", systemName: "checkmark").present()
+                },
+                playlistAction: { [weak self] in
+                    guard let self = self else { return }
+                    // 재생목록 추가 처리 코드
+                },
+                deleteAction: { [weak self] in
+                    guard let self = self else { return }
+                    // 삭제 처리 코드
+                },
+                cancelAction: {
+
+                }
+            )
             return cell
         }
 

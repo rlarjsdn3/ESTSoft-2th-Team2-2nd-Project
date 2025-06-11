@@ -23,6 +23,11 @@ final class VideoCell: UICollectionViewCell, NibLodable {
 
     @IBOutlet weak var likeIcon: UIImageView!
 
+    @IBAction func ellipsisButtonAction(_ sender: Any) {
+
+    }
+
+
     var onThumbnailTap: (() -> Void)?
 
     override func awakeFromNib() {
@@ -73,6 +78,29 @@ final class VideoCell: UICollectionViewCell, NibLodable {
 
         thumbnailImage.image = nil
         profileImage.image = nil
+    }
+
+    // Ellipsis 버튼 함수
+    func configureMenu(bookmarkAction: @escaping () -> Void,
+                       playlistAction: @escaping () -> Void,
+                       deleteAction: @escaping () -> Void,
+                       cancelAction: @escaping () -> Void) {
+        let bookmark = UIAction(title: "북마크") { _ in
+            bookmarkAction()
+        }
+        let playlist = UIAction(title: "재생목록") { _ in
+            playlistAction()
+        }
+        let delete = UIAction(title: "삭제", attributes: .destructive) { _ in
+            deleteAction()
+        }
+        let cancel = UIAction(title: "취소") { _ in
+            cancelAction()
+        }
+
+        let menu = UIMenu(title: "", children: [bookmark, playlist, delete, cancel])
+        ellipsisButton.menu = menu
+        ellipsisButton.showsMenuAsPrimaryAction = true
     }
 
     // 뷰 모델을 받아 셀의 UI를 업데이트하는 함수
