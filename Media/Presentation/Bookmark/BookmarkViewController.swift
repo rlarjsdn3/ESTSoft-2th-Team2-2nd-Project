@@ -86,12 +86,14 @@ extension BookmarkViewController {
             if case .history(let playback) = item {
                 guard let thumbnailUrl = playback.video?.medium.thumbnail else { return }
                 let viewModel = VideoCellViewModel(
-                    title: playback.tags,
-                    viewCountText: String(playback.views),
-                    durationText: String(playback.duration),
-                    thumbnailURL: thumbnailUrl,
-                    profileImageURL: playback.userImageUrl
-                )
+                                    title: playback.tags,
+                                    viewCountText: String(playback.views),
+                                    durationText: String(playback.duration),
+                                    thumbnailURL: thumbnailUrl,
+                                    profileImageURL: playback.userImageUrl,
+                                    likeCountText: String(playback.likes),
+                                    tags: playback.tags
+                                )
                 cell.configure(with: viewModel)
             }
         }

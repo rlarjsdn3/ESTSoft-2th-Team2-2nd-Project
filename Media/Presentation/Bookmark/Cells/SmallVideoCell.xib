@@ -3,6 +3,8 @@
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
+        <capability name="Image references" minToolsVersion="12.0"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -26,7 +28,7 @@
                     </view>
                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="U08-O7-WsU">
                         <rect key="frame" x="5" y="0.0" width="134" height="81"/>
-                        <color key="backgroundColor" systemColor="systemGrayColor"/>
+                        <color key="backgroundColor" name="TagSelected"/>
                     </view>
                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="0Dm-m0-xqK">
                         <rect key="frame" x="0.0" y="6" width="144" height="81"/>
@@ -38,29 +40,50 @@
                         <rect key="frame" x="0.0" y="87" width="144" height="44"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="북마크를 표시한 재생목록" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="sLp-6q-rJ0">
-                                <rect key="frame" x="0.0" y="7" width="129" height="36"/>
+                                <rect key="frame" x="0.0" y="7" width="144" height="36"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                         </subviews>
                         <constraints>
-                            <constraint firstAttribute="trailing" secondItem="sLp-6q-rJ0" secondAttribute="trailing" constant="15" id="9Jm-RB-cnP"/>
+                            <constraint firstAttribute="trailing" secondItem="sLp-6q-rJ0" secondAttribute="trailing" id="9Jm-RB-cnP"/>
                             <constraint firstItem="sLp-6q-rJ0" firstAttribute="top" secondItem="Bmc-Gi-lCx" secondAttribute="top" constant="7" id="IOK-yV-n3i"/>
                             <constraint firstItem="sLp-6q-rJ0" firstAttribute="leading" secondItem="Bmc-Gi-lCx" secondAttribute="leading" id="Ij2-fR-ye4"/>
                         </constraints>
                     </view>
-                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="J29-oZ-cku">
-                        <rect key="frame" x="54.666666666666657" y="26" width="35" height="35"/>
+                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Sbo-rt-kHI">
+                        <rect key="frame" x="52" y="23.333333333333332" width="40" height="40.333333333333329"/>
+                        <color key="backgroundColor" systemColor="systemGray6Color"/>
                         <color key="tintColor" systemColor="labelColor"/>
-                        <state key="normal" title="Button"/>
-                        <buttonConfiguration key="configuration" style="plain" image="plus" catalog="system" cornerStyle="capsule">
-                            <backgroundConfiguration key="background" strokeWidth="1">
-                                <color key="backgroundColor" systemColor="systemGray5Color"/>
-                            </backgroundConfiguration>
-                            <preferredSymbolConfiguration key="preferredSymbolConfigurationForImage"/>
-                        </buttonConfiguration>
-                    </button>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="40" id="h4c-1I-bUh"/>
+                            <constraint firstAttribute="width" secondItem="Sbo-rt-kHI" secondAttribute="height" multiplier="1:1" id="zzF-M5-xip"/>
+                        </constraints>
+                        <imageReference key="image" image="plus" catalog="system" symbolScale="large" variableValue="0.0"/>
+                        <preferredSymbolConfiguration key="preferredSymbolConfiguration" configurationType="pointSize" pointSize="15" scale="large" weight="thin"/>
+                    </imageView>
+                    <stackView opaque="NO" contentMode="center" alignment="center" spacing="2" translatesAutoresizingMaskIntoConstraints="NO" id="ce1-ek-6ZX">
+                        <rect key="frame" x="112" y="67" width="24" height="12"/>
+                        <subviews>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="9EW-uE-cme">
+                                <rect key="frame" x="0.0" y="1.3333333333333321" width="15" height="9.3333333333333339"/>
+                                <color key="tintColor" name="TagUnselected"/>
+                                <imageReference key="image" image="play.rectangle.on.rectangle" catalog="system" symbolScale="small"/>
+                                <preferredSymbolConfiguration key="preferredSymbolConfiguration" configurationType="pointSize" pointSize="10" scale="small" weight="regular"/>
+                            </imageView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="1000" verticalHuggingPriority="251" horizontalCompressionResistancePriority="1000" text="0" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="COp-84-rMd">
+                                <rect key="frame" x="17" y="0.0" width="7" height="12"/>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="10"/>
+                                <color key="textColor" name="TagUnselected"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <color key="backgroundColor" name="Primary"/>
+                        <constraints>
+                            <constraint firstAttribute="width" secondItem="ce1-ek-6ZX" secondAttribute="height" multiplier="2:1" id="8je-rr-0Vp"/>
+                        </constraints>
+                    </stackView>
                 </subviews>
             </view>
             <viewLayoutGuide key="safeArea" id="ZTg-uK-7eu"/>
@@ -75,41 +98,52 @@
                 <constraint firstItem="0Dm-m0-xqK" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="HiW-H1-qRz"/>
                 <constraint firstAttribute="bottom" secondItem="XuC-sg-iqZ" secondAttribute="bottom" id="L0O-Yb-Mkn"/>
                 <constraint firstAttribute="trailing" secondItem="S1y-UL-Vjm" secondAttribute="trailing" id="Lh6-vf-kcr"/>
+                <constraint firstItem="Sbo-rt-kHI" firstAttribute="centerY" secondItem="S1y-UL-Vjm" secondAttribute="centerY" id="OQk-st-DY3"/>
                 <constraint firstAttribute="trailing" secondItem="XuC-sg-iqZ" secondAttribute="trailing" id="T2D-xq-sAm"/>
                 <constraint firstAttribute="trailing" secondItem="Bmc-Gi-lCx" secondAttribute="trailing" id="XOp-o6-dcI"/>
                 <constraint firstItem="U08-O7-WsU" firstAttribute="height" secondItem="0Dm-m0-xqK" secondAttribute="height" id="ZTq-3x-t3F"/>
-                <constraint firstItem="J29-oZ-cku" firstAttribute="centerX" secondItem="S1y-UL-Vjm" secondAttribute="centerX" id="aEw-9x-06z"/>
                 <constraint firstAttribute="trailing" secondItem="0Dm-m0-xqK" secondAttribute="trailing" id="cbx-1K-8KJ"/>
                 <constraint firstItem="Bmc-Gi-lCx" firstAttribute="top" secondItem="0Dm-m0-xqK" secondAttribute="bottom" id="cgk-S7-sut"/>
                 <constraint firstItem="S1y-UL-Vjm" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" id="evr-XX-H8G"/>
-                <constraint firstItem="J29-oZ-cku" firstAttribute="centerY" secondItem="S1y-UL-Vjm" secondAttribute="centerY" id="fWy-lZ-VBq"/>
+                <constraint firstItem="ce1-ek-6ZX" firstAttribute="trailing" secondItem="0Dm-m0-xqK" secondAttribute="trailing" constant="-8" id="fX0-dC-oAI"/>
                 <constraint firstAttribute="bottom" secondItem="Bmc-Gi-lCx" secondAttribute="bottom" id="oEO-T8-7oi"/>
                 <constraint firstItem="XuC-sg-iqZ" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="umC-xr-oDe"/>
+                <constraint firstItem="Sbo-rt-kHI" firstAttribute="centerX" secondItem="S1y-UL-Vjm" secondAttribute="centerX" id="vLP-A8-PE6"/>
+                <constraint firstItem="ce1-ek-6ZX" firstAttribute="bottom" secondItem="0Dm-m0-xqK" secondAttribute="bottom" constant="-8" id="xWK-cc-Jdz"/>
                 <constraint firstItem="Bmc-Gi-lCx" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="zLx-iv-Da1"/>
             </constraints>
             <size key="customSize" width="144" height="131"/>
             <connections>
-                <outlet property="plusButton" destination="J29-oZ-cku" id="GSG-6E-Woo"/>
+                <outlet property="plusImageView" destination="Sbo-rt-kHI" id="33s-si-Q1M"/>
                 <outlet property="shadowView" destination="U08-O7-WsU" id="O4k-gR-UOA"/>
                 <outlet property="thumbnailImageView" destination="0Dm-m0-xqK" id="WTC-Rk-68p"/>
                 <outlet property="titleLabel" destination="sLp-6q-rJ0" id="w8E-Km-Z5V"/>
+                <outlet property="videoCountBackgroundView" destination="ce1-ek-6ZX" id="XiV-1i-Snf"/>
+                <outlet property="videoCountLabel" destination="COp-84-rMd" id="eoa-4D-eZd"/>
             </connections>
             <point key="canvasLocation" x="210.68702290076334" y="48.943661971830991"/>
         </collectionViewCell>
     </objects>
     <resources>
+        <image name="play.rectangle.on.rectangle" catalog="system" width="128" height="98"/>
         <image name="plus" catalog="system" width="128" height="113"/>
+        <namedColor name="Primary">
+            <color red="0.29803921568627451" green="0.36078431372549019" blue="0.36078431372549019" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="TagSelected">
+            <color red="0.29803921568627451" green="0.36078431372549019" blue="0.36078431372549019" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="TagUnselected">
+            <color red="0.95294117647058818" green="0.93725490196078431" blue="0.92549019607843142" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
         <systemColor name="labelColor">
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
-        <systemColor name="systemGray5Color">
-            <color red="0.8980392157" green="0.8980392157" blue="0.91764705879999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-        </systemColor>
-        <systemColor name="systemGrayColor">
-            <color red="0.5568627451" green="0.5568627451" blue="0.57647058819999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        <systemColor name="systemGray6Color">
+            <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

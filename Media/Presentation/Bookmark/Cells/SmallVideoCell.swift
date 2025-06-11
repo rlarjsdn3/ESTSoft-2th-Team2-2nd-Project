@@ -19,7 +19,24 @@ final class SmallVideoCell: UICollectionViewCell, NibLodable {
     @IBOutlet weak var titleLabel: UILabel!
 
     /// 마지막 셀에 표시될 플러스 버튼 (새 항목 추가용)
-    @IBOutlet weak var plusButton: UIButton!
+    @IBOutlet weak var plusImageView: UIImageView!
+
+    @IBOutlet weak var videoCountBackgroundView: UIStackView!
+
+    @IBOutlet weak var videoCountLabel: UILabel!
+    
+    var dataTransferService: (any DataTransferService)?
+
+    var isLast: Bool = false {
+        didSet {
+            plusImageView.isHidden = !isLast
+            thumbnailImageView.isHidden = isLast
+            shadowView.isHidden = isLast
+            titleLabel.textAlignment = isLast ? .center : .left
+            videoCountBackgroundView.isHidden = isLast
+            if isLast { titleLabel.text = "재생목록 추가"}
+        }
+    }
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -39,10 +56,14 @@ final class SmallVideoCell: UICollectionViewCell, NibLodable {
     }
 
     private func setViews() {
+        plusImageView.layer.cornerRadius = plusImageView.frame.height/2
         thumbnailImageView.layer.borderWidth = 2
         thumbnailImageView.layer.borderColor = UIColor.white.cgColor
         thumbnailImageView.layer.cornerRadius = 8
         shadowView.layer.cornerRadius = 8
+        videoCountBackgroundView.layer.cornerRadius = 3
+        videoCountBackgroundView.isLayoutMarginsRelativeArrangement = true
+        videoCountBackgroundView.directionalLayoutMargins = NSDirectionalEdgeInsets(top: 3, leading: 5, bottom: 3, trailing: 5)
     }
 
 }
@@ -58,26 +79,48 @@ extension SmallVideoCell {
         title: String,
         isLast: Bool = false
     ) {
-
         titleLabel.text = title
+        self.isLast = isLast
+        configureThumbnail(from: url)
+    }
 
-        guard !isLast else {
-            thumbnailImageView.isHidden = true
-            shadowView.isHidden = true
-            return
-        }
+    func configure(_ playlist: PlaylistEntity) {
+        guard let playlistVideoEntity = (playlist.playlistVideos?.allObjects.first as? PlaylistVideoEntity),
+              let thumbnailUrl = playlistVideoEntity.video?.medium.thumbnail,
+              let playlistName = playlistVideoEntity.playlist?.name else { return }
+        isLast = false
+        titleLabel.text = playlistName
+        configureThumbnail(from: thumbnailUrl)
+        configureVideoCount(playlist.playlistVideos?.allObjects.count ?? 0)
+    }
 
-        plusButton.isHidden = true
+    private func configureThumbnail(from url: URL?) {
         thumbnailImageView.backgroundColor = .systemGray6
 
-        let session = URLSession.shared
         if let url {
-            Task {
-                let (data, _) = try await session.data(from: url)
-                thumbnailImageView.image = UIImage(data: data)
+            let endpoint = APIEndpoints.thumbnail(url: url)
+            dataTransferService?.request(endpoint) { [weak self] result in
+                switch result {
+                case .success(let data):
+                    if let image = UIImage(data: data) {
+                        self?.thumbnailImageView.image = image
+                    } else {
+                        // Placeholder
+                        self?.thumbnailImageView.image = UIImage(named: "default")
+                    }
+                case .failure(let error):
+                    print(error)
+                    // Placeholder
+                    self?.thumbnailImageView.image = UIImage(named: "default")
+                }
             }
         } else {
+            // placeholder
             thumbnailImageView.image = UIImage(named: "default")
         }
+    }
+
+    func configureVideoCount(_ count: Int) {
+        videoCountLabel.text = "\(count)"
     }
 }
