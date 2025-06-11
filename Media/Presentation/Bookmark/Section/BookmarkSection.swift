@@ -71,8 +71,7 @@ extension Bookmark.SectionType {
     }
 
     private func buildHistoryLayout(for environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection {
-        let isHorizontalSizeClassCompact = environment.traitCollection.horizontalSizeClass == .compact
-
+        
         let itemSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
             heightDimension: .fractionalHeight(1.0)
@@ -80,9 +79,9 @@ extension Bookmark.SectionType {
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
         item.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 0, bottom: 10, trailing: 0)
 
-        let groupWidthDimension: NSCollectionLayoutDimension = isHorizontalSizeClassCompact
+        let groupWidthDimension: NSCollectionLayoutDimension = environment.isHorizontalSizeClassCompact
         ? .fractionalWidth(0.9) : .fractionalWidth(0.42)
-        let groupHeightDimension: NSCollectionLayoutDimension = isHorizontalSizeClassCompact
+        let groupHeightDimension: NSCollectionLayoutDimension = environment.isHorizontalSizeClassCompact
         ? .fractionalWidth(0.75) : .fractionalWidth(0.36)
         let groupSize = NSCollectionLayoutSize(
             widthDimension: groupWidthDimension,
@@ -96,7 +95,7 @@ extension Bookmark.SectionType {
 
         let headerSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .estimated(44)
+            heightDimension: .estimated(50)
         )
         let header = NSCollectionLayoutBoundarySupplementaryItem(
             layoutSize: headerSize,
@@ -114,9 +113,8 @@ extension Bookmark.SectionType {
     }
 
     private func buildPlaylistLayout(for environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection {
-        let isHorizontalSizeClassCompact = environment.traitCollection.horizontalSizeClass == .compact
-
-        let itemWidthDimension: NSCollectionLayoutDimension = isHorizontalSizeClassCompact
+        
+        let itemWidthDimension: NSCollectionLayoutDimension = environment.isHorizontalSizeClassCompact
         ? .fractionalWidth(0.5) : .fractionalWidth(0.33)
 
         let itemSize = NSCollectionLayoutSize(
@@ -125,8 +123,8 @@ extension Bookmark.SectionType {
         )
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
 
-        let colmnCount = isHorizontalSizeClassCompact ? 2 : 3
-        let groupHeightDimension: NSCollectionLayoutDimension = isHorizontalSizeClassCompact
+        let colmnCount = environment.isHorizontalSizeClassCompact ? 2 : 3
+        let groupHeightDimension: NSCollectionLayoutDimension = environment.isHorizontalSizeClassCompact
         ? .fractionalWidth(0.4) : .fractionalWidth(0.24)
 
         let groupSize = NSCollectionLayoutSize(
@@ -143,7 +141,7 @@ extension Bookmark.SectionType {
 
         let headerSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
-            heightDimension: .estimated(44)
+            heightDimension: .estimated(50)
         )
         let header = NSCollectionLayoutBoundarySupplementaryItem(
             layoutSize: headerSize,

@@ -86,7 +86,7 @@ final class BookmarkViewController: StoryboardViewController {
 extension BookmarkViewController {
 
     private func setupDataSource() {
-
+        #warning("김건우 -> Ragistration 관련 코도 리팩토링하기 ")
         let playbackCellRagistration = UICollectionView.CellRegistration<VideoCell, Bookmark.Item>(cellNib: VideoCell.nib) { cell, indexPath, item in
             if case .playback(let playback) = item {
                 guard let thumbnailUrl = playback.video?.medium.thumbnail else { return }
@@ -161,7 +161,8 @@ extension BookmarkViewController {
 
         applySnapshot()
     }
-
+    
+#warning("김건우 -> 스냅샷 관련 코드 리팩토링")
     private func applySnapshot() {
         var snapshot = NSDiffableDataSourceSnapshot<Bookmark.Section, Bookmark.Item>()
         if let history = playbackFetchedResultsController?.fetchedObjects, !history.isEmpty {
@@ -307,7 +308,7 @@ extension BookmarkViewController: UICollectionViewDelegate {
         didHighlightItemAt indexPath: IndexPath
     ) {
         guard let cell = collectionView.cellForItem(at: indexPath) else { return }
-        adjustAnimatedOpacity(for: cell)
+        cell.animateOpacity()
     }
 
     func collectionView(
@@ -315,7 +316,7 @@ extension BookmarkViewController: UICollectionViewDelegate {
         didUnhighlightItemAt indexPath: IndexPath
     ) {
         guard let cell = collectionView.cellForItem(at: indexPath) else { return }
-        adjustAnimatedOpacity(for: cell, opacity: 1.0)
+        cell.animateOpacity(1.0)
     }
 
     func collectionView(
@@ -370,15 +371,6 @@ extension BookmarkViewController: UICollectionViewDelegate {
 // MARK: - Bookmark Extension
 
 extension BookmarkViewController {
-
-    private func adjustAnimatedOpacity(
-        for cell: UICollectionViewCell,
-        opacity: CGFloat = 0.75
-    ) {
-        UIView.animate(withDuration: 0.1) {
-            cell.layer.opacity = Float(opacity)
-        }
-    }
     
     private func showAddPlaylistAlert() {
         showTextFieldAlert(

@@ -7,16 +7,15 @@
 
 import UIKit
 
+/// 재생 기록 또는 재생 목록에 따라 표시할 비디오 목록의 유형을 나타내는 열거형입니다.
 enum VideoListType {
+    /// 재생 기록에 기반한 비디오 목록
     case playback([PlaybackHistoryEntity])
+    /// 재생 목록에 기반한 비디오 목록
     case playlist([PlaylistVideoEntity])
 }
 
 final class VideoListViewController: StoryboardViewController {
-
-    enum Metric {
-        static let collectionViewTopInset: CGFloat = 56
-    }
 
     typealias PlaylistDiffableDataSource = UICollectionViewDiffableDataSource<VideoList.Section, VideoList.Item>
 
@@ -41,6 +40,8 @@ final class VideoListViewController: StoryboardViewController {
         super.viewDidLoad()
 
         setupDataSource()
+        
+        collectionView.collectionViewLayout = createCompositionalLayout()
     }
     
     @IBAction func didTapCloseButton(_ sender: Any) {
@@ -53,15 +54,15 @@ final class VideoListViewController: StoryboardViewController {
         super.setupAttributes()
 
         setupNavigationBar()
-
+#warning("김건우 -> 검색 바 플레이스 홀더 바꾸기")
         searchBar.apply {
             $0.delegate = self
             $0.placeholder = "title, author, "
         }
-        collectionView.collectionViewLayout = createCompositionalLayout()
         closeButtonTrailingConstraint.constant = -50
     }
 
+    #warning("김건우 -> 네비게이션 바 버튼 문제 해결하기")
     private func setupNavigationBar() {
         let leftIcon = UIImage(systemName: "arrow.left")
         let rightIcon = UIImage(systemName: "trash")
@@ -87,13 +88,11 @@ final class VideoListViewController: StoryboardViewController {
         navigationBar.delegate = self
     }
 
+#warning("김건우 -> CompositionalLayout 임시값 수정하기")
     private func createCompositionalLayout() -> UICollectionViewCompositionalLayout {
         let sectionProvider: UICollectionViewCompositionalLayoutSectionProvider = { [weak self] sectionIndex, environment in
-            guard let self = self else { return nil }
 
-            let isHorizontalSizeClassCompact = environment.traitCollection.horizontalSizeClass == .compact
-            
-            let itemWidthDimension: NSCollectionLayoutDimension = isHorizontalSizeClassCompact
+            let itemWidthDimension: NSCollectionLayoutDimension = environment.isHorizontalSizeClassCompact
             ? .fractionalWidth(1.0) : .fractionalWidth(0.33)
             let itemSize = NSCollectionLayoutSize(
                 widthDimension: itemWidthDimension, // 임시 값
@@ -101,7 +100,7 @@ final class VideoListViewController: StoryboardViewController {
             )
             let item = NSCollectionLayoutItem(layoutSize: itemSize)
 
-            let columnCount = isHorizontalSizeClassCompact ? 1 : 3
+            let columnCount = environment.isHorizontalSizeClassCompact ? 1 : 3
             let groupSize = NSCollectionLayoutSize(
                 widthDimension: .fractionalWidth(1.0), // 임시 값
                 heightDimension: .estimated(200) // 임시 값
@@ -116,7 +115,7 @@ final class VideoListViewController: StoryboardViewController {
             let section = NSCollectionLayoutSection(group: group)
             section.interGroupSpacing = 8 // 임시 값
 
-            if case .playback(_) = self.videos {
+            if case .playback(_) = self?.videos {
                 let headerSize = NSCollectionLayoutSize(
                     widthDimension: .fractionalWidth(1.0),
                     heightDimension: .estimated(50)
@@ -141,6 +140,8 @@ final class VideoListViewController: StoryboardViewController {
 
 extension VideoListViewController {
     
+    #warning("김건우 -> 데이터 소스를 '진짜 셀'로 교체하기 + 임시 셀 삭제")
+#warning("김건우 -> Ragistration 관련 코도 리팩토링하기 ")
     private func setupDataSource() {
         // 임시 셀 등록
         let cellRagistration = UICollectionView.CellRegistration<HistoryCollectionViewCell, VideoList.Item> { cell, indexPath, item in
@@ -186,6 +187,7 @@ extension VideoListViewController {
         }
     }
 
+    #warning("김건우 -> 검색어 쿼리 관련 스냅샷 코드 작성 + 코드 리팩토링")
     private func applyPlaylistSnapshot() {
         guard case let .playlist(entities) = videos else { return }
         let playlistItems: [VideoList.Item] = entities.map { VideoList.Item.playlist($0) }
@@ -244,7 +246,7 @@ extension VideoListViewController: UICollectionViewDelegate {
 }
 
 
-// MARK - UISeachBarDelegate
+// MARK - UITextFieldDelegate
 
 extension VideoListViewController: UITextFieldDelegate {
 
