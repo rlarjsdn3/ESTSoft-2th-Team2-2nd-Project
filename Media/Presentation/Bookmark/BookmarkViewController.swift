@@ -88,7 +88,7 @@ extension BookmarkViewController {
 #warning("김건우 -> 참조 사이클 문제 다시 확인해보기")
         let playbackCellRagistration = createPlaybackCellRagistration()
         let playlistCellRagistration = createPlaylistCellRagistration()
-        let headerRegistration = createSupplementaryViewRegistration()
+        let headerRegistration = createSupplementaryViewRagistration()
 
         dataSource = BookmarkDiffableDataSource(collectionView: collectionView) { collectionView, indexPath, item in
             switch item {
@@ -166,7 +166,7 @@ extension BookmarkViewController {
         }
     }
 
-    private func createSupplementaryViewRegistration() -> UICollectionView.SupplementaryRegistration<HeaderReusableView> {
+    private func createSupplementaryViewRagistration() -> UICollectionView.SupplementaryRegistration<HeaderReusableView> {
         UICollectionView.SupplementaryRegistration<HeaderReusableView>(
             supplementaryNib: HeaderReusableView.nib,
             elementKind: HeaderReusableView.id
