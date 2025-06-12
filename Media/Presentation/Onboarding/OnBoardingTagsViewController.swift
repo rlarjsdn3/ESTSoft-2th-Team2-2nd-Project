@@ -87,9 +87,9 @@ class OnBoardingTagsViewController: StoryboardViewController {
         self.navigationItem.hidesBackButton = true
     }
     
-    // 셀이 1개 이상 선택되면 버튼 활성화
+    // 셀이 3개 이상 선택되면 버튼 활성화
     func buttonIsEnabled() {
-        if selectedIndexPath.count >= 1 {
+        if selectedIndexPath.count >= 3 {
             selectedTagButton.isEnabled = true
         } else {
             selectedTagButton.isEnabled = false
