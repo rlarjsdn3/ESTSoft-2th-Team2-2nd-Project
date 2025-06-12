@@ -44,6 +44,7 @@ final class SearchResultViewController: StoryboardViewController {
         configureSearchBar()
         configureCollectionView()
         configureRefreshControl()
+        changeStateOfFilterButton()
     }
 
     override func setupAttributes() {
@@ -77,11 +78,24 @@ final class SearchResultViewController: StoryboardViewController {
         videoCollectionView.delegate = self
     }
 
+    // 필터가 하나라도 켜져 있으면 filterButton 색변경
+    private func changeStateOfFilterButton() {
+        if getCategories != nil || getOrder != nil || getDuration != nil {
+            navigationBar.rightButton.tintColor = .red
+        } else {
+            navigationBar.rightButton.tintColor = .label
+        }
+    }
+
     func showSheet() {
         let storyboard = UIStoryboard(name: "SearchFilterViewController", bundle: nil)
         let vc = storyboard.instantiateViewController(
             identifier: "SearchFilterViewController"
         ) as! SearchFilterViewController
+
+        vc.selectedCategories = Set([getCategories].compactMap { $0 })
+        vc.selectedOrder = Set([getOrder].compactMap { $0 })
+        vc.selectedDuration = Set([getDuration].compactMap { $0 })
 
         // 콜백
         vc.onApply = { [weak self] categories, order, duration in
@@ -91,6 +105,7 @@ final class SearchResultViewController: StoryboardViewController {
             self.getDuration = duration.first
 
             vc.dismiss(animated: true) {
+                self.changeStateOfFilterButton()
                 self.activityIndicator.startAnimating()
                 self.videoCollectionView.isHidden = true
                 self.fetchVideos(page: 1, category: self.getCategories, order: self.getOrder, duration: self.getDuration)

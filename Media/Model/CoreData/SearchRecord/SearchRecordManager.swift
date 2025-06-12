@@ -29,11 +29,25 @@ final class SearchRecordManager: SearchRecordManaging {
 
     init(service: CoreDataService = .shared) {
             self.service = service
-        }
+    }
 
     func save(query: String) throws {
-        let record = SearchRecordEntity(context: service.viewContext, query: query)
-        service.insert(record)
+        let context = service.viewContext
+
+        // 같은 쿼리 있는지 비교
+        let request: NSFetchRequest<SearchRecordEntity> = SearchRecordEntity.fetchRequest()
+        request.predicate = NSPredicate(format: "query == %@", query)
+        request.fetchLimit = 1
+
+        // 존재하면 timestamp만, 존재하지 않으면 새로 추가
+        let existing = try context.fetch(request)
+        if let record = existing.first {
+            record.timestamp = Date()
+            try context.save()
+        } else {
+            let record = SearchRecordEntity(context: service.viewContext, query: query)
+            service.insert(record)
+        }
     }
 
     func fetchRecent(limit: Int = 20) throws -> [SearchRecordEntity] {

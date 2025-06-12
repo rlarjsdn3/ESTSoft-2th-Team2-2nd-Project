@@ -23,18 +23,20 @@ class SearchFilterViewController: StoryboardViewController {
     var selectedCategories: Set<Category> = []
 
     private let orders = Order.allCases
-   	var selectedOrder: Set<Order> = []
+    var selectedOrder: Set<Order> = []
 
     private let durations: [Duration] = Duration.allCases
     var selectedDuration: Set<Duration> = []
 
-	// 조건 검색을 위한 클로저 프로퍼티
+    // 조건 검색을 위한 클로저 프로퍼티
     var onApply: ((_ categories: Set<Category>,
-                      _ order: Set<Order>,
-                      _ duration: Set<Duration>) -> Void)?
+                   _ order: Set<Order>,
+                   _ duration: Set<Duration>) -> Void)?
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        print(selectedCategories, selectedOrder, selectedDuration)
     }
 
     override func setupHierachy() {
@@ -77,12 +79,13 @@ class SearchFilterViewController: StoryboardViewController {
         filterVideoDurationCollectionView.delegate = self
         filterVideoDurationCollectionView.dataSource = self
     }
-
 }
+
+
 
 //MARK: - CollectionView Delegate
 
-extension SearchFilterViewController: UICollectionViewDataSource {
+extension SearchFilterViewController: UICollectionViewDataSource	 {
     // collectionView Inset setting
     private func collectionViewInset(collectionView: UICollectionView) {
         if let flow = collectionView.collectionViewLayout as? UICollectionViewFlowLayout {
@@ -114,6 +117,7 @@ extension SearchFilterViewController: UICollectionViewDataSource {
             let target = categories[indexPath.item]
             cell.defaultCellConfigure()
             cell.categoryLabel.text = target.rawValue
+            
 
             return cell
         case filterOrderCollectionView:
@@ -122,6 +126,7 @@ extension SearchFilterViewController: UICollectionViewDataSource {
             let target = orders[indexPath.item]
             cell.defaultCellConfigure()
             cell.orderLabel.text = target.rawValue
+
             return cell
         case filterVideoDurationCollectionView:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FilterVideoDurationCollectionViewCell.id, for: indexPath) as! FilterVideoDurationCollectionViewCell
@@ -129,6 +134,7 @@ extension SearchFilterViewController: UICollectionViewDataSource {
             let target = durations[indexPath.item]
             cell.defaultCellConfigure()
             cell.durationLabel.text = target.description
+
             return cell
         default:
             return UICollectionViewCell()

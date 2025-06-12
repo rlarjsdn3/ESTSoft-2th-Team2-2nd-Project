@@ -137,7 +137,7 @@ final class HomeViewController: StoryboardViewController {
 
                     player.play()
                 } else if playerItem.status == .failed {
-                    print("❌ PlayerItem failed to load")
+                    print("❌ PlayerItem failed to load\(playerItem.error.debugDescription)")
                 }
             }
 
