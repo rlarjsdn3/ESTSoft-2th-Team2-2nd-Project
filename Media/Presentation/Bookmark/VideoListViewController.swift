@@ -191,6 +191,21 @@ extension VideoListViewController {
             }
             cell.delegate = self
             cell.configure(viewModel)
+            cell.configureMenu(
+                deleteAction: { [weak self] in
+                    guard let self = self else { return }
+                    // 삭제 처리 코드
+                    self.showDeleteAlert(
+                        "재생 목록 전체 삭제",
+                        message: "정말 전체 재생목록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
+                        onConfirm: { _ in
+
+                        },
+                        onCancel: { _ in
+                        }
+                    )
+                }
+            )
         }
     }
 
