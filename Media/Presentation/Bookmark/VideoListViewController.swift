@@ -48,16 +48,16 @@ final class VideoListViewController: StoryboardViewController {
         searchBar.text = nil
         searchBar.endEditing(true)
         moveCloseButton(toRight: true)
+        applySnapshot()
     }
 
     override func setupAttributes() {
         super.setupAttributes()
 
         setupNavigationBar()
-#warning("김건우 -> 검색 바 플레이스 홀더 바꾸기")
         searchBar.apply {
             $0.delegate = self
-            $0.placeholder = "title, author, "
+            $0.placeholder = "검색어를 입력하세요."
         }
         closeButtonTrailingConstraint.constant = -50
     }
@@ -178,19 +178,27 @@ extension VideoListViewController {
         applySnapshot()
     }
     
-    private func applySnapshot() {
+    private func applySnapshot(query: String? = nil) {
         switch videos {
         case .playback(_):
-            applyPlaybackSnapshot()
+            applyPlaybackSnapshot(query: query)
         default: // playlist
-            applyPlaylistSnapshot()
+            applyPlaylistSnapshot(query: query)
         }
     }
 
-    #warning("김건우 -> 검색어 쿼리 관련 스냅샷 코드 작성 + 코드 리팩토링")
-    private func applyPlaylistSnapshot() {
+    private func applyPlaylistSnapshot(query: String? = nil) {
         guard case let .playlist(entities) = videos else { return }
-        let playlistItems: [VideoList.Item] = entities.map { VideoList.Item.playlist($0) }
+
+        let filteredEntities = entities.filter { entity in
+            // 검색어가 nil이거나 비어있다면 필터링하지 않기 (전체 출력)
+            guard let query = query, !query.isEmpty else { return true }
+            let tags = entity.tags.split(by: ","), author = entity.user
+            // 태그 중 하나라도 검색어와 일치하면 or 저자가 검색어와 일치하면
+            return tags.some({ $0.localizedCaseInsensitiveContains(query) }) || author.localizedCaseInsensitiveContains(query)
+        }
+
+        let playlistItems: [VideoList.Item] = filteredEntities.map { VideoList.Item.playlist($0) }
 
         var snapshot = NSDiffableDataSourceSnapshot<VideoList.Section, VideoList.Item>()
         let playlistSection = VideoList.Section(type: .playlist)
@@ -199,15 +207,24 @@ extension VideoListViewController {
         dataSource?.apply(snapshot, animatingDifferences: true)
     }
 
-    private func applyPlaybackSnapshot() {
+    private func applyPlaybackSnapshot(query: String? = nil) {
         guard case let .playback(entities) = videos else { return }
-        let groupedEntities = Dictionary(grouping: entities) { entity in
-            Calendar.current.startOfDay(for: entity.createdAt ?? .now)
+
+        let filteredEntities = entities.filter { entity in
+            // 검색어가 nil이거나 비어있다면 필터링하지 않기 (전체 출력)
+            guard let query = query, !query.isEmpty else { return true }
+            let tags = entity.tags.split(by: ","), author = entity.user
+            // 태그 중 하나라도 검색어와 일치하면 or 저자가 검색어와 일치하면
+            return tags.some({ $0.localizedCaseInsensitiveContains(query) }) || author.localizedCaseInsensitiveContains(query)
         }
-        let descendingGroupedEntities = groupedEntities.sorted { $0.key > $1.key }
+
+        let groupedEntities = Dictionary(grouping: filteredEntities) { entity in
+            Calendar.current.startOfDay(for: entity.createdAt)
+        }
+        let descendingSortedEntities = groupedEntities.sorted { $0.key > $1.key }
 
         var snapshot = NSDiffableDataSourceSnapshot<VideoList.Section, VideoList.Item>()
-        descendingGroupedEntities.forEach { date, entities in
+        descendingSortedEntities.forEach { date, entities in
             let playbackItems = entities.map { VideoList.Item.playback($0) }
             let playbackSection = VideoList.Section(
                 type: .playback,
@@ -275,9 +292,8 @@ extension VideoListViewController: UITextFieldDelegate {
             return false
         }
 
-        let updatedText = currentText.replacingCharacters(in: textRange, with: string)
-        #warning("김건우 -> 재생 목록 및 시청 기록에서 검색 연산 구현")
-
+        let query = currentText.replacingCharacters(in: textRange, with: string)
+        applySnapshot(query: query)
         collectionView.scrollToTop()
         return true
     }
