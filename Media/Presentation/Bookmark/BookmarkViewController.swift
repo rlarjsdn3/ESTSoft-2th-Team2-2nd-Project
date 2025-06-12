@@ -174,7 +174,7 @@ extension BookmarkViewController {
 #warning("김건우 -> 스냅샷 관련 코드 리팩토링")
     private func applySnapshot() {
         var snapshot = NSDiffableDataSourceSnapshot<Bookmark.Section, Bookmark.Item>()
-
+        
         if let history = playbackFetchedResultsController?.fetchedObjects, !history.isEmpty {
             let items = history.map { Bookmark.Item.playback($0) }.prefix(10)
             let section = Bookmark.Section(type: .playback)
@@ -468,12 +468,6 @@ extension BookmarkViewController: HeaderButtonDelegate {
         )
     }
 }
-
-
-
-
-
-
 
 // 임시 색상 코드
 extension UIColor {
