@@ -6,8 +6,9 @@
 //
 
 import UIKit
+import MessageUI
 
-class SettingsTableViewController: UITableViewController, EditProfileDelegate {
+class SettingsTableViewController: UITableViewController, EditProfileDelegate, MFMailComposeViewControllerDelegate {
     enum Section: Int, CaseIterable {
         case profile, videoQuality, modeFeedback
     }
@@ -72,6 +73,13 @@ class SettingsTableViewController: UITableViewController, EditProfileDelegate {
         userDefaults.userEmail = email
         tableView.reloadData()
     }
+    
+    func mailComposeController(_ controller: MFMailComposeViewController,
+                               didFinishWith result: MFMailComposeResult,
+                               error: Error?) {
+        controller.dismiss(animated: true, completion: nil)
+    }
+    
     // MARK: - Table View Data Source & Delegate
     
     override func numberOfSections(in tableView: UITableView) -> Int {
@@ -136,11 +144,35 @@ class SettingsTableViewController: UITableViewController, EditProfileDelegate {
             case .email:
                 performSegue(withIdentifier: "EditEmailSegue", sender: nil)
             case .interests:
+                let storyboard = UIStoryboard(name: "SelectedTagsViewController", bundle: nil)
+                if let interestVC = storyboard.instantiateViewController(withIdentifier: "SelectedTagsViewController") as? SelectedTagsViewController {
+                    interestVC.modalPresentationStyle = .automatic
+                    present(interestVC, animated: true)
+                }
                 break
             case .none:
                 break
             }
         }
+        
+        if section == .modeFeedback {
+            switch ModeFeedbackRow(rawValue: indexPath.row) {
+            case .feedback:
+                if MFMailComposeViewController.canSendMail() {
+                    let mailComposeVC = MFMailComposeViewController()
+                    mailComposeVC.mailComposeDelegate = self
+                    mailComposeVC.setToRecipients(["ddd@example.com"]) // 수신자 이메일
+                    mailComposeVC.setSubject("App Feedback") // 메일 제목
+                    mailComposeVC.setMessageBody("feedback", isHTML: false) // 메일 내용
+                    present(mailComposeVC, animated: true, completion: nil)
+                } else {
+                    let alert = UIAlertController(title: "메일 앱이 설정되지 않았습니다", message: "기기의 메일 설정을 확인해 주세요.", preferredStyle: .alert)
+                    alert.addAction(UIAlertAction(title: "확인", style: .default))
+                    present(alert, animated: true)
+                }
+            default:
+                break
+            }
         }
     }
 }
