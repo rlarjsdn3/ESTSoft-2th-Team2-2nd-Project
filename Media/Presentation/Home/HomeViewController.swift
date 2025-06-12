@@ -246,17 +246,17 @@ final class HomeViewController: StoryboardViewController {
 
         do {
             let existing = try context.fetch(fetchRequest)
-
+            print(existing, "\\\\\\\\\\eqweqweqw")
             // 기존 기록이 있으면 삭제
             for record in existing {
-                context.delete(record)
+              //  context.delete(record)
+                CoreDataService.shared.delete(record)
             }
 
             // 새로운 시청기록 생성
             let historyEntity = video.mapToPlaybackHistoryEntity(insertInto: context)
             historyEntity.createdAt = Date()
             try context.save()
-
         } catch {
             print(error)
         }
@@ -331,7 +331,7 @@ final class HomeViewController: StoryboardViewController {
             if let playlist = try context.fetch(fetchRequest).first {
                 // PlaylistVideoEntity 생성 및 저장
                 let playlistVideo = video.mapToPlaylistVideoEntity(insertInto: context)
-                playlistVideo.playlist = playlist
+                playlist.addToPlaylistVideos(playlistVideo)
                 try context.save()
                 Toast.makeToast("재생목록에 추가되었습니다", systemName: "list.clipboard").present()
             }
