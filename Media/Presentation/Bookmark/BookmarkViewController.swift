@@ -188,7 +188,7 @@ extension BookmarkViewController {
         var snapshot = NSDiffableDataSourceSnapshot<Bookmark.Section, Bookmark.Item>()
 
         if let history = playbackFetchedResultsController?.fetchedObjects, !history.isEmpty {
-            let items = history.map { Bookmark.Item.playback($0) }.prefix(10)
+            let items = history.map { Bookmark.Item.playback($0) }
             let section = Bookmark.Section(type: .playback)
             snapshot.appendSections([section])
             snapshot.appendItems(Array(items), toSection: section)
@@ -261,6 +261,7 @@ extension BookmarkViewController: NSFetchedResultsControllerDelegate {
         for type: NSFetchedResultsChangeType,
         newIndexPath: IndexPath?
     ) {
+        print("BookmarkViewController", #function)
         guard let dataSource = dataSource else { return }
         var currentSnapshot = dataSource.snapshot()
         
@@ -303,29 +304,26 @@ extension BookmarkViewController: NSFetchedResultsControllerDelegate {
             if let oldPlaylist = anObject as? PlaylistEntity {
                 currentSnapshot.deleteItems([.playlist(oldPlaylist)])
             }
+
             // 재생 기록이 삭제되었다면 삭제하기
             if let oldPlayback = anObject as? PlaybackHistoryEntity {
                 currentSnapshot.deleteItems([.playback(oldPlayback)])
+
+                // 최신 10개 재삽입
+                if let remainingItems = playbackFetchedResultsController?.fetchedObjects,
+                   remainingItems.isEmpty {
+                    let section = Bookmark.Section(type: .playback)
+                    currentSnapshot.deleteSections([section])
+                }
             }
         case .update:
-            // 재생 목록 속 비디오가 변경되었다면 해당 항목(cell) 재구성하기
-//            if let updatedPlaylistVideo = anObject as? PlaylistVideoEntity,
-//               let playlist = updatedPlaylistVideo.playlist {
-//                print(playlist.name, "----------------------------------------------------------")
-//                let item = Bookmark.Item.playlist(playlist)
-//                if currentSnapshot.itemIdentifiers.contains(item) {
-//                    currentSnapshot.reconfigureItems([item])
-//                }
-//            }
-
-            // 재생 목록 (이름 등)이 변경되었다면 해당 항목(cell) 재구성하기
-//            if let updatedPlaylist = anObject as? PlaylistEntity {
-//                let itemToReconfigure = Bookmark.Item.playlist(updatedPlaylist)
-//                if currentSnapshot.itemIdentifiers.contains(itemToReconfigure) {
-//                    currentSnapshot.reconfigureItems([itemToReconfigure])
-//                }
-//            }
-            break
+            // 재생 목록 (이름 등)이 변경되었다면 해당 섹션 리로드하기
+            if let updatedPlaylist = anObject as? PlaylistEntity {
+                let section = Bookmark.Section(type: .playlist)
+                if currentSnapshot.sectionIdentifiers.contains(section) {
+                    currentSnapshot.reloadSections([section])
+                }
+            }
         default:
             fatalError("can not handle change type")
         }
