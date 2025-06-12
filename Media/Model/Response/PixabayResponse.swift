@@ -56,7 +56,10 @@ extension PixabayResponse {
         /// 업로더의 프로필 이미지 URL
         let userImageUrlAbsoulteString: String
         
-        /// <#Description#>
+        /// 업로더의 프로필 이미지 URL 문자열을 기반으로 생성된 URL입니다.
+        ///
+        /// `userImageUrlAbsoulteString`이 유효한 URL 문자열일 경우 해당 URL을 반환하며,
+        /// 그렇지 않으면 `nil`을 반환합니다.
         var userImageUrl: URL? {
             URL(string: userImageUrlAbsoulteString)
         }
@@ -108,5 +111,14 @@ extension PixabayResponse.Hit.VideoVariants {
         let size: Int
         /// 영상 썸네일 이미지 URL
         let thumbnail: URL?
+
+        /// 비디오 URL에서 마지막 경로 구성 요소를 추출하여 파일 이름을 반환합니다.
+        ///
+        /// 이 파일 이름은 실제 디렉터리에 저장된 비디오 파일에 접근할 때 사용할 수 있습니다.
+        /// 예를 들어, `https://example.com/videos/sample.mp4` 라는 URL이 주어졌을 경우,
+        /// 이 프로퍼티는 `"sample.mp4"`를 반환합니다.
+        var videoFileName: String? {
+            url?.lastPathComponent
+        }
     }
 }
