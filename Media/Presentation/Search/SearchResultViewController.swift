@@ -141,12 +141,12 @@ final class SearchResultViewController: StoryboardViewController {
     ) {
         guard !isLoading else { return }
         isLoading = true
-
+        
         if page == 1 {
             hits.removeAll()
         }
         currentPage = page
-
+        
         let endpoint = APIEndpoints.pixabay(
             query: keyword,
             category: category,
@@ -154,27 +154,27 @@ final class SearchResultViewController: StoryboardViewController {
             page: page,
             perPage: perPage
         )
-
+        
         dataService.request(endpoint) { [weak self] result in
             guard let self = self else { return }
             self.isLoading = false
-
+            
             switch result {
             case .success(let response):
                 self.totalHits = response.totalHits
-
+                
                 self.hits.append(contentsOf: response.hits)
-
+                
                 if let dur = duration {
                     self.hits = self.hits.filter {
                         Duration(seconds: $0.duration) == dur
                     }
                 }
-
+                
                 DispatchQueue.main.async {
                     self.activityIndicator.stopAnimating()
                     self.endRefreshing()
-
+                    
                     if self.hits.isEmpty {
                         let label = UILabel()
                         label.text = "검색 결과가 없습니다."
@@ -185,11 +185,11 @@ final class SearchResultViewController: StoryboardViewController {
                     } else {
                         self.videoCollectionView.backgroundView = nil
                     }
-
+                    
                     self.videoCollectionView.isHidden = false
                     self.videoCollectionView.reloadData()
                 }
-
+                
             case .failure(let error):
                 DispatchQueue.main.async {
                     self.activityIndicator.stopAnimating()
@@ -203,7 +203,6 @@ final class SearchResultViewController: StoryboardViewController {
             }
         }
     }
-
 }
 
 extension SearchResultViewController: UICollectionViewDataSource {
