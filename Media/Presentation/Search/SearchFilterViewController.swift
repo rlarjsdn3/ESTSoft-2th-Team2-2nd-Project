@@ -13,71 +13,76 @@ class SearchFilterViewController: StoryboardViewController {
 
     @IBOutlet weak var filterCategoryCollectionView: UICollectionView!
 
-    @IBOutlet weak var filterDateCollectionView: UICollectionView!
+    @IBOutlet weak var filterOrderCollectionView: UICollectionView!
 
     @IBOutlet weak var filterVideoDurationCollectionView: UICollectionView!
 
     @IBOutlet weak var filterCategoryCVHeightConstraint: NSLayoutConstraint!
 
     private let categories = Category.allCases
-    private var selectedCategories: Set<Category> = []
+    var selectedCategories: Set<Category> = []
 
-    //임시 데이터
-    private let dates = ["지난 1시간", "오늘", "이번 주", "이번 달", "올해"]
-    private var selectedDate: String?
+    private let orders = Order.allCases
+   	var selectedOrder: Set<Order> = []
 
-    private let durations = ["10초 미만", "10~30초", "1분 초과"]
-    private var selectedDuration: String?
+    private let durations: [Duration] = Duration.allCases
+    var selectedDuration: Set<Duration> = []
 
-    //popular/ latest 추가 해야함
+	// 조건 검색을 위한 클로저 프로퍼티
+    var onApply: ((_ categories: Set<Category>,
+                      _ order: Set<Order>,
+                      _ duration: Set<Duration>) -> Void)?
 
     override func viewDidLoad() {
         super.viewDidLoad()
+    }
 
+    override func setupHierachy() {
         registerCollectionViews()
         if let flow = filterCategoryCollectionView.collectionViewLayout as? UICollectionViewFlowLayout {
             flow.scrollDirection = .horizontal
         }
         filterCategoryCVHeightConstraint.constant = 40
-        filterCategoryCollectionView.allowsMultipleSelection = true
-    }
-
-    override func setupHierachy() {
+        filterCategoryCollectionView.allowsMultipleSelection = false
     }
 
     override func setupAttributes() {
         self.view.backgroundColor = UIColor.background
         self.containerUIView.backgroundColor = UIColor.background
         filterCategoryCollectionView.backgroundColor = .clear
-        filterDateCollectionView.backgroundColor = .clear
+        filterOrderCollectionView.backgroundColor = .clear
         filterVideoDurationCollectionView.backgroundColor = .clear
     }
 
     @IBAction func applyButtonTapped(_ sender: UIButton) {
-        print(selectedCategories, selectedDate, selectedDuration)
-        self.dismiss(animated: true)
+        onApply?(selectedCategories, selectedOrder, selectedDuration)
+        dismiss(animated: true)
     }
 
     @IBAction func cancelButtonTapped(_ sender: UIButton) {
         self.dismiss(animated: true)
     }
 
-
     private func registerCollectionViews() {
         collectionViewInset(collectionView: filterCategoryCollectionView)
-        collectionViewInset(collectionView: filterDateCollectionView)
+        collectionViewInset(collectionView: filterOrderCollectionView)
         collectionViewInset(collectionView: filterVideoDurationCollectionView)
 
         filterCategoryCollectionView.delegate = self
         filterCategoryCollectionView.dataSource = self
 
-        filterDateCollectionView.delegate = self
-        filterDateCollectionView.dataSource = self
+        filterOrderCollectionView.delegate = self
+        filterOrderCollectionView.dataSource = self
 
         filterVideoDurationCollectionView.delegate = self
         filterVideoDurationCollectionView.dataSource = self
     }
 
+}
+
+//MARK: - CollectionView Delegate
+
+extension SearchFilterViewController: UICollectionViewDataSource {
     // collectionView Inset setting
     private func collectionViewInset(collectionView: UICollectionView) {
         if let flow = collectionView.collectionViewLayout as? UICollectionViewFlowLayout {
@@ -87,15 +92,13 @@ class SearchFilterViewController: StoryboardViewController {
             flow.sectionInset = .init(top: 0, left: 16, bottom: 0, right: 16)
         }
     }
-}
 
-extension SearchFilterViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         switch collectionView {
         case filterCategoryCollectionView:
             return categories.count
-        case filterDateCollectionView:
-            return dates.count
+        case filterOrderCollectionView:
+            return orders.count
         case filterVideoDurationCollectionView:
             return durations.count
         default:
@@ -113,19 +116,19 @@ extension SearchFilterViewController: UICollectionViewDataSource {
             cell.categoryLabel.text = target.rawValue
 
             return cell
-        case filterDateCollectionView:
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FilterDateCollectionViewCell.id, for: indexPath) as! FilterDateCollectionViewCell
+        case filterOrderCollectionView:
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FilterOrderCollectionViewCell.id, for: indexPath) as! FilterOrderCollectionViewCell
 
-            let target = dates[indexPath.item]
+            let target = orders[indexPath.item]
             cell.defaultCellConfigure()
-            cell.dateLabel.text = target
+            cell.orderLabel.text = target.rawValue
             return cell
         case filterVideoDurationCollectionView:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FilterVideoDurationCollectionViewCell.id, for: indexPath) as! FilterVideoDurationCollectionViewCell
 
             let target = durations[indexPath.item]
             cell.defaultCellConfigure()
-            cell.durationLabel.text = target
+            cell.durationLabel.text = target.description
             return cell
         default:
             return UICollectionViewCell()
@@ -137,7 +140,7 @@ extension SearchFilterViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         switch collectionView {
 
-            // 카테고리 다중 선택
+            // 카테고리: 단일 선택
         case filterCategoryCollectionView:
             let category = categories[indexPath.item]
             if selectedCategories.contains(category) {
@@ -145,30 +148,30 @@ extension SearchFilterViewController: UICollectionViewDelegate {
                 selectedCategories.remove(category)
                 collectionView.deselectItem(at: indexPath, animated: true)
             } else {
-
                 selectedCategories.insert(category)
             }
 
             // 날짜: 단일 선택
-        case filterDateCollectionView:
-            // 이전 선택이 있으면 해제
-            if let prev = selectedDate,
-               let prevIndex = dates.firstIndex(of: prev) {
-                let prevPath = IndexPath(item: prevIndex, section: 0)
-                collectionView.deselectItem(at: prevPath, animated: true)
+        case filterOrderCollectionView:
+            let order = orders[indexPath.item]
+            if selectedOrder.contains(order) {
+                // 이미 선택돼 있었으면 해제
+                selectedOrder.remove(order)
+                collectionView.deselectItem(at: indexPath, animated: true)
+            } else {
+                selectedOrder.insert(order)
             }
-            // 새로 선택
-            selectedDate = dates[indexPath.item]
 
             // 길이: 단일 선택
         case filterVideoDurationCollectionView:
-            if let prev = selectedDuration,
-               let prevIndex = durations.firstIndex(of: prev) {
-                let prevPath = IndexPath(item: prevIndex, section: 0)
-                collectionView.deselectItem(at: prevPath, animated: true)
+            let duration = durations[indexPath.item]
+            if selectedDuration.contains(duration) {
+                // 이미 선택돼 있었으면 해제
+                selectedDuration.remove(duration)
+                collectionView.deselectItem(at: indexPath, animated: true)
+            } else {
+                selectedDuration.insert(duration)
             }
-            selectedDuration = durations[indexPath.item]
-
         default:
             break
         }
@@ -176,19 +179,22 @@ extension SearchFilterViewController: UICollectionViewDelegate {
 
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
         switch collectionView {
-
-            // 카테고리는 다중 선택 → deselect 시에도 상태 업데이트
         case filterCategoryCollectionView:
             let category = categories[indexPath.item]
             selectedCategories.remove(category)
-
-            // date/duration 은 위 didSelectItemAt에서 직접 해제하므로 여기선 특별히 처리할 필요 없음
+        case filterOrderCollectionView:
+            let order = orders[indexPath.item]
+            selectedOrder.remove(order)
+        case filterVideoDurationCollectionView:
+            let duration = durations[indexPath.item]
+            selectedDuration.remove(duration)
         default:
             break
         }
     }
 }
 
+ // MARK: - Detent
 extension SearchFilterViewController: UISheetPresentationControllerDelegate {
     func sheetPresentationControllerDidChangeSelectedDetentIdentifier(
         _ sheetPresentationController: UISheetPresentationController
@@ -204,7 +210,6 @@ extension SearchFilterViewController: UISheetPresentationControllerDelegate {
         default:
             flow.scrollDirection = .horizontal
             filterCategoryCVHeightConstraint.constant = 40
-
         }
 
         flow.invalidateLayout()

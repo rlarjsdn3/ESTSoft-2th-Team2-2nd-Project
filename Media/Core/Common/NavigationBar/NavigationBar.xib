@@ -37,9 +37,6 @@
                             </constraints>
                             <state key="normal" title="Button"/>
                             <buttonConfiguration key="configuration" style="plain"/>
-                            <connections>
-                                <action selector="leftTapped:" destination="-1" eventType="touchUpInside" id="FWf-Va-QSa"/>
-                            </connections>
                         </button>
                         <view contentMode="scaleToFill" horizontalHuggingPriority="249" translatesAutoresizingMaskIntoConstraints="NO" id="JDx-wX-MeL" userLabel="Center Container View">
                             <rect key="frame" x="32" y="0.0" width="297" height="44"/>
@@ -98,9 +95,6 @@
                             </constraints>
                             <state key="normal" title="Button"/>
                             <buttonConfiguration key="configuration" style="plain"/>
-                            <connections>
-                                <action selector="rightTapped:" destination="-1" eventType="touchUpInside" id="PPl-oe-HPf"/>
-                            </connections>
                         </button>
                     </subviews>
                     <color key="backgroundColor" name="Background"/>

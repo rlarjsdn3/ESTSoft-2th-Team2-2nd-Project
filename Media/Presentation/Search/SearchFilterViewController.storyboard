@@ -73,7 +73,7 @@
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="카테고리" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6uf-Ii-Iq3">
                                                 <rect key="frame" x="0.0" y="0.0" width="361" height="18"/>
                                                 <fontDescription key="fontDescription" style="UICTFontTextStyleSubhead"/>
-                                                <nil key="textColor"/>
+                                                <color key="textColor" name="MainLabel"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Ws5-3g-3dt">
@@ -96,7 +96,7 @@
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="top" spacing="2" translatesAutoresizingMaskIntoConstraints="NO" id="l3N-v5-ut4">
                                         <rect key="frame" x="16" y="133" width="361" height="21"/>
                                         <subviews>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="업로드 날짜" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="pu6-k9-nn9">
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="인기순 / 최신순" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="pu6-k9-nn9">
                                                 <rect key="frame" x="0.0" y="0.0" width="361" height="18"/>
                                                 <fontDescription key="fontDescription" style="UICTFontTextStyleSubhead"/>
                                                 <color key="textColor" name="MainLabel"/>
@@ -205,7 +205,7 @@
                                             <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                         </collectionViewFlowLayout>
                                         <cells>
-                                            <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="FilterDateCollectionViewCell" id="vsT-RL-qTX" customClass="FilterDateCollectionViewCell" customModule="Media" customModuleProvider="target">
+                                            <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="FilterOrderCollectionViewCell" id="vsT-RL-qTX" customClass="FilterOrderCollectionViewCell" customModule="Media" customModuleProvider="target">
                                                 <rect key="frame" x="0.0" y="-0.66666666666666663" width="128" height="41"/>
                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                 <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="EfM-li-2na">
@@ -233,8 +233,8 @@
                                                 </collectionViewCellContentView>
                                                 <size key="customSize" width="128" height="41"/>
                                                 <connections>
-                                                    <outlet property="dateContentView" destination="EfM-li-2na" id="y3g-96-h8y"/>
-                                                    <outlet property="dateLabel" destination="AQg-ae-OV9" id="p9f-uF-Hmt"/>
+                                                    <outlet property="orderContentView" destination="EfM-li-2na" id="Z0r-tM-yIp"/>
+                                                    <outlet property="orderLabel" destination="AQg-ae-OV9" id="62F-4e-Dfa"/>
                                                 </connections>
                                             </collectionViewCell>
                                         </cells>
@@ -247,8 +247,11 @@
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="40" id="F4v-wO-1To"/>
                                                 </constraints>
+                                                <color key="tintColor" name="MainLabel"/>
                                                 <state key="normal" title="Button"/>
-                                                <buttonConfiguration key="configuration" style="tinted" title="Cancel"/>
+                                                <buttonConfiguration key="configuration" style="tinted" title="취소">
+                                                    <color key="baseForegroundColor" systemColor="labelColor"/>
+                                                </buttonConfiguration>
                                                 <connections>
                                                     <action selector="cancelButtonTapped:" destination="Y6W-OH-hqX" eventType="touchUpInside" id="KGw-Uc-TjB"/>
                                                 </connections>
@@ -258,8 +261,9 @@
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="40" id="qp4-be-YCL"/>
                                                 </constraints>
+                                                <color key="tintColor" name="Primary"/>
                                                 <state key="normal" title="Button"/>
-                                                <buttonConfiguration key="configuration" style="filled" title="Apply"/>
+                                                <buttonConfiguration key="configuration" style="filled" title="검색하기"/>
                                                 <connections>
                                                     <action selector="applyButtonTapped:" destination="Y6W-OH-hqX" eventType="touchUpInside" id="Rlc-Ww-PE0"/>
                                                 </connections>
@@ -305,7 +309,7 @@
                         <outlet property="containerUIView" destination="4nS-xR-0pm" id="2Xs-BW-bFH"/>
                         <outlet property="filterCategoryCVHeightConstraint" destination="3qg-SI-8qg" id="tgw-Qj-gUd"/>
                         <outlet property="filterCategoryCollectionView" destination="Esz-cq-yE2" id="Gpn-86-dCA"/>
-                        <outlet property="filterDateCollectionView" destination="hep-ys-zYV" id="dXd-mC-wBh"/>
+                        <outlet property="filterOrderCollectionView" destination="hep-ys-zYV" id="XLq-6M-ysn"/>
                         <outlet property="filterVideoDurationCollectionView" destination="lyT-Uc-WWf" id="mCJ-MS-1fk"/>
                     </connections>
                 </viewController>
@@ -318,6 +322,12 @@
         <namedColor name="MainLabel">
             <color red="0.23137254901960785" green="0.23137254901960785" blue="0.23137254901960785" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
+        <namedColor name="Primary">
+            <color red="0.29803921568627451" green="0.36078431372549019" blue="0.36078431372549019" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <systemColor name="labelColor">
+            <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

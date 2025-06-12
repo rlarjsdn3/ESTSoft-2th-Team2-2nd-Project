@@ -2,8 +2,11 @@
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23788" systemVersion="24F74" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="PlaybackHistoryEntity" representedClassName="PlaybackHistoryEntity" syncable="YES">
         <attribute name="createdAt" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="duration" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="likes" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="pageUrl" attributeType="URI"/>
+        <attribute name="tags" optional="YES" attributeType="String"/>
         <attribute name="user" attributeType="String"/>
         <attribute name="userId" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="userImageUrl" attributeType="URI"/>
@@ -16,8 +19,11 @@
         <relationship name="playlistVideos" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="PlaylistVideoEntity" inverseName="playlist" inverseEntity="PlaylistVideoEntity"/>
     </entity>
     <entity name="PlaylistVideoEntity" representedClassName="PlaylistVideoEntity" syncable="YES">
+        <attribute name="duration" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="likes" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="pageUrl" attributeType="URI"/>
+        <attribute name="tags" optional="YES" attributeType="String"/>
         <attribute name="user" attributeType="String"/>
         <attribute name="userId" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="userImageUrl" attributeType="URI"/>
@@ -31,9 +37,6 @@
     </entity>
     <entity name="TagsEntity" representedClassName="TagsEntity" syncable="YES">
         <attribute name="tag" optional="YES" attributeType="String"/>
-    </entity>
-    <entity name="TodoEntity" representedClassName="TodoEntity" syncable="YES">
-        <attribute name="title" optional="YES" attributeType="String"/>
     </entity>
     <entity name="VideoQualityEntity" representedClassName="VideoQualityEntity" syncable="YES">
         <attribute name="thumbnail" optional="YES" attributeType="URI"/>

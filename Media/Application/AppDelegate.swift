@@ -11,17 +11,24 @@ import CoreData
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
+    let coreDataService = CoreDataService.shared
+    let userDefaultsService = UserDefaultsService.shared
 
 
     func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
-        
+
         #if DEBUG
         CoreDataService.shared.generateDummy()
+        #else
+        if userDefaultsService.isFirstLaunch {
+            CoreDataService.shared.initializeDefaultDataIfFirstRun()
+        }
+        userDefaultsService.isFirstLaunch = false
         #endif
-        
+
         return true
     }
 

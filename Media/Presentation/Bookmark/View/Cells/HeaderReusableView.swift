@@ -8,23 +8,23 @@
 import UIKit
 
 /// 재생기록 섹션 헤더에 사용되는 커스텀 뷰
-class HeaderReusableView: UICollectionReusableView {
+class HeaderReusableView: UICollectionReusableView, NibLodable {
 
     /// 헤더의 타이틀을 표시하는 라벨
-    @IBOutlet weak var titleLabel: UILabel!
+    @IBOutlet private weak var titleLabel: UILabel!
 
     /// 버튼에 표시될 라벨
-    @IBOutlet weak var buttonTitleLabel: UILabel!
+    @IBOutlet private weak var buttonTitleLabel: UILabel!
 
     /// 헤더 우측의 버튼
-    @IBOutlet weak var button: UIButton!
+    @IBOutlet private weak var button: UIButton!
 
     /// 버튼 탭 이벤트를 처리할 delegate
     weak var delegate: HeaderButtonDelegate?
 
     /// 버튼이 탭되었을 때 호출되는 액션 메서드
     @IBAction func tapButton(_ sender: Any) {
-        delegate?.HeaderButtonDidTap?(self)
+        delegate?.headerButtonDidTap?(self)
     }
 
     override init(frame: CGRect) {
@@ -53,7 +53,7 @@ extension HeaderReusableView {
     ///   - hasEvent: 버튼을 표시할지 여부 (기본값은 false)
     func configure(
         title: String,
-        hasEvent: Bool = false,
+        hasEvent: Bool = false
     ) {
         titleLabel.text = title
         guard !hasEvent else {
