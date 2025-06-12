@@ -13,6 +13,26 @@ final class SearchViewController: StoryboardViewController, NavigationBarDelegat
 
     var recordManager = SearchRecordManager()
     private var records: [SearchRecordEntity] = []
+    
+    private var selectedCategories: Category? = {
+        let raw: String? = UserDefaultsService.shared[keyPath: \.filterCategories]
+
+        return raw.flatMap { Category(rawValue: $0) }
+    }()
+
+    private var selectedOrder: Order? = {
+        let raw: String? = UserDefaultsService.shared[keyPath: \.filterOrders]
+
+        return raw.flatMap { Order(rawValue: $0) }
+    }()
+
+    private lazy var selectedDuration: Duration? = {
+        let raw: String? = UserDefaultsService.shared[keyPath: \.filterDurations]
+
+        return raw.flatMap { descript in
+            Duration.allCases.first { $0.description == descript }
+        }
+    }()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -22,6 +42,7 @@ final class SearchViewController: StoryboardViewController, NavigationBarDelegat
     override func setupHierachy() {
         configureSearchTableView()
         configureSearchBar()
+        changeStateOfFilterButton()
     }
 
     override func setupAttributes() {
@@ -53,6 +74,15 @@ final class SearchViewController: StoryboardViewController, NavigationBarDelegat
         )
     }
 
+    // 필터가 하나라도 켜져 있으면 filterButton 색변경
+    private func changeStateOfFilterButton() {
+        if selectedCategories != nil || selectedOrder != nil || selectedDuration != nil {
+            navigationBar.rightButton.tintColor = .red
+        } else {
+            navigationBar.rightButton.tintColor = .label
+        }
+    }
+
     // 검색 기록 로드
     private func loadRecentSearches() {
         records = (try? recordManager.fetchRecent(limit: 20)) ?? []
@@ -76,23 +106,9 @@ final class SearchViewController: StoryboardViewController, NavigationBarDelegat
         ) as! SearchFilterViewController
 
         // 콜백
-        vc.onApply = { [weak self] categories, order, duration in
-                guard let self = self else { return }
-                DispatchQueue.main.async {
-                    // 다음 화면으로 푸시
-                    let sb = UIStoryboard(name: "SearchResultViewController", bundle: nil)
-                    let resultVC = sb.instantiateViewController(
-                        identifier: "SearchResultViewController"
-                    ) as! SearchResultViewController
-
-                    resultVC.keyword = self.navigationBar.searchBar.text
-                    resultVC.getCategories = categories.first
-                    resultVC.getOrder = order.first
-                    resultVC.getDuration = duration.first
-
-                    self.navigationController?.pushViewController(resultVC, animated: true)
-                }
-            }
+        vc.onApply = {
+            Toast.makeToast("필터가 적용되었습니다.", systemName: "slider.horizontal.3").present()
+        }
 
         vc.modalPresentationStyle = .pageSheet
         if let sheet = vc.sheetPresentationController {

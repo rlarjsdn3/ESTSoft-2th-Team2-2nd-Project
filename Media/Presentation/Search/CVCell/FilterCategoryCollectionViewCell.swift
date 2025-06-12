@@ -19,6 +19,14 @@ class FilterCategoryCollectionViewCell: UICollectionViewCell {
         categoryLabel.textColor = .black
     }
 
+    func selectedCellConfigure() {
+        categoryContentView.layer.cornerRadius = 12
+        categoryContentView.backgroundColor = UIColor.tagSelected
+        categoryContentView.layer.borderWidth = 1.0
+        categoryContentView.layer.borderColor = UIColor.tagBorder.cgColor
+        categoryLabel.textColor = .white
+    }
+
     override func layoutSubviews() {
         super.layoutSubviews()
 
