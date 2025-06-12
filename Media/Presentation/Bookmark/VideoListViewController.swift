@@ -96,7 +96,7 @@ final class VideoListViewController: StoryboardViewController {
             ? .fractionalWidth(1.0) : .fractionalWidth(0.33)
             let itemSize = NSCollectionLayoutSize(
                 widthDimension: itemWidthDimension, // 임시 값
-                heightDimension: .estimated(100) // 임시 값
+                heightDimension: .estimated(200) // 임시 값
             )
             let item = NSCollectionLayoutItem(layoutSize: itemSize)
 
@@ -148,19 +148,6 @@ extension VideoListViewController {
             cell.backgroundColor = UIColor.random
         }
 
-        let cellRagistration2 = UICollectionView.CellRegistration<MediumVideoCell, VideoList.Item>(cellNib: MediumVideoCell.nib) { cell, indexPath, item in
-
-
-            /// 재생 기록 항목
-            if case .playback(let playback) = item {
-                guard let thumbnailUrl = playback.video?.medium.thumbnail else { return }
-
-                let viewModel = MediumVideoViewModel(tags: playback.tags, userName: playback.user, viewCount: Int(playback.views), duration: Int(playback.duration), thumbnailUrl: thumbnailUrl)
-                cell.configure(viewModel)
-                cell.isBookMark = true
-            }
-        }
-
         // 임시 헤더 등록
         let headerRagistration = UICollectionView.SupplementaryRegistration<ColorCollectiorReusableView>(elementKind: ColorCollectiorReusableView.id) { supplementaryView, elementKind, indexPath in
             guard let section = self.dataSource?.sectionIdentifier(for: indexPath.section),
@@ -172,16 +159,10 @@ extension VideoListViewController {
         // 임시 데이터 소스 코드
         dataSource = PlaylistDiffableDataSource(collectionView: collectionView) { collectionView, indexPath, item in
             return collectionView.dequeueConfiguredReusableCell(
-                using: cellRagistration2,
+                using: cellRagistration,
                 for: indexPath,
                 item: item
             )
-
-//            return collectionView.dequeueConfiguredReusableCell(
-//                using: cellRagistration2,
-//                for: indexPath,
-//                item: item
-//            )
         }
 
         // 임시 데이터 소스 코드
