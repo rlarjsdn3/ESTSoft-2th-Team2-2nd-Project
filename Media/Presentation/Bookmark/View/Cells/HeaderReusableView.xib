@@ -24,16 +24,12 @@
                             <nil key="highlightedColor"/>
                         </label>
                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gPa-sP-dIi">
-                            <rect key="frame" x="258" y="15" width="88" height="35"/>
-                            <constraints>
-                                <constraint firstAttribute="width" constant="88" id="JiB-YB-Na8"/>
-                                <constraint firstAttribute="height" constant="35" id="n2C-9X-Api"/>
-                            </constraints>
+                            <rect key="frame" x="276.33333333333331" y="18.333333333333336" width="69.666666666666686" height="28.333333333333336"/>
                             <color key="tintColor" systemColor="labelColor"/>
                             <state key="normal" title="Button"/>
-                            <buttonConfiguration key="configuration" style="plain" cornerStyle="large">
+                            <buttonConfiguration key="configuration" style="plain" cornerStyle="capsule">
                                 <backgroundConfiguration key="background">
-                                    <color key="strokeColor" white="0.66666666669999997" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <color key="strokeColor" systemColor="systemGray4Color"/>
                                 </backgroundConfiguration>
                             </buttonConfiguration>
                             <connections>
@@ -41,8 +37,8 @@
                             </connections>
                         </button>
                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="1000" verticalHuggingPriority="251" horizontalCompressionResistancePriority="1000" text="모두 보기" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="yjI-B1-0s5">
-                            <rect key="frame" x="270.33333333333331" y="22" width="63.333333333333314" height="21"/>
-                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                            <rect key="frame" x="287" y="24.666666666666668" width="48.666666666666686" height="15.666666666666668"/>
+                            <fontDescription key="fontDescription" type="system" weight="medium" pointSize="13"/>
                             <nil key="textColor"/>
                             <nil key="highlightedColor"/>
                         </label>
@@ -55,6 +51,8 @@
                         <constraint firstItem="gPa-sP-dIi" firstAttribute="centerY" secondItem="47Y-gu-nuo" secondAttribute="centerY" id="KiV-GD-q9F"/>
                         <constraint firstItem="yjI-B1-0s5" firstAttribute="centerY" secondItem="gPa-sP-dIi" secondAttribute="centerY" id="Pme-BM-x7s"/>
                         <constraint firstItem="2jh-H7-BRM" firstAttribute="leading" secondItem="47Y-gu-nuo" secondAttribute="leading" constant="19" id="bpA-Hr-oUd"/>
+                        <constraint firstItem="yjI-B1-0s5" firstAttribute="width" secondItem="gPa-sP-dIi" secondAttribute="width" multiplier="0.7" id="ebh-6e-r7W"/>
+                        <constraint firstItem="yjI-B1-0s5" firstAttribute="height" secondItem="gPa-sP-dIi" secondAttribute="height" multiplier="0.55" id="uqT-3K-wcV"/>
                     </constraints>
                 </view>
             </subviews>
@@ -79,6 +77,9 @@
         </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+        <systemColor name="systemGray4Color">
+            <color red="0.81960784310000001" green="0.81960784310000001" blue="0.83921568629999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>
