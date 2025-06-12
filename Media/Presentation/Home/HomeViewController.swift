@@ -2,6 +2,7 @@
 import UIKit
 import AVKit
 import AVFoundation
+import CoreData
 
 
 final class HomeViewController: StoryboardViewController {
@@ -91,7 +92,6 @@ final class HomeViewController: StoryboardViewController {
 
         fetchVideo()
 
-
     }
 
     // 비디오 재생
@@ -125,10 +125,11 @@ final class HomeViewController: StoryboardViewController {
 
                 player.play()
             } else if playerItem.status == .failed {
-                print("❌ PlayerItem failed to load")
+                print(":x: PlayerItem failed to load: \(playerItem.error.debugDescription)")
             }
         }
     }
+    //UIView controller Extention
 
     // 선택된 카테고리에 따라 Pixabay API에서 비디오 데이터 요청
     private func fetchVideo() {
@@ -185,11 +186,7 @@ final class HomeViewController: StoryboardViewController {
         }
     }
 
-    // 재생목록 비어있는지 체크
-    var playlistIsEmmpty: Bool = false
-
-
-
+    // 비디오 테스트용
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
@@ -206,6 +203,163 @@ final class HomeViewController: StoryboardViewController {
         //            playVideo(with: testURL)
         //        }
     }
+
+    // 동영상 재생시 시청기록재생 함수
+    func addToWatchHistory(_ video: PixabayResponse.Hit) {
+        let context = CoreDataService.shared.persistentContainer.viewContext
+
+        let fetchRequest: NSFetchRequest<PlaybackHistoryEntity> = PlaybackHistoryEntity.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "id == %d", video.id)
+
+        do {
+            let existing = try context.fetch(fetchRequest)
+
+            // 기존 기록이 있으면 삭제
+            for record in existing {
+                context.delete(record)
+            }
+
+            // 새로운 시청기록 생성
+            let historyEntity = video.mapToPlaybackHistoryEntity(insertInto: context)
+            historyEntity.createdAt = Date()
+            try context.save()
+
+        } catch {
+            print(error)
+        }
+    }
+
+     // 북마크
+    func addToBookmark(_ video: PixabayResponse.Hit) {
+        let context = CoreDataService.shared.persistentContainer.viewContext
+
+        let bookmarkPlaylist = fetchOrCreateBookmarkPlaylist(context: context)
+
+        let videoCheckRequest: NSFetchRequest<PlaylistVideoEntity> = PlaylistVideoEntity.fetchRequest()
+        videoCheckRequest.predicate = NSPredicate(format: "id == %d And playlist == %@", video.id, bookmarkPlaylist)
+
+        do {
+            let existing = try context.fetch(videoCheckRequest)
+            if !existing.isEmpty {
+                Toast.makeToast("이미 북마크에 있습니다", systemName: "bookmark.fill").present()
+                return
+            }
+
+            let playlistVideo = video.mapToPlaylistVideoEntity(insertInto: context)
+            playlistVideo.playlist = bookmarkPlaylist
+            try context.save()
+
+            Toast.makeToast("북마크에 추가되었습니다", systemName: "bookmark").present()
+        } catch {
+            print(error)
+        }
+    }
+    // 재생목록
+    func addToPlaylist(_ video: PixabayResponse.Hit) {
+        let context = CoreDataService.shared.persistentContainer.viewContext
+
+        let fetchRequest: NSFetchRequest<PlaylistEntity> = PlaylistEntity.fetchRequest()
+        do {
+            let playlists = try context.fetch(fetchRequest)
+            let playlistNames = playlists.map { $0.name ?? ""}
+
+            // UIAlertController로 재생목록 선택지
+            let alertController = UIAlertController(title: "재생목록 선택", message: nil, preferredStyle: .actionSheet)
+            playlistNames.forEach { name in
+                let action = UIAlertAction(title: name, style: .default) { _ in
+                    self.addVideoToPlaylist(video, playlistName: name)
+                }
+                alertController.addAction(action)
+            }
+
+            // 새 재생목록 생성 옵션 추가
+            let createNewAction = UIAlertAction(title: "새 재생목록 만들기", style: .default) { _ in
+                self.showAddPlaylistAlert()
+            }
+            alertController.addAction(createNewAction)
+
+            // 취소 버튼 추가
+            let cancelAction = UIAlertAction(title: "취소", style: .cancel)
+            alertController.addAction(cancelAction)
+
+            self.present(alertController, animated: true)
+        } catch {
+            print(error)
+        }
+    }
+
+    func addVideoToPlaylist(_ video: PixabayResponse.Hit, playlistName: String) {
+        let context = CoreDataService.shared.persistentContainer.viewContext
+
+        // 선택한 재생목록 찾기
+        let fetchRequest: NSFetchRequest<PlaylistEntity> = PlaylistEntity.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "name == %@", playlistName)
+        do {
+            if let playlist = try context.fetch(fetchRequest).first {
+                // PlaylistVideoEntity 생성 및 저장
+                let playlistVideo = video.mapToPlaylistVideoEntity(insertInto: context)
+                playlistVideo.playlist = playlist
+                try context.save()
+                Toast.makeToast("재생목록에 추가되었습니다", systemName: "list.clipboard").present()
+            }
+        } catch {
+            print(error)
+        }
+    }
+
+    func showAddPlaylistAlert() {
+
+        showTextFieldAlert(
+            "새로운 재생 목록 추가",
+            message: "새로운 재생 목록 이름을 입력하세요.") { (action, newText) in
+                if !PlaylistEntity.isExist(newText) {
+                    let newPlaylist = PlaylistEntity(
+                        name: newText,
+                        insertInto: CoreDataService.shared.viewContext
+                    )
+                    CoreDataService.shared.insert(newPlaylist)
+                } else {
+                    Toast.makeToast("이미 존재하는 재생 목록 이름입니다.").present()
+                }
+        } onCancel: { action in
+
+        }
+    }
+
+    func createPlaylist(name: String, video: PixabayResponse.Hit) {
+        let context = CoreDataService.shared.persistentContainer.viewContext
+
+        // 새로운 재생목록엔티티 생성
+        let newPlaylist = PlaylistEntity(context: context)
+        newPlaylist.name = name
+        newPlaylist.createdAt = Date()
+
+        // 재생목록앤티티 생성 및 저장
+        let playlistVideo = video.mapToPlaylistVideoEntity(insertInto: context)
+        newPlaylist.addToPlaylistVideos(playlistVideo)
+
+        do {
+            try context.save()
+            Toast.makeToast("\(newPlaylist) 생성되었습니다", systemName: "list.clipboard").present()
+        } catch {
+            print(error)
+        }
+    }
+
+    func fetchOrCreateBookmarkPlaylist(context: NSManagedObjectContext) -> PlaylistEntity {
+        let request: NSFetchRequest<PlaylistEntity> = PlaylistEntity.fetchRequest()
+        request.predicate = NSPredicate(format: "name == %@", CoreDataString.bookmarkedPlaylistName)
+
+        if let existing = try? context.fetch(request), let playlist = existing.first {
+            return playlist
+        } else {
+            let newPlaylist = PlaylistEntity(context: context)
+            newPlaylist.name = CoreDataString.bookmarkedPlaylistName
+            newPlaylist.createdAt = Date()
+            try? context.save()
+            return newPlaylist
+        }
+    }
 }
 
 extension HomeViewController: UICollectionViewDelegate {
@@ -217,10 +371,30 @@ extension HomeViewController: UICollectionViewDelegate {
             categoryCollectionView.reloadData()
             // 선택한 카테고리에 맞춰 비디오 재요청
             fetchVideo()
-        } else if collectionView == videoCollectionView {
-
         }
     }
+
+    func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+        guard collectionView == videoCollectionView,
+                  indexPath.item < videos.count else { return nil }
+            let item = videos[indexPath.item]
+
+            return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
+                let bookmarkAction = UIAction(
+                    title: "북마크에 추가하기", image: UIImage(systemName: "bookmark")
+                ) { _ in
+                    self.addToBookmark(item)
+                }
+
+                let playlistAction = UIAction(
+                    title: "재생목록에 추가하기", image: UIImage(systemName: "text.badge.plus")
+                ) { _ in
+                    self.addToPlaylist(item)
+                }
+
+                return UIMenu(title: "", children: [bookmarkAction, playlistAction])
+            }
+        }
 }
 
 extension HomeViewController: UICollectionViewDataSource {
@@ -251,28 +425,21 @@ extension HomeViewController: UICollectionViewDataSource {
             // 썸네일 터치시 영상 재생
             cell.onThumbnailTap = { [weak self] in
                 guard let self = self, let videoURL = video.videos.medium.url else { return }
+                // 시청기록 저장
+                self.addToWatchHistory(video)
+                // 영상재생
                 self.playVideo(with: videoURL)
             }
 
             // Ellipsis 버튼 실행
             cell.configureMenu(
-                bookmarkAction: { [weak self] in
-                    guard let self = self else { return }
-                    // 실제 북마크 처리 코드
-                   // let toast = Toast.makeToast("추가되었습니다", systemName: "checkmark").present()
-                },
-                playlistAction: { [weak self] in
-                    guard let self = self else { return }
-                    // 재생목록 추가 처리 코드
-                },
-                deleteAction: { [weak self] in
-                    guard let self = self else { return }
-                    // 삭제 처리 코드
-                },
-                cancelAction: {
-
-                }
-            )
+                    bookmarkAction: { [weak self] in
+                        self?.addToBookmark(video)
+                    },
+                    playlistAction: { [weak self] in
+                       self?.addToPlaylist(video)
+                    }
+                )
             return cell
         }
 
@@ -322,3 +489,4 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout {
         return 8
     }
 }
+
