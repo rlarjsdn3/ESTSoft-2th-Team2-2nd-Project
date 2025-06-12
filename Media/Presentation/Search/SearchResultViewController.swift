@@ -247,11 +247,11 @@ extension SearchResultViewController: UICollectionViewDataSource {
 
         let viewModel = VideoCellViewModel(
             title: video.user,
-            viewCountText: formatViewCount(video.views),
-            durationText: formatDuration(seconds: video.duration),
+            viewCount: video.views,
+            duration: video.duration,
             thumbnailURL: video.videos.medium.thumbnail,
             profileImageURL: video.userImageUrl,
-            likeCountText: formatViewCount(video.likes),
+            likeCount: video.likes,
             tags: video.tags
         )
 

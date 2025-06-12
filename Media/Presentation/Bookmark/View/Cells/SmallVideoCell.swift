@@ -7,6 +7,8 @@
 
 import UIKit
 
+/// 재생목록의 썸네일을 보여주는 셀.
+/// 마지막 셀일 경우 "재생목록 추가" UI를 표시합니다.
 final class SmallVideoCell: UICollectionViewCell, NibLodable {
 
     /// 썸네일 이미지를 표시하는 이미지 뷰
@@ -18,9 +20,34 @@ final class SmallVideoCell: UICollectionViewCell, NibLodable {
     /// 동영상 재생목록 타이틀을 표시하는 라벨
     @IBOutlet weak var titleLabel: UILabel!
 
-    /// 마지막 셀에 표시될 플러스 버튼 (새 항목 추가용)
-    @IBOutlet weak var plusButton: UIButton!
+    /// 마지막 셀에만 표시되는 '+' 아이콘 이미지 뷰
+    @IBOutlet weak var plusImageView: UIImageView!
 
+    /// 비디오 개수 뷰의 배경이 되는 스택 뷰
+    @IBOutlet weak var videoCountBackgroundView: UIStackView!
+
+    /// 재생목록에 포함된 비디오 개수 라벨
+    @IBOutlet weak var videoCountLabel: UILabel!
+
+    /// 이미지 다운로드를 위한 데이터 전송 서비스
+    var dataTransferService: (any DataTransferService)?
+
+    /// 마지막 셀인지 여부를 나타내는 플래그
+    var isLast: Bool = false {
+        didSet {
+            // 마지막 셀일 경우 '+' 버튼을 보여주고 일반 셀 UI는 숨김 처리
+            plusImageView.isHidden = !isLast
+            thumbnailImageView.isHidden = isLast
+            shadowView.isHidden = isLast
+            titleLabel.textAlignment = isLast ? .center : .left
+            videoCountBackgroundView.isHidden = isLast
+            if isLast { titleLabel.text = "재생목록 추가"}
+        }
+    }
+
+    /// 현재 셀에 로드 중인 썸네일 이미지의 URL입니다.
+    private var currentThumbnailURL: URL?
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
     }
@@ -39,45 +66,63 @@ final class SmallVideoCell: UICollectionViewCell, NibLodable {
     }
 
     private func setViews() {
+        plusImageView.layer.cornerRadius = plusImageView.frame.height/2
         thumbnailImageView.layer.borderWidth = 2
         thumbnailImageView.layer.borderColor = UIColor.white.cgColor
         thumbnailImageView.layer.cornerRadius = 8
         shadowView.layer.cornerRadius = 8
+        videoCountBackgroundView.layer.cornerRadius = 3
+        videoCountBackgroundView.isLayoutMarginsRelativeArrangement = true
+        videoCountBackgroundView.directionalLayoutMargins = NSDirectionalEdgeInsets(top: 3, leading: 5, bottom: 3, trailing: 5)
     }
 
 }
 
 extension SmallVideoCell {
-    /// 셀의 내용을 구성하는 메서드
-    /// - Parameters:
-    ///   - url: 썸네일 이미지의 URL (nil이면 기본 이미지 사용)
-    ///   - title: 동영상 제목
-    ///   - isLast: 마지막 셀인지 여부 (true면 플러스 버튼 표시)
+    /// 셀을 외부에서 구성할 때 사용하는 기본 설정 메서드
+      /// - Parameters:
+      ///   - url: 썸네일 이미지 URL
+      ///   - title: 재생목록 제목
+      ///   - isLast: 마지막 셀 여부
     func configure(
         url: URL? = nil,
         title: String,
         isLast: Bool = false
     ) {
-
+        currentThumbnailURL = url
         titleLabel.text = title
+        self.isLast = isLast
+        configureThumbnail(from: url)
+    }
 
-        guard !isLast else {
-            thumbnailImageView.isHidden = true
-            shadowView.isHidden = true
-            return
-        }
+    func configure(_ playlist: PlayListViewModel) {
+        isLast = false
+        currentThumbnailURL = playlist.thumbnailUrl
+        titleLabel.text = playlist.userName
+        videoCountLabel.text = "\(playlist.total ?? 0)"
+        configureThumbnail(from: playlist.thumbnailUrl)
+    }
 
-        plusButton.isHidden = true
+    private func configureThumbnail(from url: URL?) {
         thumbnailImageView.backgroundColor = .systemGray6
 
         let session = URLSession.shared
-        if let url {
-            Task {
+        Task {
+            if let url {
                 let (data, _) = try await session.data(from: url)
+                
+                guard self.currentThumbnailURL == url else { return }
+                
                 thumbnailImageView.image = UIImage(data: data)
+            } else {
+                thumbnailImageView.image = UIImage(named: "default")
             }
-        } else {
-            thumbnailImageView.image = UIImage(named: "default")
         }
     }
+}
+
+struct PlayListViewModel {
+    var thumbnailUrl: URL?
+    var userName: String?
+    var total: Int?
 }

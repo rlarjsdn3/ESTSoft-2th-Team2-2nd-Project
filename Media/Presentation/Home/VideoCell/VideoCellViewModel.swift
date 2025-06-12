@@ -12,22 +12,49 @@ struct VideoCellViewModel {
 
     init(
         title: String,
-        viewCountText: String,
-        durationText: String,
+        viewCount: Int,
+        duration: Int,
         thumbnailURL: URL?,
         profileImageURL: URL?,
-        likeCountText: String,
+        likeCount: Int,
         tags: String
     ) {
         self.title = title
-        self.viewCountText = viewCountText
-        self.durationText = durationText
+        self.viewCountText = VideoCellViewModel.formatViewCount(viewCount)
+        self.durationText = VideoCellViewModel.formatDuration(duration)
         self.thumbnailURL = thumbnailURL
         self.profileImageURL = profileImageURL
-        self.likeCountText = likeCountText
-        // 태그값을 카테고리로 변환하기위하여
+        self.likeCountText = VideoCellViewModel.formatViewCount(likeCount)
+
         let components = tags.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
-            self.categoryText = components.first?.capitalized ?? "Unknown"
+        self.categoryText = components.first?.capitalized ?? "Unknown"
+    }
+
+    // 뷰모델 내부에 포맷 함수 추가
+    private static func formatViewCount(_ count: Int) -> String {
+        if count >= 10_000 {
+            let value = Double(count) / 10_000
+            if abs(value.rounded() - value) < 0.01 {
+                return "\(Int(value))만 회"
+            } else {
+                return String(format: "%.1f만 회", value)
+            }
+        } else if count >= 1_000 {
+            let value = Double(count) / 1_000
+            if abs(value.rounded() - value) < 0.01 {
+                return "\(Int(value))천 회"
+            } else {
+                return String(format: "%.1f천 회", value)
+            }
+        } else {
+            return "\(count)회"
+        }
+    }
+
+    private static func formatDuration(_ seconds: Int) -> String {
+        let minutes = seconds / 60
+        let remainingSeconds = seconds % 60
+        return String(format: "%02d:%02d", minutes, remainingSeconds)
     }
 }
- 
+

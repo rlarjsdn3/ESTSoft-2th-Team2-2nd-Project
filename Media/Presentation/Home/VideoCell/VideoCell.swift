@@ -22,6 +22,14 @@ final class VideoCell: UICollectionViewCell, NibLodable {
     @IBOutlet weak var tagLabel: UILabel!
 
     @IBOutlet weak var likeIcon: UIImageView!
+
+    @IBAction func ellipsisButtonAction(_ sender: Any) {
+
+    }
+
+
+    var onThumbnailTap: (() -> Void)?
+
     override func awakeFromNib() {
         super.awakeFromNib()
 
@@ -50,6 +58,13 @@ final class VideoCell: UICollectionViewCell, NibLodable {
         tagLabel.layer.cornerRadius = 2
         tagLabel.clipsToBounds = true
 
+        thumbnailImage.isUserInteractionEnabled = true
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(thumbnailTapped))
+        thumbnailImage.addGestureRecognizer(tapGesture)
+    }
+
+    @objc private func thumbnailTapped() {
+        onThumbnailTap?()
     }
 
     override func layoutSubviews() {
@@ -65,6 +80,29 @@ final class VideoCell: UICollectionViewCell, NibLodable {
         profileImage.image = nil
     }
 
+    // Ellipsis 버튼 함수
+    func configureMenu(bookmarkAction: @escaping () -> Void,
+                       playlistAction: @escaping () -> Void,
+                       deleteAction: @escaping () -> Void,
+                       cancelAction: @escaping () -> Void) {
+        let bookmark = UIAction(title: "북마크") { _ in
+            bookmarkAction()
+        }
+        let playlist = UIAction(title: "재생목록") { _ in
+            playlistAction()
+        }
+        let delete = UIAction(title: "삭제", attributes: .destructive) { _ in
+            deleteAction()
+        }
+        let cancel = UIAction(title: "취소") { _ in
+            cancelAction()
+        }
+
+        let menu = UIMenu(title: "", children: [bookmark, playlist, delete, cancel])
+        ellipsisButton.menu = menu
+        ellipsisButton.showsMenuAsPrimaryAction = true
+    }
+
     // 뷰 모델을 받아 셀의 UI를 업데이트하는 함수
     // Parameter viewModel: VideoCellViewModel 타입의 데이터
     func configure(with viewModel: VideoCellViewModel) {
@@ -73,7 +111,6 @@ final class VideoCell: UICollectionViewCell, NibLodable {
         durationLabel.text = viewModel.durationText
         likeCountLabel.text = viewModel.likeCountText
         tagLabel.text = viewModel.categoryText
-
 
         if let thumbnailURL = viewModel.thumbnailURL {
             loadImage(from: thumbnailURL, into: thumbnailImage)
@@ -87,12 +124,6 @@ final class VideoCell: UICollectionViewCell, NibLodable {
         }
     }
 
-    private func formatDuration(seconds: Int) -> String {
-        let minutes = seconds / 60
-        let remainingSeconds = seconds % 60
-        return String(format: "%02d:%02d", minutes, remainingSeconds)
-    }
-    
     private func loadImage(from url: URL, into imageView: UIImageView) {
         DispatchQueue.global().async {
             if let data = try? Data(contentsOf: url),

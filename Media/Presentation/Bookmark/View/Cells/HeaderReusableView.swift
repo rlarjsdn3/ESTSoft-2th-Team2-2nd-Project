@@ -24,7 +24,7 @@ class HeaderReusableView: UICollectionReusableView, NibLodable {
 
     /// 버튼이 탭되었을 때 호출되는 액션 메서드
     @IBAction func tapButton(_ sender: Any) {
-        delegate?.HeaderButtonDidTap?(self)
+        delegate?.headerButtonDidTap?(self)
     }
 
     override init(frame: CGRect) {
