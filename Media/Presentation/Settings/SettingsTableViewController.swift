@@ -7,7 +7,7 @@
 
 import UIKit
 
-class SettingsTableViewController: UITableViewController {
+class SettingsTableViewController: UITableViewController, EditProfileDelegate {
     enum Section: Int, CaseIterable {
         case profile, videoQuality, modeFeedback
     }
@@ -24,21 +24,20 @@ class SettingsTableViewController: UITableViewController {
         case mode, feedback
     }
     
-    var userName = "Kim"
-    var userEmail = "Kim123@gmail.com"
     var currentResolution = "1080 x 1024"
     var isDarkMode = false
+    
+    let userDefaults = UserDefaultsService.shared
     
     @IBOutlet weak var nameLabel: UILabel!
     @IBOutlet weak var emailLabel: UILabel!
 
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         // 이름 / 이메일 표시
-        nameLabel.text = userName
-        emailLabel.text = userEmail
+        nameLabel.text = userDefaults.userName
+        emailLabel.text = userDefaults.userEmail
         
         // 다크 모드 설정값 불러오기
         isDarkMode = UserDefaults.standard.bool(forKey: "isDarkMode")
@@ -46,6 +45,33 @@ class SettingsTableViewController: UITableViewController {
         tableView.register(SwitchTableViewCell.nib, forCellReuseIdentifier: SwitchTableViewCell.id)
     }
     
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "EditNameSegue",
+           let editVC = segue.destination as? EditProfileViewController {
+            editVC.editType = .name
+            editVC.delegate = self
+            editVC.currentText = userDefaults.userName ?? ""
+        }
+        
+        if segue.identifier == "EditEmailSegue",
+           let editVC = segue.destination as? EditProfileViewController {
+            editVC.editType = .email
+            editVC.delegate = self
+            editVC.currentText = userDefaults.userEmail ?? ""
+        }
+    }
+    
+    func didSaveName(_ name: String) {
+        nameLabel.text = name
+        userDefaults.userName = name
+        tableView.reloadData()
+    }
+    
+    func didSaveEmail(_ email: String) {
+        emailLabel.text = email
+        userDefaults.userEmail = email
+        tableView.reloadData()
+    }
     // MARK: - Table View Data Source & Delegate
     
     override func numberOfSections(in tableView: UITableView) -> Int {
@@ -103,8 +129,18 @@ class SettingsTableViewController: UITableViewController {
         
         tableView.deselectRow(at: indexPath, animated: true)
         
-        if section == .profile, ProfileRow(rawValue: indexPath.row) == .interests {
-            // TODO: InterestsViewController 띄우기 (modal or sheet)
+        if section == .profile {
+            switch ProfileRow(rawValue: indexPath.row) {
+            case .name:
+                performSegue(withIdentifier: "EditNameSegue", sender: nil)
+            case .email:
+                performSegue(withIdentifier: "EditEmailSegue", sender: nil)
+            case .interests:
+                break
+            case .none:
+                break
+            }
+        }
         }
     }
 }

@@ -90,6 +90,9 @@
                                             </subviews>
                                         </tableViewCellContentView>
                                         <color key="tintColor" name="MainLabel"/>
+                                        <connections>
+                                            <segue destination="o6I-Tv-StZ" kind="presentation" identifier="EditNameSegue" trigger="accessoryAction" id="eNp-dS-i08"/>
+                                        </connections>
                                     </tableViewCell>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" accessoryType="disclosureIndicator" indentationWidth="10" reuseIdentifier="cell" textLabel="0MK-aG-dnR" detailTextLabel="Ihz-pE-OQk" imageView="9Bf-t1-aQf" style="IBUITableViewCellStyleSubtitle" id="e2f-Fw-FWT">
                                         <rect key="frame" x="0.0" y="99" width="361" height="43.666667938232422"/>
@@ -119,6 +122,9 @@
                                             </subviews>
                                         </tableViewCellContentView>
                                         <color key="tintColor" name="MainLabel"/>
+                                        <connections>
+                                            <segue destination="F0u-ZV-4SD" kind="presentation" identifier="EditEmailSegue" trigger="accessoryAction" id="wJL-hG-8Ng"/>
+                                        </connections>
                                     </tableViewCell>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" accessoryType="disclosureIndicator" indentationWidth="10" reuseIdentifier="cell" textLabel="uce-cM-5Fb" imageView="77j-v9-0xb" style="IBUITableViewCellStyleDefault" id="zHC-t2-MYR">
                                         <rect key="frame" x="0.0" y="142.66666793823242" width="361" height="43.666667938232422"/>
@@ -235,6 +241,90 @@
             </objects>
             <point key="canvasLocation" x="932" y="-2"/>
         </scene>
+        <!--Edit Profile View Controller-->
+        <scene sceneID="53d-rg-N6f">
+            <objects>
+                <viewController id="o6I-Tv-StZ" customClass="EditProfileViewController" customModule="Media" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="4SW-EV-nbF">
+                        <rect key="frame" x="0.0" y="0.0" width="361" height="705"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="uYF-ab-wS1" customClass="NavigationBar" customModule="Media" customModuleProvider="target">
+                                <rect key="frame" x="16" y="20" width="329" height="44"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="44" id="Usv-3N-eVz"/>
+                                </constraints>
+                            </view>
+                            <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Enter Your Name" textAlignment="natural" minimumFontSize="17" clearButtonMode="whileEditing" translatesAutoresizingMaskIntoConstraints="NO" id="fRs-SV-bIv">
+                                <rect key="frame" x="16" y="80" width="329" height="34"/>
+                                <color key="textColor" name="MainLabel"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </textField>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="OX6-Vq-WAz"/>
+                        <color key="backgroundColor" name="Background"/>
+                        <constraints>
+                            <constraint firstItem="uYF-ab-wS1" firstAttribute="top" secondItem="OX6-Vq-WAz" secondAttribute="top" constant="20" id="9Bl-Yn-ykG"/>
+                            <constraint firstItem="OX6-Vq-WAz" firstAttribute="trailing" secondItem="uYF-ab-wS1" secondAttribute="trailing" constant="16" id="Jse-qE-2da"/>
+                            <constraint firstItem="fRs-SV-bIv" firstAttribute="leading" secondItem="OX6-Vq-WAz" secondAttribute="leading" constant="16" id="XAi-09-2JU"/>
+                            <constraint firstItem="fRs-SV-bIv" firstAttribute="top" secondItem="uYF-ab-wS1" secondAttribute="bottom" constant="16" id="cWf-Cv-Md5"/>
+                            <constraint firstItem="uYF-ab-wS1" firstAttribute="leading" secondItem="OX6-Vq-WAz" secondAttribute="leading" constant="16" id="dSj-id-Fql"/>
+                            <constraint firstItem="OX6-Vq-WAz" firstAttribute="trailing" secondItem="fRs-SV-bIv" secondAttribute="trailing" constant="16" id="tG3-zV-EnB"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="navigationBar" destination="uYF-ab-wS1" id="0dN-66-zsR"/>
+                        <outlet property="textField" destination="fRs-SV-bIv" id="ye8-pX-eDj"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="cTr-Mt-Hz7" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1850" y="-324"/>
+        </scene>
+        <!--Edit Profile View Controller-->
+        <scene sceneID="WHT-v3-y0I">
+            <objects>
+                <viewController id="F0u-ZV-4SD" customClass="EditProfileViewController" customModule="Media" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="YzM-bD-bkF">
+                        <rect key="frame" x="0.0" y="0.0" width="361" height="705"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ATW-gz-VzP" customClass="NavigationBar" customModule="Media" customModuleProvider="target">
+                                <rect key="frame" x="16" y="20" width="329" height="44"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="44" id="xIh-cQ-juO"/>
+                                </constraints>
+                            </view>
+                            <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Enter Your E-mail" textAlignment="natural" minimumFontSize="17" clearButtonMode="whileEditing" translatesAutoresizingMaskIntoConstraints="NO" id="KfQ-ps-yNi">
+                                <rect key="frame" x="16" y="80" width="329" height="34"/>
+                                <color key="textColor" name="MainLabel"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits" keyboardType="emailAddress"/>
+                            </textField>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="z8w-34-jzA"/>
+                        <color key="backgroundColor" name="Background"/>
+                        <constraints>
+                            <constraint firstItem="z8w-34-jzA" firstAttribute="trailing" secondItem="KfQ-ps-yNi" secondAttribute="trailing" constant="16" id="JFt-Rd-DOw"/>
+                            <constraint firstItem="z8w-34-jzA" firstAttribute="trailing" secondItem="ATW-gz-VzP" secondAttribute="trailing" constant="16" id="Jlt-W9-YK2"/>
+                            <constraint firstItem="ATW-gz-VzP" firstAttribute="top" secondItem="z8w-34-jzA" secondAttribute="top" constant="20" id="cEO-1p-uR1"/>
+                            <constraint firstItem="KfQ-ps-yNi" firstAttribute="leading" secondItem="z8w-34-jzA" secondAttribute="leading" constant="16" id="g5p-Vz-LBm"/>
+                            <constraint firstItem="KfQ-ps-yNi" firstAttribute="top" secondItem="ATW-gz-VzP" secondAttribute="bottom" constant="16" id="nW9-AG-FmT"/>
+                            <constraint firstItem="ATW-gz-VzP" firstAttribute="leading" secondItem="z8w-34-jzA" secondAttribute="leading" constant="16" id="uJy-zO-P0H"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="navigationBar" destination="ATW-gz-VzP" id="283-Va-DJs"/>
+                        <outlet property="textField" destination="KfQ-ps-yNi" id="lC2-BC-zKK"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="orX-lD-Bvk" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1850" y="249"/>
+        </scene>
     </scenes>
     <resources>
         <image name="envelope" catalog="system" width="128" height="85"/>
@@ -242,6 +332,9 @@
         <image name="person" catalog="system" width="128" height="121"/>
         <image name="tag" catalog="system" width="128" height="118"/>
         <image name="video" catalog="system" width="128" height="82"/>
+        <namedColor name="Background">
+            <color red="0.98039215686274506" green="0.98039215686274506" blue="0.98039215686274506" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
         <namedColor name="MainLabel">
             <color red="0.23137254901960785" green="0.23137254901960785" blue="0.23137254901960785" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
