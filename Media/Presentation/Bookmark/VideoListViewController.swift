@@ -187,7 +187,9 @@ extension VideoListViewController {
                     duration: Int(entity.duration),
                     thumbnailUrl: entity.video?.medium.thumbnail
                 )
+
             }
+            cell.delegate = self
             cell.configure(viewModel)
         }
     }
@@ -282,6 +284,7 @@ extension VideoListViewController: UICollectionViewDelegate {
         didUnhighlightItemAt indexPath: IndexPath
     ) {
     }
+
 }
 
 
@@ -334,5 +337,19 @@ extension VideoListViewController: NavigationBarDelegate {
 
     func navigationBarDidTapLeft(_ navBar: NavigationBar) {
         navigationController?.popViewController(animated: true)
+    }
+}
+
+extension VideoListViewController: MediumVideoButtonDelegate {
+    func deleteAction(_ collectionViewCell: UICollectionViewCell) {
+        self.showDeleteAlert(
+            "재생 목록 삭제",
+            message: "정말 이 재생목록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
+            onConfirm: { _ in
+
+            },
+            onCancel: { _ in
+            }
+        )
     }
 }

@@ -43,9 +43,7 @@ class MediumVideoCell: UICollectionViewCell, NibLodable {
                     : UIImage(systemName: "bookmark.fill"),
                     for: .normal
                 )
-
             actionButton.tintColor = isBookMark ? .label: .systemRed
-
         }
     }
 
