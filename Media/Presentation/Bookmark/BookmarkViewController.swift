@@ -46,10 +46,10 @@ final class BookmarkViewController: StoryboardViewController {
                       let playlistVideos = playlistEntity.playlistVideos?.allObjects as? [PlaylistVideoEntity] else {
                     return
                 }
-                playlistVC.videos = .playlist(playlistVideos)
+                playlistVC.videos = .playlist(title: playlistEntity.name ?? "재생 목록", entities: playlistVideos)
             } else {
                 guard let playbackVideos = playbackFetchedResultsController?.fetchedObjects else { return }
-                playlistVC.videos = .playback(playbackVideos)
+                playlistVC.videos = .playback(entities: playbackVideos)
             }
         }
     }
@@ -59,9 +59,10 @@ final class BookmarkViewController: StoryboardViewController {
 
         let username = userDefaultsService.userName
         navigationBar.configure(
-            title: (username != nil) ? "\(username!)'s Bookmark" : "Bookmark",
+            title: (username != nil) ? "\(username!)'s Library" : "Library",
             isLeadingAligned: true
         )
+        collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 20, right: 0)
     }
 
     private func createCompositionalLayout() -> UICollectionViewCompositionalLayout {
@@ -73,10 +74,8 @@ final class BookmarkViewController: StoryboardViewController {
             }
             return sectionIdentifier.type.buildLayout(for: environment)
         }
-        let config = UICollectionViewCompositionalLayoutConfiguration()
-        config.interSectionSpacing = 16
 
-        return UICollectionViewCompositionalLayout(sectionProvider: sectionProvider, configuration: config)
+        return UICollectionViewCompositionalLayout(sectionProvider: sectionProvider)
     }
 }
 
@@ -86,56 +85,10 @@ final class BookmarkViewController: StoryboardViewController {
 extension BookmarkViewController {
 
     private func setupDataSource() {
-        #warning("김건우 -> Ragistration 관련 코도 리팩토링하기 ")
-        let playbackCellRagistration = UICollectionView.CellRegistration<VideoCell, Bookmark.Item>(cellNib: VideoCell.nib) { cell, indexPath, item in
-            if case .playback(let playback) = item {
-                guard let thumbnailUrl = playback.video?.medium.thumbnail else { return }
-                let viewModel = VideoCellViewModel(
-                    title: playback.tags,
-                    viewCount: Int(playback.views),
-                    duration: Int(playback.duration),
-                    thumbnailURL: thumbnailUrl,
-                    profileImageURL: playback.userImageUrl,
-                    likeCount: Int(playback.likes),
-                    tags: playback.tags
-
-                )
-                cell.configure(with: viewModel)
-            }
-        }
-
-        let playlistCellRagistration = UICollectionView.CellRegistration<SmallVideoCell, Bookmark.Item>(cellNib: SmallVideoCell.nib) { cell, indexPath, item in
-            if case .playlist(let playlist) = item {
-                guard let playlistName = playlist.name else { return }
-
-                if let playlistVideoEntity = playlist.playlistVideos?.allObjects.first as? PlaylistVideoEntity,
-                   let thumbnailUrl = playlistVideoEntity.video?.medium.thumbnail {
-                    cell.configure(url: thumbnailUrl, title: playlistName, isLast: false)
-                    print(thumbnailUrl)
-                } else {
-                    cell.configure(title: playlistName, isLast: false)
-                }
-            }
-
-            if case .addPlaylist = item {
-                cell.configure(title: "", isLast: true)
-            }
-        }
-
-        let headerRegistration = UICollectionView.SupplementaryRegistration<HeaderReusableView>(
-            supplementaryNib: HeaderReusableView.nib,
-            elementKind: HeaderReusableView.id
-        ) { [weak self] supplementaryView, elementKind, indexPath in
-            guard let section = self?.dataSource?.sectionIdentifier(for: indexPath.section) else { return }
-
-            switch section.type {
-            case .playback:
-                supplementaryView.delegate = self
-                supplementaryView.configure(title: "재생 기록", hasEvent: true)
-            case .playlist:
-                supplementaryView.configure(title: "재생 목록")
-            }
-        }
+#warning("김건우 -> 참조 사이클 문제 다시 확인해보기")
+        let playbackCellRagistration = createPlaybackCellRagistration()
+        let playlistCellRagistration = createPlaylistCellRagistration()
+        let headerRegistration = createSupplementaryViewRagistration()
 
         dataSource = BookmarkDiffableDataSource(collectionView: collectionView) { collectionView, indexPath, item in
             switch item {
@@ -153,7 +106,6 @@ extension BookmarkViewController {
                 )
             }
         }
-
         dataSource?.supplementaryViewProvider = { collectionView, kind, indexPath in
             return collectionView.dequeueConfiguredReusableSupplementary(
                 using: headerRegistration,
@@ -162,10 +114,80 @@ extension BookmarkViewController {
 
         applySnapshot()
     }
-    
+
+    private func createPlaybackCellRagistration() -> UICollectionView.CellRegistration<VideoCell, Bookmark.Item> {
+        UICollectionView.CellRegistration<VideoCell, Bookmark.Item>(cellNib: VideoCell.nib) { cell, indexPath, item in
+            if case .playback(let playback) = item {
+                guard let thumbnailUrl = playback.video?.medium.thumbnail else { return }
+                let viewModel = VideoCellViewModel(
+                    title: playback.user,
+                    viewCount: Int(playback.views),
+                    duration: Int(playback.duration),
+                    thumbnailURL: thumbnailUrl,
+                    profileImageURL: playback.userImageUrl,
+                    likeCount: Int(playback.likes),
+                    tags: playback.tags
+
+                )
+                cell.configure(with: viewModel)
+            }
+        }
+    }
+
+    private func createPlaylistCellRagistration() -> UICollectionView.CellRegistration<SmallVideoCell, Bookmark.Item> {
+        UICollectionView.CellRegistration<SmallVideoCell, Bookmark.Item>(cellNib: SmallVideoCell.nib) { cell, indexPath, item in
+            if case .playlist(let playlist) = item {
+                guard let playlistName = playlist.name,
+                      let totalVideos = playlist.playlistVideos?.count
+                else { return }
+
+                var viewModel: PlayListViewModel
+                // 대표 이미지가 있다면 이미지와 함께 재생 목록 셀 구성
+                if let playlistVideoEntity = playlist.playlistVideos?.allObjects.first as? PlaylistVideoEntity,
+                   let thumbnailUrl = playlistVideoEntity.video?.medium.thumbnail {
+                    viewModel = PlayListViewModel(
+                        thumbnailUrl: thumbnailUrl,
+                        userName: playlistName,
+                        total: totalVideos
+                    )
+                // 대표 이미지가 없다면 이미지를 빼고 재생 목록 셀 구성
+                } else {
+                    viewModel = PlayListViewModel(
+                        userName: playlistName,
+                        total: totalVideos
+                    )
+                }
+                cell.configure(viewModel)
+            }
+
+            if case .addPlaylist = item {
+                cell.isLast = true
+            }
+        }
+    }
+
+    private func createSupplementaryViewRagistration() -> UICollectionView.SupplementaryRegistration<HeaderReusableView> {
+        UICollectionView.SupplementaryRegistration<HeaderReusableView>(
+            supplementaryNib: HeaderReusableView.nib,
+            elementKind: HeaderReusableView.id
+        ) { [weak self] supplementaryView, elementKind, indexPath in
+            guard let section = self?.dataSource?.sectionIdentifier(for: indexPath.section) else { return }
+
+            switch section.type {
+            case .playback:
+                supplementaryView.delegate = self
+                supplementaryView.configure(title: "재생 기록", hasEvent: true)
+            case .playlist:
+                supplementaryView.configure(title: "재생 목록")
+            }
+        }
+
+    }
+
 #warning("김건우 -> 스냅샷 관련 코드 리팩토링")
     private func applySnapshot() {
         var snapshot = NSDiffableDataSourceSnapshot<Bookmark.Section, Bookmark.Item>()
+
         if let history = playbackFetchedResultsController?.fetchedObjects, !history.isEmpty {
             let items = history.map { Bookmark.Item.playback($0) }.prefix(10)
             let section = Bookmark.Section(type: .playback)
