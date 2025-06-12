@@ -13,6 +13,8 @@ enum VideoListType {
     case playback(entities: [PlaybackHistoryEntity])
     /// 재생 목록에 기반한 비디오 목록
     case playlist(title: String, entities: [PlaylistVideoEntity])
+
+//    case bookmark(entities: PlaylistEntity)
 }
 
 final class VideoListViewController: StoryboardViewController {
@@ -187,7 +189,7 @@ extension VideoListViewController {
                     duration: Int(entity.duration),
                     thumbnailUrl: entity.video?.medium.thumbnail
                 )
-
+            
             }
             cell.delegate = self
             cell.configure(viewModel)
