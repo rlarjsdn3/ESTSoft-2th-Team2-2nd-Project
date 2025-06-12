@@ -8,23 +8,30 @@
 import UIKit
 import MessageUI
 
+/// 앱의 설정 화면을 관리하는 테이블 뷰 컨트롤러
+/// 사용자 프로필 정보 / 비디오 해상도 설정 / 다크 모드 전환 / 피드백 이메일 전송 등의 기능을 포함함
 class SettingsTableViewController: UITableViewController, EditProfileDelegate, MFMailComposeViewControllerDelegate {
+    /// 설정 화면의 섹션을 구분하는 열거형
     enum Section: Int, CaseIterable {
         case profile, videoQuality, modeFeedback
     }
     
+    /// 프로필 섹션의 셀을 구분하는 열거형
     enum ProfileRow: Int, CaseIterable {
         case name, email, interests
     }
     
+    /// 비디오 해상도 섹션의 셀을 구분하는 열거형
     enum VideoQualityRow: Int, CaseIterable {
         case resolution
     }
     
+    /// 라이트 및 다크 모드 / 피드백 섹션의 셀을 구분하는 열거형
     enum ModeFeedbackRow: Int, CaseIterable {
         case mode, feedback
     }
     
+    /// 현재 선택된 비디오 해상도를 반환하거나 설정하는 연산 프로퍼티
     var currentVideoQuality: VideoQuality {
         get {
             VideoQuality(rawValue: userDefaults.videoQuality) ?? .medium
@@ -34,28 +41,41 @@ class SettingsTableViewController: UITableViewController, EditProfileDelegate, M
         }
     }
     
+    /// 다크 모드 활성화 여부
     var isDarkMode = false
     
+    /// 사용자 기본 설정을 관리하는 서비스
     let userDefaults = UserDefaultsService.shared
     
+    // MARK: - IBOutlet
+    
+    /// 사용자 이름 레이블
     @IBOutlet weak var nameLabel: UILabel!
+    
+    /// 사용자 이메일 레이블
     @IBOutlet weak var emailLabel: UILabel!
+    
+    /// 현재 비디오 해상도 레이블
     @IBOutlet weak var videoQualityLabel: UILabel!
+    
+    // MARK: - Life Cycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // 이름 / 이메일 / 영상 해상도 표시
+        // 사용자 정보 및 해상도 표시
         nameLabel.text = userDefaults.userName
         emailLabel.text = userDefaults.userEmail
         videoQualityLabel.text = currentVideoQuality.rawValue
         
-        // 다크 모드 설정값 불러오기
+        // 다크 모드 초기화
         isDarkMode = UserDefaults.standard.bool(forKey: "isDarkMode")
         
+        // 커스텀 스위치 셀 등록
         tableView.register(SwitchTableViewCell.nib, forCellReuseIdentifier: SwitchTableViewCell.id)
     }
     
+    /// 프로필 수정 화면으로 이동 전 사용자 정보 전달
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "EditNameSegue",
            let editVC = segue.destination as? EditProfileViewController {
@@ -72,30 +92,39 @@ class SettingsTableViewController: UITableViewController, EditProfileDelegate, M
         }
     }
     
+    // MARK: - EditProfileDelegate
+    
+    /// 이름 저장 후 UI와 저장소 갱신
     func didSaveName(_ name: String) {
         nameLabel.text = name
         userDefaults.userName = name
         tableView.reloadData()
     }
     
+    /// 이메일 저장 후 UI와 저장소 갱신
     func didSaveEmail(_ email: String) {
         emailLabel.text = email
         userDefaults.userEmail = email
         tableView.reloadData()
     }
     
+    // MARK: - MFMailComposeViewControllerDelegate
+    
+    /// 메일 작성 종료 시 호출
     func mailComposeController(_ controller: MFMailComposeViewController,
                                didFinishWith result: MFMailComposeResult,
                                error: Error?) {
         controller.dismiss(animated: true, completion: nil)
     }
     
-    // MARK: - Table View Data Source & Delegate
+    // MARK: - Table View Data Source
     
+    /// 섹션 개수 반환
     override func numberOfSections(in tableView: UITableView) -> Int {
         return Section.allCases.count
     }
     
+    /// 섹션별 셀 개수 반환
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         guard let section = Section(rawValue: section) else { return 0 }
         
@@ -106,12 +135,15 @@ class SettingsTableViewController: UITableViewController, EditProfileDelegate, M
         }
     }
     
+    // MARK: - Table View Delegate
+    
+    /// 셀 구성
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let section = Section(rawValue: indexPath.section) else {
             return super.tableView(tableView, cellForRowAt: indexPath)
         }
         
-        
+        // 라이트 및 다크 모드 스위치 셀 구성
         if section == .modeFeedback, indexPath.row == ModeFeedbackRow.mode.rawValue {
             guard let cell = tableView.dequeueReusableCell(withIdentifier: SwitchTableViewCell.id, for: indexPath) as? SwitchTableViewCell else {
                 return UITableViewCell()
@@ -138,15 +170,17 @@ class SettingsTableViewController: UITableViewController, EditProfileDelegate, M
             return cell
         }
         
-        // 정적 셀인 경우는 스토리보드 기반 셀을 반환하도록
+        // 나머지 셀은 storyboard에 정의된 셀 사용
         return super.tableView(tableView, cellForRowAt: indexPath)
     }
     
+    /// 셀 선택 시 동작 정의
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard let section = Section(rawValue: indexPath.section) else { return }
         
         tableView.deselectRow(at: indexPath, animated: true)
         
+        // 프로필 섹션 선택 시
         if section == .profile {
             switch ProfileRow(rawValue: indexPath.row) {
             case .name:
@@ -165,6 +199,7 @@ class SettingsTableViewController: UITableViewController, EditProfileDelegate, M
             }
         }
         
+        // 비디오 해상도 섹션 선택 시
         if section == .videoQuality {
             let alert = UIAlertController(title: "Select Video Quality", message: nil, preferredStyle: .actionSheet)
             
@@ -180,7 +215,7 @@ class SettingsTableViewController: UITableViewController, EditProfileDelegate, M
             
             alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
             
-            // iPad
+            // iPad 대응
             if let popover = alert.popoverPresentationController {
                 if let cell = tableView.cellForRow(at: indexPath) {
                     popover.sourceView = cell
@@ -195,6 +230,7 @@ class SettingsTableViewController: UITableViewController, EditProfileDelegate, M
             present(alert, animated: true)
         }
         
+        // 피드백 메일 전송
         if section == .modeFeedback {
             switch ModeFeedbackRow(rawValue: indexPath.row) {
             case .feedback:
