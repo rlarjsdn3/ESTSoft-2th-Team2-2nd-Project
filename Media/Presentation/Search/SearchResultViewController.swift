@@ -14,9 +14,6 @@ final class SearchResultViewController: StoryboardViewController {
     private lazy var refreshControl = UIRefreshControl()
 
     var keyword: String?
-//    var getCategories: Category?
-//    var getOrder: Order?
-//    var getDuration: Duration?
 
     private let dataService: DataTransferService = DefaultDataTransferService()
 
