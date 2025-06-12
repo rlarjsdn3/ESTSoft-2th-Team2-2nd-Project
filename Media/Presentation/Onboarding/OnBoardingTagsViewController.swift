@@ -13,6 +13,14 @@ class OnBoardingTagsViewController: StoryboardViewController {
     
     @IBAction func skipTagButton(_ sender: Any) {
         // 바로 home뷰로 넘어가기
+//        var selectedCategories = selectedIndexPath.map { tags[$0.item] }
+        
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        if let vc = storyboard.instantiateViewController(withIdentifier: "MainVC") as? UITabBarController {
+            
+            vc.modalPresentationStyle = .fullScreen
+            self.navigationController?.pushViewController(vc, animated: true)
+        }
     }
     
     @IBOutlet weak var selectedTagButton: UIButton!
@@ -20,11 +28,20 @@ class OnBoardingTagsViewController: StoryboardViewController {
     @IBAction func selectedTagButton(_ sender: Any) {
         // 선택된 태그 데이터를 가지고 home뷰로 넘어가기
         
+        // tags배열에서 해당 인덱스를 가지고 선택된 카테고리 추출
+//        let selectedCategories = selectedIndexPath.map { tags[$0.item] }
+        
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        if let vc = storyboard.instantiateViewController(withIdentifier: "MainVC") as? UITabBarController {
+            
+            vc.modalPresentationStyle = .fullScreen
+            self.navigationController?.pushViewController(vc, animated: true)
+        }
     }
     
     let tags: [Category] = Category.allCases
     
-    var selectIndexPath: Set<IndexPath> = []
+    var selectedIndexPath: Set<IndexPath> = []
     
     func setUpLayout() {
         // item 사이즈
@@ -72,7 +89,7 @@ class OnBoardingTagsViewController: StoryboardViewController {
     
     // 셀이 1개 이상 선택되면 버튼 활성화
     func buttonIsEnabled() {
-        if selectIndexPath.count >= 1 {
+        if selectedIndexPath.count >= 1 {
             selectedTagButton.isEnabled = true
         } else {
             selectedTagButton.isEnabled = false
@@ -91,7 +108,7 @@ extension OnBoardingTagsViewController: UICollectionViewDataSource {
         
         let target = tags[indexPath.item]
         
-        if selectIndexPath.contains(indexPath) {
+        if selectedIndexPath.contains(indexPath) {
             cell.contentView.backgroundColor = .tagSelected
         } else {
             cell.contentView.backgroundColor = .tagBorder
@@ -105,11 +122,10 @@ extension OnBoardingTagsViewController: UICollectionViewDataSource {
 }
 
 extension OnBoardingTagsViewController: UICollectionViewDelegate {
-    
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        if selectIndexPath.count >= 5 {
+        if selectedIndexPath.count >= 5 {
             
-            showAlert("🔔Notification", message: "Only up to five categories can be selected") { _ in
+            showAlert("🔔Notification", message: "Only up to 5 categories can be selected") { _ in
                 self.dismiss(animated: true)
             } onCancel: { _ in
                 self.dismiss(animated: true)
@@ -119,7 +135,10 @@ extension OnBoardingTagsViewController: UICollectionViewDelegate {
             return
         }
         
-        selectIndexPath.insert(indexPath)
+        let category = tags[indexPath.item]
+        TagsDataManager.shared.save(category: category)
+        
+        selectedIndexPath.insert(indexPath)
         
         // 셀 선택시 색상변경
         if let cell = collectionView.cellForItem(at: indexPath) as? OnboardingTagsViewCell {
@@ -129,9 +148,11 @@ extension OnBoardingTagsViewController: UICollectionViewDelegate {
        buttonIsEnabled()
     }
     
-    
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
-        selectIndexPath.remove(indexPath)
+        selectedIndexPath.remove(indexPath)
+        
+        let category = tags[indexPath.item]
+        TagsDataManager.shared.delete(category: category)
         
         // 셀 선택해제 시 색상변경
         if let cell = collectionView.cellForItem(at: indexPath) as? OnboardingTagsViewCell {

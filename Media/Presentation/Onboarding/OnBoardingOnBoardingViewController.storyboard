@@ -12,14 +12,14 @@
         <scene sceneID="s0d-6b-0kx">
             <objects>
                 <viewController id="Y6W-OH-hqX" customClass="OnboardingImageViewController" customModule="Media" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" ambiguous="YES" id="5EZ-qb-Rvc">
+                    <view key="view" contentMode="scaleToFill" id="5EZ-qb-Rvc">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="NQ1-xI-WMX">
-                                <rect key="frame" x="16" y="684" width="361" height="60"/>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="NQ1-xI-WMX">
+                                <rect key="frame" x="16" y="694" width="361" height="60"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="60" id="ZX7-Do-sOU"/>
+                                    <constraint firstAttribute="height" constant="60" id="7Ns-5I-L4L"/>
                                 </constraints>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="filled" title="Continue" cornerStyle="large">
@@ -30,28 +30,38 @@
                                 </connections>
                             </button>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="onboarding" translatesAutoresizingMaskIntoConstraints="NO" id="a5H-sD-mbg">
-                                <rect key="frame" x="0.0" y="118" width="393" height="400"/>
+                                <rect key="frame" x="0.0" y="146" width="393" height="400"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="393" id="eXo-Hx-L81"/>
-                                    <constraint firstAttribute="height" constant="400" id="yo8-PZ-Zjo"/>
+                                    <constraint firstAttribute="width" constant="393" id="eXo-Hx-L81">
+                                        <variation key="heightClass=regular-widthClass=regular" constant="450"/>
+                                    </constraint>
+                                    <constraint firstAttribute="height" constant="400" id="yo8-PZ-Zjo">
+                                        <variation key="heightClass=regular-widthClass=regular" constant="450"/>
+                                    </constraint>
                                 </constraints>
                             </imageView>
-                            <stackView opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" axis="vertical" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="ubn-Hr-hC0">
-                                <rect key="frame" x="89.000000000000014" y="538" width="215.33333333333337" height="104"/>
+                            <stackView opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" axis="vertical" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="ubn-Hr-hC0">
+                                <rect key="frame" x="89.000000000000014" y="566" width="215.33333333333337" height="106"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Welcome!" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ZMJ-tN-0ph">
                                         <rect key="frame" x="0.0" y="0.0" width="215.33333333333334" height="48"/>
                                         <fontDescription key="fontDescription" type="boldSystem" pointSize="40"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
+                                        <variation key="heightClass=regular-widthClass=regular">
+                                            <fontDescription key="fontDescription" type="boldSystem" pointSize="50"/>
+                                        </variation>
                                     </label>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" textAlignment="center" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Qdh-5j-l2I">
-                                        <rect key="frame" x="0.0" y="56" width="215.33333333333334" height="48"/>
+                                        <rect key="frame" x="0.0" y="58" width="215.33333333333334" height="48"/>
                                         <string key="text">Your personalized
 video world starts here.</string>
                                         <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="20"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
+                                        <variation key="heightClass=regular-widthClass=regular">
+                                            <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="30"/>
+                                        </variation>
                                     </label>
                                 </subviews>
                             </stackView>
@@ -59,17 +69,15 @@ video world starts here.</string>
                         <viewLayoutGuide key="safeArea" id="vDu-zF-Fre"/>
                         <color key="backgroundColor" name="Background"/>
                         <constraints>
-                            <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="NQ1-xI-WMX" secondAttribute="trailing" constant="16" id="993-zO-K5e"/>
-                            <constraint firstItem="ubn-Hr-hC0" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" constant="89" id="BXL-Vh-yct"/>
-                            <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="ubn-Hr-hC0" secondAttribute="trailing" constant="88.670000000000002" id="Daq-Bh-dh2"/>
-                            <constraint firstItem="a5H-sD-mbg" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="Gdw-az-x0y"/>
-                            <constraint firstItem="a5H-sD-mbg" firstAttribute="trailing" secondItem="vDu-zF-Fre" secondAttribute="trailing" id="JK4-Nf-lAo"/>
-                            <constraint firstItem="NQ1-xI-WMX" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" constant="16" id="Pdx-e2-IiV"/>
+                            <constraint firstItem="vDu-zF-Fre" firstAttribute="bottom" secondItem="NQ1-xI-WMX" secondAttribute="bottom" constant="30" id="5vR-cy-Ldw"/>
+                            <constraint firstItem="NQ1-xI-WMX" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" constant="16" id="HhI-Ej-gLc"/>
                             <constraint firstItem="a5H-sD-mbg" firstAttribute="centerY" secondItem="5EZ-qb-Rvc" secondAttribute="centerY" constant="-80" id="WBf-ur-799"/>
                             <constraint firstItem="a5H-sD-mbg" firstAttribute="centerX" secondItem="5EZ-qb-Rvc" secondAttribute="centerX" id="WPZ-TG-ByZ"/>
+                            <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="ubn-Hr-hC0" secondAttribute="trailing" constant="88.670000000000002" id="bw1-KA-NYf"/>
+                            <constraint firstItem="ubn-Hr-hC0" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" constant="89" id="iXa-sA-vDK"/>
                             <constraint firstItem="ubn-Hr-hC0" firstAttribute="top" secondItem="a5H-sD-mbg" secondAttribute="bottom" constant="20" id="nXT-sg-hOI"/>
-                            <constraint firstItem="a5H-sD-mbg" firstAttribute="top" secondItem="vDu-zF-Fre" secondAttribute="top" id="oFm-01-zzK"/>
-                            <constraint firstAttribute="bottomMargin" secondItem="NQ1-xI-WMX" secondAttribute="bottom" constant="30" id="xuf-D3-HlJ"/>
+                            <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="NQ1-xI-WMX" secondAttribute="trailing" constant="16" id="pDh-3g-jRR"/>
+                            <constraint firstItem="NQ1-xI-WMX" firstAttribute="top" secondItem="ubn-Hr-hC0" secondAttribute="bottom" constant="22" id="sX7-0R-uuZ"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="h9h-YI-ne7"/>
@@ -86,7 +94,7 @@ video world starts here.</string>
                 </viewControllerPlaceholder>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="YBt-Ay-Zr8" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1702" y="49"/>
+            <point key="canvasLocation" x="1701" y="18"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="B7M-JD-QTk">

@@ -16,10 +16,11 @@ final class HomeViewController: StoryboardViewController {
     var selectedCategoryIndex: Int = 0
 
     // 임시 코드 수정예정
-    var selectedCategories: [Category] = [.fashion, .music, .business, .food, .health]
+//    var selectedCategories: [Category] = [.fashion, .music, .business, .food, .health]
+    var selectedCategories: [Category] = []
 
     var displayedCategories: [String] {
-        return ["All"] + selectedCategories.map{ $0.rawValue }
+        return ["All"] + selectedCategories.map{ $0.rawValue }.sorted()
     }
 
 
@@ -36,6 +37,14 @@ final class HomeViewController: StoryboardViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        NotificationCenter.default.addObserver(forName: .didSelectedCategories, object: nil, queue: .main) { [weak self]_ in
+            self?.selectedCategories = TagsDataManager.shared.fetchSeletedCategories()
+            self?.categoryCollectionView.reloadData()
+            self?.fetchVideo()
+        }
+
+        
+       selectedCategories = TagsDataManager.shared.fetchSeletedCategories()
 
         videoCollectionView.contentInsetAdjustmentBehavior = .never
 

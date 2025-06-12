@@ -7,14 +7,38 @@
 
 import UIKit
 
+extension Notification.Name {
+    static let didSelectedCategories = Notification.Name("didSelectedCategories")
+}
+
 class SelectedTagsViewController: StoryboardViewController {
 
-    
     @IBOutlet weak var tagsCollectionView: UICollectionView!
     
     @IBOutlet weak var selectedTagsButton: UIButton!
     
     @IBAction func selectedTagsButton(_ sender: Any) {
+//        selectedCategories = selectIndexPath.map { tags[$0.item] }
+        
+        TagsDataManager.shared.deleteAll()
+//        TagsDataManager.shared.saveSeletedCategories(category: selectedCategories)
+        
+        for category in selectedCategories {
+            TagsDataManager.shared.save(category: category)
+        }
+        
+        
+        NotificationCenter.default.post(
+            name: .didSelectedCategories,
+            object: nil,
+            userInfo: ["categories": selectedCategories]
+        )
+        
+        showAlert("Notification", message: "\(selectedCategories.count) categories have been selected.") { _ in
+            self.dismiss(animated: true)
+        } onCancel: { _ in
+            self.dismiss(animated: true)
+        }
         
     }
     
@@ -22,6 +46,8 @@ class SelectedTagsViewController: StoryboardViewController {
     let tags: [Category] = Category.allCases
     
     var selectIndexPath: Set<IndexPath> = []
+    
+    var selectedCategories: [Category] = []
     
     func setUpLayout() {
         // item 사이즈
@@ -56,15 +82,23 @@ class SelectedTagsViewController: StoryboardViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+       selectedCategories = TagsDataManager.shared.fetchSeletedCategories()
+        
+        for (index, tag) in tags.enumerated() {
+            if selectedCategories.contains(tag) {
+                let indexPath = IndexPath(item: index, section: 0)
+                selectIndexPath.insert(indexPath)
+            }
+        }
+        
         setUpLayout()
         
         tagsCollectionView.allowsMultipleSelection = true
         tagsCollectionView.allowsSelection = true
         tagsCollectionView.delegate = self
        
-        selectedTagsButton.isEnabled = false
+        buttonIsEnabled()
         
-        self.navigationItem.hidesBackButton = true
     }
     
     // 셀이 1개 이상 선택되면 버튼 활성화
@@ -84,7 +118,7 @@ extension SelectedTagsViewController: UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "OnboardingTagsViewCell", for: indexPath) as? SelectedTagsViewControllerCell else { return UICollectionViewCell() }
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "SelectedTagsViewControllerCell", for: indexPath) as? SelectedTagsViewControllerCell else { return UICollectionViewCell() }
         
         let target = tags[indexPath.item]
         
@@ -104,9 +138,10 @@ extension SelectedTagsViewController: UICollectionViewDataSource {
 extension SelectedTagsViewController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        print("셀 선택")
         if selectIndexPath.count >= 5 {
             
-            showAlert("🔔Notification", message: "Only up to five categories can be selected") { _ in
+            showAlert("🔔Notification", message: "Only up to 5 categories can be selected") { _ in
                 self.dismiss(animated: true)
             } onCancel: { _ in
                 self.dismiss(animated: true)
@@ -115,8 +150,10 @@ extension SelectedTagsViewController: UICollectionViewDelegate {
             collectionView.deselectItem(at: indexPath, animated: false)
             return
         }
-        
+
         selectIndexPath.insert(indexPath)
+        selectedCategories = selectIndexPath.map { tags[$0.item] }
+        
         
         // 셀 선택시 색상변경
         if let cell = collectionView.cellForItem(at: indexPath) as? SelectedTagsViewControllerCell {
@@ -126,12 +163,13 @@ extension SelectedTagsViewController: UICollectionViewDelegate {
        buttonIsEnabled()
     }
     
-    
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
         selectIndexPath.remove(indexPath)
+        selectedCategories = selectIndexPath.map { tags[$0.item] }
         
+        print("셀 선택 해제")
         // 셀 선택해제 시 색상변경
-        if let cell = collectionView.cellForItem(at: indexPath) as? OnboardingTagsViewCell {
+        if let cell = collectionView.cellForItem(at: indexPath) as? SelectedTagsViewControllerCell {
             cell.contentView.backgroundColor = .tagBorder
         }
         

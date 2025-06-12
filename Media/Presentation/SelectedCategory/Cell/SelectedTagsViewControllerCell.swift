@@ -16,6 +16,10 @@ class SelectedTagsViewControllerCell: UICollectionViewCell {
     override func awakeFromNib() {
         super.awakeFromNib()
         
-        
+        layer.borderWidth = 1
+        layer.borderColor = UIColor.primary.cgColor
+        layer.cornerRadius = 20
+        contentView.layer.borderColor = UIColor.primary.cgColor
+        clipsToBounds = true
     }
 }
