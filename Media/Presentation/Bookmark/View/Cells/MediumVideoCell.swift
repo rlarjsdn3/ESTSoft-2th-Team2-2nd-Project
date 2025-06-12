@@ -9,23 +9,31 @@ import UIKit
 
 class MediumVideoCell: UICollectionViewCell, NibLodable {
 
+    /// 썸네일 이미지를 표시하는 뷰
     @IBOutlet private weak var thumbnailImageView: UIImageView!
 
+    /// 태그 정보를 표시하는 타이틀 라벨
     @IBOutlet private weak var tagsLabel: UILabel!
 
+    /// 업로더 이름을 표시하는 라벨
     @IBOutlet private weak var userNameLabel: UILabel!
 
+    /// 조회수를 표시하는 라벨
     @IBOutlet private weak var viewsCountLabel: UILabel!
 
+    /// 북마크 혹은 삭제 버튼
     @IBOutlet private weak var actionButton: UIButton!
 
+    /// 태그 라벨 뒤에 위치한 배경 뷰 (padding 목적)
     @IBOutlet private weak var paddingLabel: UIView!
 
+    /// 비디오 길이를 표시하는 라벨
     @IBOutlet private weak var durationLabel: UILabel!
 
-    /// 현재 셀에 로드 중인 썸네일 이미지의 URL입니다.
+    /// 현재 셀에 로딩 중인 썸네일 이미지 URL (비동기 이미지 로드 중 중복 로딩 방지용)
     private var currentThumbnailURL: URL?
 
+    /// 북마크 여부
     var isBookMark: Bool = false {
         didSet {
             actionButton
@@ -41,8 +49,10 @@ class MediumVideoCell: UICollectionViewCell, NibLodable {
         }
     }
 
+    /// 셀 외부에서 버튼 액션을 처리할 수 있도록 하는 delegate
     weak var delegate: MediumVideoButtonDelegate?
 
+    /// 버튼 탭 시 delegate에게 액션 전달
     @IBAction func buttonDidTap(_ sender: Any) {
         self.delegate?.deleteAction?(self)
     }
