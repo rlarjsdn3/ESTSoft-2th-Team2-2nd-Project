@@ -41,18 +41,25 @@
                                     <constraint firstAttribute="height" constant="44" id="cPm-wR-f7G"/>
                                 </constraints>
                             </view>
+                            <imageView hidden="YES" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="no_videos" translatesAutoresizingMaskIntoConstraints="NO" id="dnS-Vn-52w">
+                                <rect key="frame" x="0.0" y="178" width="393" height="606"/>
+                            </imageView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="vDu-zF-Fre"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
+                            <constraint firstItem="dnS-Vn-52w" firstAttribute="top" secondItem="zhQ-qm-gp9" secondAttribute="bottom" constant="16" id="3qu-Es-B9F"/>
                             <constraint firstItem="B7J-me-q7q" firstAttribute="trailing" secondItem="5EZ-qb-Rvc" secondAttribute="trailing" id="3yN-a4-qdl"/>
                             <constraint firstItem="vDu-zF-Fre" firstAttribute="bottom" secondItem="B7J-me-q7q" secondAttribute="bottom" id="AmI-Fe-HmT"/>
                             <constraint firstItem="zhQ-qm-gp9" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="Bnd-8W-zlS"/>
                             <constraint firstItem="B7J-me-q7q" firstAttribute="top" secondItem="zhQ-qm-gp9" secondAttribute="bottom" constant="16" id="DRI-dZ-f7U"/>
+                            <constraint firstItem="dnS-Vn-52w" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="EY7-w4-lQK"/>
+                            <constraint firstItem="dnS-Vn-52w" firstAttribute="trailing" secondItem="vDu-zF-Fre" secondAttribute="trailing" id="ITC-tP-dpX"/>
                             <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="zhQ-qm-gp9" secondAttribute="trailing" id="MkI-Sg-pN8"/>
                             <constraint firstItem="2Gm-tV-rVm" firstAttribute="centerY" secondItem="5EZ-qb-Rvc" secondAttribute="centerY" id="QYo-4G-m61"/>
                             <constraint firstItem="2Gm-tV-rVm" firstAttribute="centerX" secondItem="5EZ-qb-Rvc" secondAttribute="centerX" id="dLQ-p3-vsd"/>
                             <constraint firstItem="B7J-me-q7q" firstAttribute="leading" secondItem="5EZ-qb-Rvc" secondAttribute="leading" id="kDl-ym-Evd"/>
+                            <constraint firstItem="dnS-Vn-52w" firstAttribute="bottom" secondItem="vDu-zF-Fre" secondAttribute="bottom" id="omR-c7-pfi"/>
                             <constraint firstItem="zhQ-qm-gp9" firstAttribute="top" secondItem="vDu-zF-Fre" secondAttribute="top" id="ti9-wD-pLM"/>
                         </constraints>
                     </view>
@@ -60,15 +67,21 @@
                     <connections>
                         <outlet property="activityIndicator" destination="2Gm-tV-rVm" id="VKb-mU-xoP"/>
                         <outlet property="navigationBar" destination="zhQ-qm-gp9" id="3K6-Bi-lti"/>
+                        <outlet property="noVideoFoundImageView" destination="dnS-Vn-52w" id="Yru-d8-hIO"/>
                         <outlet property="videoCollectionView" destination="B7J-me-q7q" id="loY-ha-6P6"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Ief-a0-LHa" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" id="C1c-7j-hse">
+                    <rect key="frame" x="0.0" y="0.0" width="240" height="128"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                </imageView>
             </objects>
             <point key="canvasLocation" x="1052.6717557251909" y="18.30985915492958"/>
         </scene>
     </scenes>
     <resources>
+        <image name="no_videos" width="512" height="512"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

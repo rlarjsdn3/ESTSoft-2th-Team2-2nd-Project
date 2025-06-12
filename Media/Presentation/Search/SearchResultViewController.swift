@@ -11,8 +11,9 @@ final class SearchResultViewController: StoryboardViewController {
     @IBOutlet weak var navigationBar: NavigationBar!
     @IBOutlet weak var videoCollectionView: UICollectionView!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
-    private lazy var refreshControl = UIRefreshControl()
+    @IBOutlet weak var noVideoFoundImageView: UIImageView!
 
+    private lazy var refreshControl = UIRefreshControl()
     var keyword: String?
     var getCategories: Category?
     var getOrder: Order?
@@ -182,6 +183,7 @@ final class SearchResultViewController: StoryboardViewController {
                         label.textAlignment = .center
                         label.font = .systemFont(ofSize: 20)
                         self.videoCollectionView.backgroundView = label
+                        self.noVideoFoundImageView.isHidden = false
                     } else {
                         self.videoCollectionView.backgroundView = nil
                     }
