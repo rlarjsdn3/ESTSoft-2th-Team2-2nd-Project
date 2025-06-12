@@ -91,45 +91,30 @@ extension SmallVideoCell {
         configureThumbnail(from: url)
     }
 
-    /// PlaylistEntity를 기반으로 셀을 구성
-     /// - Parameter playlist: 재생목록 객체
-    func configure(_ playlist: PlaylistEntity) {
-        guard let playlistVideoEntity = (playlist.playlistVideos?.allObjects.first as? PlaylistVideoEntity),
-              let thumbnailUrl = playlistVideoEntity.video?.medium.thumbnail,
-              let playlistName = playlistVideoEntity.playlist?.name else { return }
+    func configure(_ playlist: PlayListViewModel) {
         isLast = false
-        titleLabel.text = playlistName
-        configureThumbnail(from: thumbnailUrl)
-        configureVideoCount(playlist.playlistVideos?.allObjects.count ?? 0)
+        titleLabel.text = playlist.userName
+        videoCountLabel.text = "\(playlist.total ?? 0)"
+        configureThumbnail(from: playlist.thumbnailUrl)
     }
 
     private func configureThumbnail(from url: URL?) {
         thumbnailImageView.backgroundColor = .systemGray6
 
-        if let url {
-            let endpoint = APIEndpoints.thumbnail(url: url)
-            dataTransferService?.request(endpoint) { [weak self] result in
-                switch result {
-                case .success(let data):
-                    if let image = UIImage(data: data) {
-                        self?.thumbnailImageView.image = image
-                    } else {
-                        // Placeholder
-                        self?.thumbnailImageView.image = UIImage(named: "default")
-                    }
-                case .failure(let error):
-                    print(error)
-                    // Placeholder
-                    self?.thumbnailImageView.image = UIImage(named: "default")
-                }
+        let session = URLSession.shared
+        Task {
+            if let url {
+                let (data, _) = try await session.data(from: url)
+                thumbnailImageView.image = UIImage(data: data)
+            } else {
+                thumbnailImageView.image = UIImage(named: "default")
             }
-        } else {
-            // placeholder
-            thumbnailImageView.image = UIImage(named: "default")
         }
     }
+}
 
-    private func configureVideoCount(_ count: Int) {
-        videoCountLabel.text = "\(count)"
-    }
+struct PlayListViewModel {
+    var thumbnailUrl: URL?
+    var userName: String?
+    var total: Int?
 }

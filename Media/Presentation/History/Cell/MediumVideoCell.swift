@@ -7,7 +7,7 @@
 
 import UIKit
 
-class MediumVideoCell: UICollectionViewCell {
+class MediumVideoCell: UICollectionViewCell, NibLodable {
 
     @IBOutlet weak var thumbnailImageView: UIImageView!
 
@@ -18,6 +18,8 @@ class MediumVideoCell: UICollectionViewCell {
     @IBOutlet weak var viewsCountLabel: UILabel!
 
     @IBOutlet weak var actionButton: UIButton!
+
+    var dataTransferService: (any DataTransferService)?
 
     @IBAction func tapButton(_ sender: Any) {
     }
@@ -47,7 +49,37 @@ class MediumVideoCell: UICollectionViewCell {
 }
 
 extension MediumVideoCell {
-    func configure() {
+    func configure(_ history: PlaybackHistoryEntity) {
+        configureThumbnail(from: history.pageUrl)
+        tagsLabel.text = history.tags
+        userNameLabel.text = history.user
+        let numberFormatter = NumberFormatter()
+        numberFormatter.numberStyle = .decimal
+        let result = numberFormatter.string(for: history.views)
+        viewsCountLabel.text = result
+    }
 
+    private func configureThumbnail(from url: URL?) {
+        if let url {
+            let endpoint = APIEndpoints.thumbnail(url: url)
+            dataTransferService?.request(endpoint) { [weak self] result in
+                switch result {
+                case .success(let data):
+                    if let image = UIImage(data: data) {
+                        self?.thumbnailImageView.image = image
+                    } else {
+                        // Placeholder
+                        self?.thumbnailImageView.image = UIImage(named: "default")
+                    }
+                case .failure(let error):
+                    print(error)
+                    // Placeholder
+                    self?.thumbnailImageView.image = UIImage(named: "default")
+                }
+            }
+        } else {
+            // placeholder
+            thumbnailImageView.image = UIImage(named: "default")
+        }
     }
 }
