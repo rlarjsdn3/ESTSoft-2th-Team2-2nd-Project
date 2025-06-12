@@ -29,6 +29,7 @@ extension CoreDataService {
             // 기본 플레이리스트('북마크로 표시된 재생목록') 엔터티 추가
             let _ = PlaylistEntity(
                 name: CoreDataString.bookmarkedPlaylistName,
+                isBookmark: true,
                 insertInto: viewContext
             )
             saveContext()
