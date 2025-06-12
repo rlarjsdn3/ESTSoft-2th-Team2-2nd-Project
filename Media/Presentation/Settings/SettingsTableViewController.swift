@@ -25,20 +25,30 @@ class SettingsTableViewController: UITableViewController, EditProfileDelegate, M
         case mode, feedback
     }
     
-    var currentResolution = "1080 x 1024"
+    var currentVideoQuality: VideoQuality {
+        get {
+            VideoQuality(rawValue: userDefaults.videoQuality) ?? .medium
+        }
+        set {
+            userDefaults.videoQuality = newValue.rawValue
+        }
+    }
+    
     var isDarkMode = false
     
     let userDefaults = UserDefaultsService.shared
     
     @IBOutlet weak var nameLabel: UILabel!
     @IBOutlet weak var emailLabel: UILabel!
-
+    @IBOutlet weak var videoQualityLabel: UILabel!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // 이름 / 이메일 표시
+        // 이름 / 이메일 / 영상 해상도 표시
         nameLabel.text = userDefaults.userName
         emailLabel.text = userDefaults.userEmail
+        videoQualityLabel.text = currentVideoQuality.rawValue
         
         // 다크 모드 설정값 불러오기
         isDarkMode = UserDefaults.standard.bool(forKey: "isDarkMode")
@@ -153,6 +163,36 @@ class SettingsTableViewController: UITableViewController, EditProfileDelegate, M
             case .none:
                 break
             }
+        }
+        
+        if section == .videoQuality {
+            let alert = UIAlertController(title: "Select Video Quality", message: nil, preferredStyle: .actionSheet)
+            
+            for quality in VideoQuality.allCases {
+                let action = UIAlertAction(title: quality.rawValue, style: .default) { [weak self] _ in
+                    guard let self = self else { return }
+                    self.currentVideoQuality = quality
+                    self.videoQualityLabel.text = quality.rawValue
+                    tableView.reloadRows(at: [indexPath], with: .none)
+                }
+                alert.addAction(action)
+            }
+            
+            alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+            
+            // iPad
+            if let popover = alert.popoverPresentationController {
+                if let cell = tableView.cellForRow(at: indexPath) {
+                    popover.sourceView = cell
+                    popover.sourceRect = cell.bounds
+                } else {
+                    popover.sourceView = self.view
+                    popover.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
+                }
+                popover.permittedArrowDirections = [.up, .down]
+            }
+            
+            present(alert, animated: true)
         }
         
         if section == .modeFeedback {

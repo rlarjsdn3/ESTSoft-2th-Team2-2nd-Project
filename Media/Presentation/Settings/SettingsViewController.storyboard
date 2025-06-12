@@ -235,6 +235,7 @@
                     <connections>
                         <outlet property="emailLabel" destination="Ihz-pE-OQk" id="Q3a-Cl-ZfU"/>
                         <outlet property="nameLabel" destination="HOI-Me-2FZ" id="s8l-iR-kba"/>
+                        <outlet property="videoQualityLabel" destination="Ajl-ix-tBY" id="qj2-hY-EIQ"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="bfg-v5-3Hv" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
