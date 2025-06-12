@@ -23,6 +23,8 @@ final class HomeViewController: StoryboardViewController {
     var selectedCategoryIndex: Int = 0
 
     // 임시 코드 수정예정
+//    var selectedCategories: [Category] = [.fashion, .music, .business, .food, .health]
+//    var selectedCategories: [Category] = []
     var selectedCategories: [String] = ["Flower", "Nature", "Animals", "Travel", "Food"]
 
     // 카테고리 배열 순서
@@ -55,6 +57,15 @@ final class HomeViewController: StoryboardViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+//        NotificationCenter.default.addObserver(forName: .didSelectedCategories, object: nil, queue: .main) { [weak self]_ in
+//            self?.selectedCategories = TagsDataManager.shared.fetchSeletedCategories()
+//            self?.categoryCollectionView.reloadData()
+//            self?.fetchVideo()
+//        }
+
+        
+//       selectedCategories = TagsDataManager.shared.fetchSeletedCategories()
 
         //AVAudioSession 설정
         do {

@@ -1,13 +1,13 @@
 //
-//  OnboardingTegsViewCell.swift
+//  TagsCell.swift
 //  Media
 //
-//  Created by 전광호 on 6/9/25.
+//  Created by 전광호 on 6/10/25.
 //
 
 import UIKit
 
-class OnboardingTagsViewCell: UICollectionViewCell {
+class SelectedTagsViewControllerCell: UICollectionViewCell {
     
     @IBOutlet weak var tagsImageView: UIImageView!
     
