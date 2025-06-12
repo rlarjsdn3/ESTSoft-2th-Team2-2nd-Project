@@ -17,7 +17,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="Ase-Rr-RAE">
-                                <rect key="frame" x="0.0" y="158" width="393" height="577"/>
+                                <rect key="frame" x="0.0" y="174" width="393" height="561"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="SearchTableViewCell" id="3L3-yX-MKS" customClass="SearchTableViewCell" customModule="Media" customModuleProvider="target">
@@ -43,7 +43,7 @@
                         <constraints>
                             <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="2oi-2c-qVG" secondAttribute="trailing" id="3DV-Kn-Wsi"/>
                             <constraint firstItem="vDu-zF-Fre" firstAttribute="bottom" secondItem="Ase-Rr-RAE" secondAttribute="bottom" id="Bo7-nd-AOu"/>
-                            <constraint firstItem="Ase-Rr-RAE" firstAttribute="top" secondItem="2oi-2c-qVG" secondAttribute="bottom" id="Ekb-01-L0r"/>
+                            <constraint firstItem="Ase-Rr-RAE" firstAttribute="top" secondItem="2oi-2c-qVG" secondAttribute="bottom" constant="16" id="Ekb-01-L0r"/>
                             <constraint firstItem="2oi-2c-qVG" firstAttribute="top" secondItem="vDu-zF-Fre" secondAttribute="top" id="S3h-ty-OXD"/>
                             <constraint firstItem="Ase-Rr-RAE" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="WoM-C9-c2Y"/>
                             <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="Ase-Rr-RAE" secondAttribute="trailing" id="X4j-7L-unB"/>
@@ -65,7 +65,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Ief-a0-LHa" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="3134" y="-46"/>
+            <point key="canvasLocation" x="4399.2366412213742" y="-43.661971830985919"/>
         </scene>
     </scenes>
     <resources>

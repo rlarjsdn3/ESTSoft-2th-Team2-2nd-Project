@@ -94,119 +94,133 @@ final class HomeViewController: StoryboardViewController {
 
     }
 
-    // 비디오 재생
-    func playVideo(with url: URL) {
-        print("▶️ playVideo called with URL: \(url.absoluteString)")
-        // #1. PlayerItem 생성
-        let item = AVPlayerItem(url: url)
-        print("🔹 AVPlayerItem created")
-        // #2. Player 생성
-        let player = AVPlayer(playerItem: item)
-        print("🔹 AVPlayer created")
-        // #3. PlayerVC 생성
-        let vc = AVPlayerViewController()
-        print("🔹 AVPlayerViewController created")
-        // #4. 연결
-        vc.player = player
-        print("🔹 Player connected to PlayerViewController")
-        // #5. 표시
-        present(vc, animated: true) {
-            print("🔹 PlayerViewController presented")
-        }
 
-        observation?.invalidate()
-        print("🔹 Previous observation invalidated")
-
-        observation = item.observe(\.status) { playerItem, _ in
-            print("🔸 PlayerItem status changed: \(playerItem.status.rawValue)")
-
-            if playerItem.status == .readyToPlay {
-                print("✅ PlayerItem is ready to play, starting playback")
-
-                player.play()
-            } else if playerItem.status == .failed {
-                print("❌ PlayerItem failed to load")
-            }
-        }
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.setNavigationBarHidden(false, animated: animated)
     }
 
-    // 선택된 카테고리에 따라 Pixabay API에서 비디오 데이터 요청
-    private func fetchVideo() {
-        let query = selectedCategoryName
+    // "mm:ss" 형식으로 문자열 변환
+    func formatDuration(seconds: Int) -> String {
+        let minutes = seconds / 60
+        let remainingSeconds = seconds % 60
+        return String(format: "%02d:%02d", minutes, remainingSeconds)
+    }
+        // 비디오 재생
+        func playVideo(with url: URL) {
+            print("▶️ playVideo called with URL: \(url.absoluteString)")
+            // #1. PlayerItem 생성
+            let item = AVPlayerItem(url: url)
+            print("🔹 AVPlayerItem created")
+            // #2. Player 생성
+            let player = AVPlayer(playerItem: item)
+            print("🔹 AVPlayer created")
+            // #3. PlayerVC 생성
+            let vc = AVPlayerViewController()
+            print("🔹 AVPlayerViewController created")
+            // #4. 연결
+            vc.player = player
+            print("🔹 Player connected to PlayerViewController")
+            // #5. 표시
+            present(vc, animated: true) {
+                print("🔹 PlayerViewController presented")
+            }
 
-        let endpoint = APIEndpoints.pixabay(
-            query: query,
-            category: nil,
-            order: .popular,
-            page: 1,
-            perPage: 20
-        )
+            observation?.invalidate()
+            print("🔹 Previous observation invalidated")
+
+            observation = item.observe(\.status) { playerItem, _ in
+                print("🔸 PlayerItem status changed: \(playerItem.status.rawValue)")
+
+                if playerItem.status == .readyToPlay {
+                    print("✅ PlayerItem is ready to play, starting playback")
+
+                    player.play()
+                } else if playerItem.status == .failed {
+                    print("❌ PlayerItem failed to load")
+                }
+            }
+
+        }
+
+        // 선택된 카테고리에 따라 Pixabay API에서 비디오 데이터 요청
+        func fetchVideo() {
+            let query = selectedCategoryName
+
+            let endpoint = APIEndpoints.pixabay(
+                query: query,
+                category: nil,
+                order: .popular,
+                page: 1,
+                perPage: 20
+            )
 
 
-        let startTime = Date()
+            let startTime = Date()
 
-        service.request(endpoint) { [weak self] result in
-            DispatchQueue.main.async {
-                guard let  self = self else { return }
-                // Refresh 딜레이 추가
-                let elapsed = Date().timeIntervalSince(startTime)
-                let delay = max(0.5 - elapsed, 0)
+            service.request(endpoint) { [weak self] result in
+                DispatchQueue.main.async {
+                    guard let  self = self else { return }
+                    // Refresh 딜레이 추가
+                    let elapsed = Date().timeIntervalSince(startTime)
+                    let delay = max(0.5 - elapsed, 0)
 
-                DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                    self.videoCollectionView.refreshControl?.endRefreshing()
+                    DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                        self.videoCollectionView.refreshControl?.endRefreshing()
 
 
-                    switch result {
-                    case .success(let response):
-                        var fetchedVideos = response.hits
+                        switch result {
+                        case .success(let response):
+                            var fetchedVideos = response.hits
 
-                        if let selectedCategory = self.selectedCategoryName {
-                            // 선택한 카테고리(소문자)
-                            let filterCategory = selectedCategory.lowercased()
-                            // 첫번째 태그 기준 필터링
-                            fetchedVideos = fetchedVideos
-                                .filter { hit in
-                                    let tags = hit.tags.split(separator: ",")
-                                        .map { $0.trimmingCharacters(in: .whitespacesAndNewlines)
-                                                .lowercased()
-                                        }
-                                    return tags.contains(filterCategory)
-                                }
+                            if let selectedCategory = self.selectedCategoryName {
+                                // 선택한 카테고리(소문자)
+                                let filterCategory = selectedCategory.lowercased()
+                                // 첫번째 태그 기준 필터링
+                                fetchedVideos = fetchedVideos
+                                    .filter { hit in
+                                        let tags = hit.tags.split(separator: ",")
+                                            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines)
+                                                    .lowercased()
+                                            }
+                                        return tags.contains(filterCategory)
+                                    }
+                            }
+                            self.videos = fetchedVideos
+                            self.categoryCollectionView.reloadData()
+                            self.videoCollectionView.reloadData()
+
+                        case .failure(let error):
+                            print(error)
                         }
-                        self.videos = fetchedVideos
-                        self.categoryCollectionView.reloadData()
-                        self.videoCollectionView.reloadData()
-
-                    case .failure(let error):
-                        print(error)
                     }
                 }
             }
         }
+
+        // 재생목록 비어있는지 체크
+        var playlistIsEmmpty: Bool = false
+
+
+
+        override func viewDidAppear(_ animated: Bool) {
+            super.viewDidAppear(animated)
+
+            // 테스트용
+            //                if let testURL = URL(string: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4") {
+            //                    playVideo(with: testURL)
+            //                }
+
+            //        if let testURL = URL(string: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4") {
+            //            playVideo(with: testURL)
+            //        }
+
+            //        if let testURL = URL(string: "https://kxc.blob.core.windows.net/est2/video-vert.mp4") {
+            //            playVideo(with: testURL)
+            //        }
+        }
     }
 
-    // 재생목록 비어있는지 체크
-    var playlistIsEmmpty: Bool = false
-
-
-
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-
-        // 테스트용
-//                if let testURL = URL(string: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4") {
-//                    playVideo(with: testURL)
-//                }
-
-        //        if let testURL = URL(string: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4") {
-        //            playVideo(with: testURL)
-        //        }
-
-        //        if let testURL = URL(string: "https://kxc.blob.core.windows.net/est2/video-vert.mp4") {
-        //            playVideo(with: testURL)
-        //        }
-    }
-}
 
 extension HomeViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
@@ -246,6 +260,7 @@ extension HomeViewController: UICollectionViewDataSource {
                 likeCount: video.likes,
                 tags: video.tags
             )
+
             cell.configure(with: viewModel)
 
             // 썸네일 터치시 영상 재생
@@ -259,7 +274,7 @@ extension HomeViewController: UICollectionViewDataSource {
                 bookmarkAction: { [weak self] in
                     guard let self = self else { return }
                     // 실제 북마크 처리 코드
-                   // let toast = Toast.makeToast("추가되었습니다", systemName: "checkmark").present()
+                    // let toast = Toast.makeToast("추가되었습니다", systemName: "checkmark").present()
                 },
                 playlistAction: { [weak self] in
                     guard let self = self else { return }
@@ -322,3 +337,4 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout {
         return 8
     }
 }
+

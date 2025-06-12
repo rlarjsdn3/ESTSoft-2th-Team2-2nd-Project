@@ -25,6 +25,8 @@ final class SearchViewController: StoryboardViewController, NavigationBarDelegat
     }
 
     override func setupAttributes() {
+        self.view.backgroundColor = UIColor.background
+        self.searchTableView.backgroundColor = .clear
     }
 
     //검색 기록 테이블뷰 등록
@@ -73,8 +75,26 @@ final class SearchViewController: StoryboardViewController, NavigationBarDelegat
             identifier: "SearchFilterViewController"
         ) as! SearchFilterViewController
 
-        vc.modalPresentationStyle = .pageSheet
+        // 콜백
+        vc.onApply = { [weak self] categories, order, duration in
+                guard let self = self else { return }
+                DispatchQueue.main.async {
+                    // 다음 화면으로 푸시
+                    let sb = UIStoryboard(name: "SearchResultViewController", bundle: nil)
+                    let resultVC = sb.instantiateViewController(
+                        identifier: "SearchResultViewController"
+                    ) as! SearchResultViewController
 
+                    resultVC.keyword = self.navigationBar.searchBar.text
+                    resultVC.getCategories = categories.first
+                    resultVC.getOrder = order.first
+                    resultVC.getDuration = duration.first
+
+                    self.navigationController?.pushViewController(resultVC, animated: true)
+                }
+            }
+
+        vc.modalPresentationStyle = .pageSheet
         if let sheet = vc.sheetPresentationController {
             sheet.detents = [.medium(), .large()]
             sheet.selectedDetentIdentifier = .medium
