@@ -30,4 +30,9 @@ extension UserDefaultsKeys {
     var userEmail: UserDefaultsKey<String?> {
         UserDefaultsKey(name: "userEmail", defaultValue: nil)
     }
+    /// 영상 해상도를 저장하는 키입니다.
+    /// 기본값은 `Medium`입니다.
+    var videoQuality: UserDefaultsKey<String> {
+        UserDefaultsKey(name: "video_quality", defaultValue: VideoQuality.medium.rawValue)
+    }
 }
