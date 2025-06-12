@@ -20,8 +20,14 @@ extension UserDefaultsKeys {
     var isFirstLaunch: UserDefaultsKey<Bool> {
         UserDefaultsKey(name: "isFirstLaunch", defaultValue: true)
     }
-    ///
+    /// 사용자 이름을 저장하는 키입니다.
+    /// 기본값은 `nil`입니다.
     var userName: UserDefaultsKey<String?> {
         UserDefaultsKey(name: "userName", defaultValue: nil)
+    }
+    /// 사용자 이메일을 저장하는 키입니다.
+    /// 기본값은 `nil`입니다.
+    var userEmail: UserDefaultsKey<String?> {
+        UserDefaultsKey(name: "userEmail", defaultValue: nil)
     }
 }
