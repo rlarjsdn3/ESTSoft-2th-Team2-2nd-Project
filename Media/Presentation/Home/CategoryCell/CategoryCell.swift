@@ -38,6 +38,5 @@ final class CategoryCell: UICollectionViewCell {
             titleButton.layer.borderColor = UIColor.tagBorderColor.cgColor
         }
         titleButton.layer.borderWidth = 2.0
-
     }
 }

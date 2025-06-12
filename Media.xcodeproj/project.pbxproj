@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		C7411FEE2DF8F91F00471BAE /* TSAlertController in Frameworks */ = {isa = PBXBuildFile; productRef = C7411FED2DF8F91F00471BAE /* TSAlertController */; };
+		C7DF82B52DF9985B00D18F2E /* TSAlertController in Frameworks */ = {isa = PBXBuildFile; productRef = C7DF82B42DF9985B00D18F2E /* TSAlertController */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -56,7 +56,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C7411FEE2DF8F91F00471BAE /* TSAlertController in Frameworks */,
+				C7DF82B52DF9985B00D18F2E /* TSAlertController in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -116,7 +116,7 @@
 			);
 			name = Media;
 			packageProductDependencies = (
-				C7411FED2DF8F91F00471BAE /* TSAlertController */,
+				C7DF82B42DF9985B00D18F2E /* TSAlertController */,
 			);
 			productName = Media;
 			productReference = C70213022DF131EF007037B7 /* Media.app */;
@@ -174,7 +174,7 @@
 			mainGroup = C70212F92DF131EF007037B7;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				C7411FEC2DF8F91900471BAE /* XCRemoteSwiftPackageReference "TSAlertController-iOS" */,
+				C7DF82B32DF9985400D18F2E /* XCRemoteSwiftPackageReference "TSAlertController-iOS" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = C70213032DF131EF007037B7 /* Products */;
@@ -237,7 +237,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 4DQM269FVB;
+				DEVELOPMENT_TEAM = H7398M62YF;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Media/Resources/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -271,7 +271,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 4DQM269FVB;
+				DEVELOPMENT_TEAM = H7398M62YF;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Media/Resources/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -489,7 +489,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		C7411FEC2DF8F91900471BAE /* XCRemoteSwiftPackageReference "TSAlertController-iOS" */ = {
+		C7DF82B32DF9985400D18F2E /* XCRemoteSwiftPackageReference "TSAlertController-iOS" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/rlarjsdn3/TSAlertController-iOS.git";
 			requirement = {
@@ -500,9 +500,9 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		C7411FED2DF8F91F00471BAE /* TSAlertController */ = {
+		C7DF82B42DF9985B00D18F2E /* TSAlertController */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = C7411FEC2DF8F91900471BAE /* XCRemoteSwiftPackageReference "TSAlertController-iOS" */;
+			package = C7DF82B32DF9985400D18F2E /* XCRemoteSwiftPackageReference "TSAlertController-iOS" */;
 			productName = TSAlertController;
 		};
 /* End XCSwiftPackageProductDependency section */

@@ -45,6 +45,9 @@ final class SmallVideoCell: UICollectionViewCell, NibLodable {
         }
     }
 
+    /// 현재 셀에 로드 중인 썸네일 이미지의 URL입니다.
+    private var currentThumbnailURL: URL?
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
     }
@@ -86,6 +89,7 @@ extension SmallVideoCell {
         title: String,
         isLast: Bool = false
     ) {
+        currentThumbnailURL = url
         titleLabel.text = title
         self.isLast = isLast
         configureThumbnail(from: url)
@@ -93,6 +97,7 @@ extension SmallVideoCell {
 
     func configure(_ playlist: PlayListViewModel) {
         isLast = false
+        currentThumbnailURL = playlist.thumbnailUrl
         titleLabel.text = playlist.userName
         videoCountLabel.text = "\(playlist.total ?? 0)"
         configureThumbnail(from: playlist.thumbnailUrl)
@@ -105,6 +110,9 @@ extension SmallVideoCell {
         Task {
             if let url {
                 let (data, _) = try await session.data(from: url)
+                
+                guard self.currentThumbnailURL == url else { return }
+                
                 thumbnailImageView.image = UIImage(data: data)
             } else {
                 thumbnailImageView.image = UIImage(named: "default")

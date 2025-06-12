@@ -46,6 +46,9 @@
                                     <imageReference key="image" image="ellipsis" catalog="system" renderingMode="template"/>
                                     <color key="baseForegroundColor" name="SubLabel"/>
                                 </buttonConfiguration>
+                                <connections>
+                                    <action selector="ellipsisButtonAction:" destination="Rxb-l2-fKA" eventType="touchUpInside" id="CJa-Ib-dbp"/>
+                                </connections>
                             </button>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="NSF-rt-wH9">
                                 <rect key="frame" x="56.000000000000014" y="14.666666666666657" width="153.33333333333337" height="75.333333333333329"/>
