@@ -77,12 +77,12 @@ extension Bookmark.SectionType {
             heightDimension: .fractionalHeight(1.0)
         )
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
-        item.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 0, bottom: 10, trailing: 0)
+        item.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 0, bottom: 0, trailing: 0)
 
         let groupWidthDimension: NSCollectionLayoutDimension = environment.isHorizontalSizeClassCompact
         ? .fractionalWidth(0.9) : .fractionalWidth(0.42)
         let groupHeightDimension: NSCollectionLayoutDimension = environment.isHorizontalSizeClassCompact
-        ? .fractionalWidth(0.75) : .fractionalWidth(0.36)
+        ? .fractionalWidth(0.76) : .fractionalWidth(0.36)
         let groupSize = NSCollectionLayoutSize(
             widthDimension: groupWidthDimension,
             heightDimension: groupHeightDimension
@@ -92,6 +92,7 @@ extension Bookmark.SectionType {
             subitems: [item]
         )
         group.interItemSpacing = .flexible(10)
+        group.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 20, trailing: 0)
 
         let headerSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),
@@ -105,7 +106,7 @@ extension Bookmark.SectionType {
         header.pinToVisibleBounds = true
 
         let section = NSCollectionLayoutSection(group: group)
-        section.interGroupSpacing = 8
+        section.interGroupSpacing = 12
         section.orthogonalScrollingBehavior = .continuousGroupLeadingBoundary
         section.boundarySupplementaryItems = [header]
 

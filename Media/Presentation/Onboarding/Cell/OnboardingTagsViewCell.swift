@@ -11,7 +11,7 @@ class OnboardingTagsViewCell: UICollectionViewCell {
     
     @IBOutlet weak var tagsImageView: UIImageView!
     
-    @IBOutlet weak var TagsTitle: UILabel!
+    @IBOutlet weak var tagsTitle: UILabel!
     
     override func awakeFromNib() {
         super.awakeFromNib()

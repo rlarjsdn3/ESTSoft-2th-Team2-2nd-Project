@@ -14,9 +14,14 @@ extension PlaylistEntity {
     /// - Parameters:
     ///   - name: <#name description#>
     ///   - context: <#context description#>
-    convenience init(name: String, insertInto context: NSManagedObjectContext) {
+    convenience init(
+        name: String,
+        isBookmark: Bool = false,
+        insertInto context: NSManagedObjectContext
+    ) {
         self.init(context: context)
         self.name = name
+        self.isBookmark = isBookmark
         self.createdAt = Date()
     }
 }

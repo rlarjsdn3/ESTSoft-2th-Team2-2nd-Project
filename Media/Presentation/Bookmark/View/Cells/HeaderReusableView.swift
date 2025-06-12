@@ -11,13 +11,13 @@ import UIKit
 class HeaderReusableView: UICollectionReusableView, NibLodable {
 
     /// 헤더의 타이틀을 표시하는 라벨
-    @IBOutlet weak var titleLabel: UILabel!
+    @IBOutlet private weak var titleLabel: UILabel!
 
     /// 버튼에 표시될 라벨
-    @IBOutlet weak var buttonTitleLabel: UILabel!
+    @IBOutlet private weak var buttonTitleLabel: UILabel!
 
     /// 헤더 우측의 버튼
-    @IBOutlet weak var button: UIButton!
+    @IBOutlet private weak var button: UIButton!
 
     /// 버튼 탭 이벤트를 처리할 delegate
     weak var delegate: HeaderButtonDelegate?

@@ -63,6 +63,19 @@ protocol DataTransferService {
     func request<E, T>(
         _ endpoint: E
     ) async throws -> T where E: ResponseRequestable, E.Response == T, T: Decodable
+    
+    /// 주어진 엔드포인트를 통해 데이터를 파일 형태로 다운로드합니다.
+    /// - Parameters:
+    ///   - endpoint: 요청을 수행할 엔드포인트입니다. `ResponseRequestable`을 준수해야 합니다.
+    ///   - queue: 응답 처리를 수행할 디스패치 큐입니다.
+    ///   - completion: 다운로드 완료 시 호출되는 클로저입니다. 성공 시 임시 파일의 로컬 URL, 응답 정보, 오류 객체를 전달합니다.
+    /// - Returns: 다운로드 작업을 취소할 수 있는 `NetworkCancellable` 객체입니다. 요청이 생성되지 않으면 `nil`을 반환합니다.
+    @discardableResult
+    func download<E>(
+        _ endpoint: E,
+        on queue: any DataTransferDispatchQueue,
+        completion: @escaping CompletionHandler<URL>
+    ) -> (any NetworkCancellable)? where E: ResponseRequestable
 }
 
 final class DefaultDataTransferService {
@@ -144,6 +157,28 @@ extension DefaultDataTransferService: DataTransferService {
         }
     }
 
+    @discardableResult
+    func download<E>(
+        _ endpoint: E,
+        on queue: any DataTransferDispatchQueue = DispatchQueue.main,
+        completion: @escaping CompletionHandler<URL>
+    ) -> (any NetworkCancellable)? where E: ResponseRequestable {
+        return service.download(endpoint) { result in
+            switch result {
+            case .success(let tempUrl):
+                if let tempUrl = tempUrl {
+                    queue.asyncExecute { completion(.success(tempUrl)) }
+                    return
+                }
+                completion(.failure(.noResponse))
+            case .failure(let error):
+                let resolvedError = self.resolve(networkError: error)
+                self.logger.log(error: error)
+                queue.asyncExecute { completion(.failure(resolvedError)) }
+            }
+        }
+    }
+
     /// 주어진 디코더를 사용하여 응답 데이터를 디코딩합니다.
     ///
     /// - Parameters:
@@ -159,7 +194,6 @@ extension DefaultDataTransferService: DataTransferService {
             let result: T = try decoder.decode(data)
             return .success(result)
         } catch {
-//            self.errorLogger.log(error: error)
             return .failure(.parsing(error))
         }
     }

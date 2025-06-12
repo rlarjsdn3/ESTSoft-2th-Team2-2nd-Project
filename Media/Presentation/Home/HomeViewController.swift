@@ -24,6 +24,8 @@ final class HomeViewController: StoryboardViewController {
     var selectedCategoryIndex: Int = 0
 
     // 임시 코드 수정예정
+    //    var selectedCategories: [Category] = [.fashion, .music, .business, .food, .health]
+    //    var selectedCategories: [Category] = []
     var selectedCategories: [String] = ["Flower", "Nature", "Animals", "Travel", "Food"]
 
     // 카테고리 배열 순서
@@ -56,6 +58,15 @@ final class HomeViewController: StoryboardViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        //        NotificationCenter.default.addObserver(forName: .didSelectedCategories, object: nil, queue: .main) { [weak self]_ in
+        //            self?.selectedCategories = TagsDataManager.shared.fetchSeletedCategories()
+        //            self?.categoryCollectionView.reloadData()
+        //            self?.fetchVideo()
+        //        }
+
+
+        //       selectedCategories = TagsDataManager.shared.fetchSeletedCategories()
 
         //AVAudioSession 설정
         do {
@@ -94,6 +105,21 @@ final class HomeViewController: StoryboardViewController {
 
     }
 
+
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.setNavigationBarHidden(false, animated: animated)
+
+    }
+    //UIView controller Extention
+
+    // "mm:ss" 형식으로 문자열 변환
+    func formatDuration(seconds: Int) -> String {
+        let minutes = seconds / 60
+        let remainingSeconds = seconds % 60
+        return String(format: "%02d:%02d", minutes, remainingSeconds)
+    }
     // 비디오 재생
     func playVideo(with url: URL) {
         print("▶️ playVideo called with URL: \(url.absoluteString)")
@@ -125,14 +151,14 @@ final class HomeViewController: StoryboardViewController {
 
                 player.play()
             } else if playerItem.status == .failed {
-                print(":x: PlayerItem failed to load: \(playerItem.error.debugDescription)")
+                print("❌ PlayerItem failed to load")
             }
         }
+
     }
-    //UIView controller Extention
 
     // 선택된 카테고리에 따라 Pixabay API에서 비디오 데이터 요청
-    private func fetchVideo() {
+    func fetchVideo() {
         let query = selectedCategoryName
 
         let endpoint = APIEndpoints.pixabay(
@@ -186,14 +212,18 @@ final class HomeViewController: StoryboardViewController {
         }
     }
 
-    // 비디오 테스트용
+    // 재생목록 비어있는지 체크
+    var playlistIsEmmpty: Bool = false
+
+
+
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
         // 테스트용
-//                if let testURL = URL(string: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4") {
-//                    playVideo(with: testURL)
-//                }
+        //                if let testURL = URL(string: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4") {
+        //                    playVideo(with: testURL)
+        //                }
 
         //        if let testURL = URL(string: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4") {
         //            playVideo(with: testURL)
@@ -203,6 +233,9 @@ final class HomeViewController: StoryboardViewController {
         //            playVideo(with: testURL)
         //        }
     }
+
+
+    // 비디오 테스트용
 
     // 동영상 재생시 시청기록재생 함수
     func addToWatchHistory(_ video: PixabayResponse.Hit) {
@@ -229,7 +262,7 @@ final class HomeViewController: StoryboardViewController {
         }
     }
 
-     // 북마크
+    // 북마크
     func addToBookmark(_ video: PixabayResponse.Hit) {
         let context = CoreDataService.shared.persistentContainer.viewContext
 
@@ -321,9 +354,9 @@ final class HomeViewController: StoryboardViewController {
                 } else {
                     Toast.makeToast("이미 존재하는 재생 목록 이름입니다.").present()
                 }
-        } onCancel: { action in
+            } onCancel: { action in
 
-        }
+            }
     }
 
     func createPlaylist(name: String, video: PixabayResponse.Hit) {
@@ -362,6 +395,7 @@ final class HomeViewController: StoryboardViewController {
     }
 }
 
+
 extension HomeViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if collectionView == categoryCollectionView {
@@ -376,25 +410,25 @@ extension HomeViewController: UICollectionViewDelegate {
 
     func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
         guard collectionView == videoCollectionView,
-                  indexPath.item < videos.count else { return nil }
-            let item = videos[indexPath.item]
+              indexPath.item < videos.count else { return nil }
+        let item = videos[indexPath.item]
 
-            return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
-                let bookmarkAction = UIAction(
-                    title: "북마크에 추가하기", image: UIImage(systemName: "bookmark")
-                ) { _ in
-                    self.addToBookmark(item)
-                }
-
-                let playlistAction = UIAction(
-                    title: "재생목록에 추가하기", image: UIImage(systemName: "text.badge.plus")
-                ) { _ in
-                    self.addToPlaylist(item)
-                }
-
-                return UIMenu(title: "", children: [bookmarkAction, playlistAction])
+        return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
+            let bookmarkAction = UIAction(
+                title: "북마크에 추가하기", image: UIImage(systemName: "bookmark")
+            ) { _ in
+                self.addToBookmark(item)
             }
+
+            let playlistAction = UIAction(
+                title: "재생목록에 추가하기", image: UIImage(systemName: "text.badge.plus")
+            ) { _ in
+                self.addToPlaylist(item)
+            }
+
+            return UIMenu(title: "", children: [bookmarkAction, playlistAction])
         }
+    }
 }
 
 extension HomeViewController: UICollectionViewDataSource {
@@ -420,6 +454,7 @@ extension HomeViewController: UICollectionViewDataSource {
                 likeCount: video.likes,
                 tags: video.tags
             )
+
             cell.configure(with: viewModel)
 
             // 썸네일 터치시 영상 재생
@@ -433,13 +468,14 @@ extension HomeViewController: UICollectionViewDataSource {
 
             // Ellipsis 버튼 실행
             cell.configureMenu(
-                    bookmarkAction: { [weak self] in
-                        self?.addToBookmark(video)
-                    },
-                    playlistAction: { [weak self] in
-                       self?.addToPlaylist(video)
-                    }
-                )
+
+                bookmarkAction: { [weak self] in
+                    self?.addToBookmark(video)
+                },
+                playlistAction: { [weak self] in
+                    self?.addToPlaylist(video)
+                }
+            )
             return cell
         }
 

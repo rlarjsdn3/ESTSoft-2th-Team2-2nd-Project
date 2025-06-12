@@ -10,9 +10,9 @@ import UIKit
 /// 재생 기록 또는 재생 목록에 따라 표시할 비디오 목록의 유형을 나타내는 열거형입니다.
 enum VideoListType {
     /// 재생 기록에 기반한 비디오 목록
-    case playback([PlaybackHistoryEntity])
+    case playback(entities: [PlaybackHistoryEntity])
     /// 재생 목록에 기반한 비디오 목록
-    case playlist([PlaylistVideoEntity])
+    case playlist(title: String, entities: [PlaylistVideoEntity])
 }
 
 final class VideoListViewController: StoryboardViewController {
@@ -48,16 +48,16 @@ final class VideoListViewController: StoryboardViewController {
         searchBar.text = nil
         searchBar.endEditing(true)
         moveCloseButton(toRight: true)
+        applySnapshot()
     }
 
     override func setupAttributes() {
         super.setupAttributes()
 
         setupNavigationBar()
-#warning("김건우 -> 검색 바 플레이스 홀더 바꾸기")
         searchBar.apply {
             $0.delegate = self
-            $0.placeholder = "title, author, "
+            $0.placeholder = "검색어를 입력하세요."
         }
         closeButtonTrailingConstraint.constant = -50
     }
@@ -69,25 +69,28 @@ final class VideoListViewController: StoryboardViewController {
         switch videos {
         case .playback:
             navigationBar.configure(
-                title: "Playback",
+                title: "재생 기록",
                 leftIcon: leftIcon,
                 leftIconTint: .mainLabelColor,
                 rightIcon: rightIcon,
                 rightIconTint: .systemRed
             )
-        default: // playlist
+        case let .playlist(title, _):
             navigationBar.configure(
-                title: "Playback",
+                title: title,
                 leftIcon: leftIcon,
                 leftIconTint: .mainLabelColor,
                 rightIcon: rightIcon, // rightIcon이 없으면 버튼이 표시 x
                 rightIconTint: .systemRed
             )
+        default:
+            break
         }
 
         navigationBar.delegate = self
     }
 
+#warning("김건우 -> 참조 사이클 문제 다시 확인해보기")
 #warning("김건우 -> CompositionalLayout 임시값 수정하기")
     private func createCompositionalLayout() -> UICollectionViewCompositionalLayout {
         let sectionProvider: UICollectionViewCompositionalLayoutSectionProvider = { [weak self] sectionIndex, environment in
@@ -96,14 +99,14 @@ final class VideoListViewController: StoryboardViewController {
             ? .fractionalWidth(1.0) : .fractionalWidth(0.33)
             let itemSize = NSCollectionLayoutSize(
                 widthDimension: itemWidthDimension, // 임시 값
-                heightDimension: .estimated(200) // 임시 값
+                heightDimension: .absolute(100) // 임시 값
             )
             let item = NSCollectionLayoutItem(layoutSize: itemSize)
 
             let columnCount = environment.isHorizontalSizeClassCompact ? 1 : 3
             let groupSize = NSCollectionLayoutSize(
                 widthDimension: .fractionalWidth(1.0), // 임시 값
-                heightDimension: .estimated(200) // 임시 값
+                heightDimension: .absolute(100) // 임시 값
             )
             let group = NSCollectionLayoutGroup.horizontal(
                 layoutSize: groupSize,
@@ -122,7 +125,7 @@ final class VideoListViewController: StoryboardViewController {
                 )
                 let header = NSCollectionLayoutBoundarySupplementaryItem(
                     layoutSize: headerSize,
-                    elementKind: ColorCollectiorReusableView.id,
+                    elementKind: HeaderReusableView.id,
                     alignment: .topLeading
                 )
                 header.pinToVisibleBounds = true
@@ -139,24 +142,12 @@ final class VideoListViewController: StoryboardViewController {
 // MARK: - Setup DataSource
 
 extension VideoListViewController {
-    
-    #warning("김건우 -> 데이터 소스를 '진짜 셀'로 교체하기 + 임시 셀 삭제")
-#warning("김건우 -> Ragistration 관련 코도 리팩토링하기 ")
+#warning("김건우 -> 참조 사이클 문제 다시 확인해보기")
     private func setupDataSource() {
-        // 임시 셀 등록
-        let cellRagistration = UICollectionView.CellRegistration<HistoryCollectionViewCell, VideoList.Item> { cell, indexPath, item in
-            cell.backgroundColor = UIColor.random
-        }
 
-        // 임시 헤더 등록
-        let headerRagistration = UICollectionView.SupplementaryRegistration<ColorCollectiorReusableView>(elementKind: ColorCollectiorReusableView.id) { supplementaryView, elementKind, indexPath in
-            guard let section = self.dataSource?.sectionIdentifier(for: indexPath.section),
-            let createdAt = section.name else { return }
-            supplementaryView.label.text = "\(createdAt)"
-            supplementaryView.backgroundColor = UIColor.random
-        }
+        let cellRagistration = createVideoCellRagistration()
+        let headerRagistration = createHeaderRagistration()
 
-        // 임시 데이터 소스 코드
         dataSource = PlaylistDiffableDataSource(collectionView: collectionView) { collectionView, indexPath, item in
             return collectionView.dequeueConfiguredReusableCell(
                 using: cellRagistration,
@@ -164,8 +155,6 @@ extension VideoListViewController {
                 item: item
             )
         }
-
-        // 임시 데이터 소스 코드
         dataSource?.supplementaryViewProvider = { [weak self] collectionView, kind, indexPath in
             guard case .playback(_) = self?.videos else { return .init() }
 
@@ -177,20 +166,61 @@ extension VideoListViewController {
 
         applySnapshot()
     }
-    
-    private func applySnapshot() {
-        switch videos {
-        case .playback(_):
-            applyPlaybackSnapshot()
-        default: // playlist
-            applyPlaylistSnapshot()
+
+    private func createVideoCellRagistration() -> UICollectionView.CellRegistration<MediumVideoCell, VideoList.Item> {
+        UICollectionView.CellRegistration<MediumVideoCell, VideoList.Item>(cellNib: MediumVideoCell.nib) { cell, indexPath, item in
+            var viewModel: MediumVideoViewModel
+            switch item {
+            case .playback(let entity):
+                viewModel = MediumVideoViewModel(
+                    tags: entity.tags,
+                    userName: entity.user,
+                    viewCount: Int(entity.views),
+                    duration: Int(entity.duration),
+                    thumbnailUrl: entity.video?.medium.thumbnail
+                )
+            case .playlist(let entity):
+                viewModel = MediumVideoViewModel(
+                    tags: entity.tags,
+                    userName: entity.user,
+                    viewCount: Int(entity.views),
+                    duration: Int(entity.duration),
+                    thumbnailUrl: entity.video?.medium.thumbnail
+                )
+            }
+            cell.configure(viewModel)
         }
     }
 
-    #warning("김건우 -> 검색어 쿼리 관련 스냅샷 코드 작성 + 코드 리팩토링")
-    private func applyPlaylistSnapshot() {
-        guard case let .playlist(entities) = videos else { return }
-        let playlistItems: [VideoList.Item] = entities.map { VideoList.Item.playlist($0) }
+    private func createHeaderRagistration() -> UICollectionView.SupplementaryRegistration<HeaderReusableView> {
+        UICollectionView.SupplementaryRegistration<HeaderReusableView>(supplementaryNib: HeaderReusableView.nib, elementKind: HeaderReusableView.id) { supplementaryView, elementKind, indexPath in
+            guard let section = self.dataSource?.sectionIdentifier(for: indexPath.section),
+            let createdAt = section.name else { return }
+            supplementaryView.configure(title: createdAt)
+        }
+    }
+
+    private func applySnapshot(query: String? = nil) {
+        switch videos {
+        case .playback(_):
+            applyPlaybackSnapshot(query: query)
+        default: // playlist
+            applyPlaylistSnapshot(query: query)
+        }
+    }
+
+    private func applyPlaylistSnapshot(query: String? = nil) {
+        guard case let .playlist(_, entities) = videos else { return }
+
+        let filteredEntities = entities.filter { entity in
+            // 검색어가 nil이거나 비어있다면 필터링하지 않기 (전체 출력)
+            guard let query = query, !query.isEmpty else { return true }
+            let tags = entity.tags.split(by: ","), author = entity.user
+            // 태그 중 하나라도 검색어와 일치하면 or 저자가 검색어와 일치하면
+            return tags.some({ $0.localizedCaseInsensitiveContains(query) }) || author.localizedCaseInsensitiveContains(query)
+        }
+
+        let playlistItems: [VideoList.Item] = filteredEntities.map { VideoList.Item.playlist($0) }
 
         var snapshot = NSDiffableDataSourceSnapshot<VideoList.Section, VideoList.Item>()
         let playlistSection = VideoList.Section(type: .playlist)
@@ -199,15 +229,24 @@ extension VideoListViewController {
         dataSource?.apply(snapshot, animatingDifferences: true)
     }
 
-    private func applyPlaybackSnapshot() {
+    private func applyPlaybackSnapshot(query: String? = nil) {
         guard case let .playback(entities) = videos else { return }
-        let groupedEntities = Dictionary(grouping: entities) { entity in
-            Calendar.current.startOfDay(for: entity.createdAt ?? .now)
+
+        let filteredEntities = entities.filter { entity in
+            // 검색어가 nil이거나 비어있다면 필터링하지 않기 (전체 출력)
+            guard let query = query, !query.isEmpty else { return true }
+            let tags = entity.tags.split(by: ","), author = entity.user
+            // 태그 중 하나라도 검색어와 일치하면 or 저자가 검색어와 일치하면
+            return tags.some({ $0.localizedCaseInsensitiveContains(query) }) || author.localizedCaseInsensitiveContains(query)
         }
-        let descendingGroupedEntities = groupedEntities.sorted { $0.key > $1.key }
+
+        let groupedEntities = Dictionary(grouping: filteredEntities) { entity in
+            Calendar.current.startOfDay(for: entity.createdAt)
+        }
+        let descendingSortedEntities = groupedEntities.sorted { $0.key > $1.key }
 
         var snapshot = NSDiffableDataSourceSnapshot<VideoList.Section, VideoList.Item>()
-        descendingGroupedEntities.forEach { date, entities in
+        descendingSortedEntities.forEach { date, entities in
             let playbackItems = entities.map { VideoList.Item.playback($0) }
             let playbackSection = VideoList.Section(
                 type: .playback,
@@ -252,7 +291,6 @@ extension VideoListViewController: UITextFieldDelegate {
 
     func textFieldDidBeginEditing(_ textField: UITextField) {
         collectionView.scrollToTop()
-
         moveCloseButton(toRight: false)
     }
 
@@ -275,9 +313,8 @@ extension VideoListViewController: UITextFieldDelegate {
             return false
         }
 
-        let updatedText = currentText.replacingCharacters(in: textRange, with: string)
-        #warning("김건우 -> 재생 목록 및 시청 기록에서 검색 연산 구현")
-
+        let query = currentText.replacingCharacters(in: textRange, with: string)
+        applySnapshot(query: query)
         collectionView.scrollToTop()
         return true
     }

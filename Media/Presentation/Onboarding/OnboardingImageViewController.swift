@@ -14,6 +14,7 @@ class OnboardingImageViewController: StoryboardViewController {
         super.viewDidLoad()
 
         
+        
     }
 
 }
