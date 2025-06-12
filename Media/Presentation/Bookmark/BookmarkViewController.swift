@@ -137,8 +137,7 @@ extension BookmarkViewController {
     private func createPlaylistCellRagistration() -> UICollectionView.CellRegistration<SmallVideoCell, Bookmark.Item> {
         UICollectionView.CellRegistration<SmallVideoCell, Bookmark.Item>(cellNib: SmallVideoCell.nib) { cell, indexPath, item in
             if case .playlist(let playlist) = item {
-                guard let playlistName = playlist.name,
-                      let totalVideos = playlist.playlistVideos?.count
+                guard let totalVideos = playlist.playlistVideos?.count
                 else { return }
 
                 var viewModel: PlayListViewModel
@@ -147,13 +146,13 @@ extension BookmarkViewController {
                    let thumbnailUrl = playlistVideoEntity.video?.medium.thumbnail {
                     viewModel = PlayListViewModel(
                         thumbnailUrl: thumbnailUrl,
-                        userName: playlistName,
+                        userName: playlist.name,
                         total: totalVideos
                     )
                 // 대표 이미지가 없다면 이미지를 빼고 재생 목록 셀 구성
                 } else {
                     viewModel = PlayListViewModel(
-                        userName: playlistName,
+                        userName: playlist.name,
                         total: totalVideos
                     )
                 }

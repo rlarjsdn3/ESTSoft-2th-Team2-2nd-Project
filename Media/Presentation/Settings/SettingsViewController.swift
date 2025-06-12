@@ -8,9 +8,17 @@
 import UIKit
 
 final class SettingsViewController: StoryboardViewController {
-
+    @IBOutlet weak var navigationBar: NavigationBar!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        navigationBar.configure(
+            title: "Settings",
+            subtitle: "",
+            isSearchMode: false,
+            isLeadingAligned: false
+        )
     }
 
     override func setupAttributes() {

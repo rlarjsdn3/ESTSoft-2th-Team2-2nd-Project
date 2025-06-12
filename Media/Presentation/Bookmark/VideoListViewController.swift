@@ -99,14 +99,14 @@ final class VideoListViewController: StoryboardViewController {
             ? .fractionalWidth(1.0) : .fractionalWidth(0.33)
             let itemSize = NSCollectionLayoutSize(
                 widthDimension: itemWidthDimension, // 임시 값
-                heightDimension: .estimated(200) // 임시 값
+                heightDimension: .absolute(100) // 임시 값
             )
             let item = NSCollectionLayoutItem(layoutSize: itemSize)
 
             let columnCount = environment.isHorizontalSizeClassCompact ? 1 : 3
             let groupSize = NSCollectionLayoutSize(
                 widthDimension: .fractionalWidth(1.0), // 임시 값
-                heightDimension: .estimated(200) // 임시 값
+                heightDimension: .absolute(100) // 임시 값
             )
             let group = NSCollectionLayoutGroup.horizontal(
                 layoutSize: groupSize,
@@ -125,7 +125,7 @@ final class VideoListViewController: StoryboardViewController {
                 )
                 let header = NSCollectionLayoutBoundarySupplementaryItem(
                     layoutSize: headerSize,
-                    elementKind: ColorCollectiorReusableView.id,
+                    elementKind: HeaderReusableView.id,
                     alignment: .topLeading
                 )
                 header.pinToVisibleBounds = true
@@ -166,23 +166,40 @@ extension VideoListViewController {
 
         applySnapshot()
     }
-#warning("김건우 -> 데이터 소스를 '진짜 셀'로 교체하기 + 임시 셀 삭제")
-    private func createVideoCellRagistration() -> UICollectionView.CellRegistration<HistoryCollectionViewCell, VideoList.Item> {
-        UICollectionView.CellRegistration<HistoryCollectionViewCell, VideoList.Item> { cell, indexPath, item in
-            cell.backgroundColor = UIColor.random
+
+    private func createVideoCellRagistration() -> UICollectionView.CellRegistration<MediumVideoCell, VideoList.Item> {
+        UICollectionView.CellRegistration<MediumVideoCell, VideoList.Item>(cellNib: MediumVideoCell.nib) { cell, indexPath, item in
+            var viewModel: MediumVideoViewModel
+            switch item {
+            case .playback(let entity):
+                viewModel = MediumVideoViewModel(
+                    tags: entity.tags,
+                    userName: entity.user,
+                    viewCount: Int(entity.views),
+                    duration: Int(entity.duration),
+                    thumbnailUrl: entity.video?.medium.thumbnail
+                )
+            case .playlist(let entity):
+                viewModel = MediumVideoViewModel(
+                    tags: entity.tags,
+                    userName: entity.user,
+                    viewCount: Int(entity.views),
+                    duration: Int(entity.duration),
+                    thumbnailUrl: entity.video?.medium.thumbnail
+                )
+            }
+            cell.configure(viewModel)
         }
     }
 
-    private func createHeaderRagistration() -> UICollectionView.SupplementaryRegistration<ColorCollectiorReusableView> {
-        UICollectionView.SupplementaryRegistration<ColorCollectiorReusableView>(elementKind: ColorCollectiorReusableView.id) { supplementaryView, elementKind, indexPath in
+    private func createHeaderRagistration() -> UICollectionView.SupplementaryRegistration<HeaderReusableView> {
+        UICollectionView.SupplementaryRegistration<HeaderReusableView>(supplementaryNib: HeaderReusableView.nib, elementKind: HeaderReusableView.id) { supplementaryView, elementKind, indexPath in
             guard let section = self.dataSource?.sectionIdentifier(for: indexPath.section),
             let createdAt = section.name else { return }
-            supplementaryView.label.text = "\(createdAt)"
-            supplementaryView.backgroundColor = UIColor.random
+            supplementaryView.configure(title: createdAt)
         }
     }
 
-#warning("김건우 -> 스냅샷 관련 코도 리팩토링하기 ")
     private func applySnapshot(query: String? = nil) {
         switch videos {
         case .playback(_):

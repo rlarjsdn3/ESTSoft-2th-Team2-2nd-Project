@@ -16,8 +16,9 @@ extension PlaylistEntity {
         return NSFetchRequest<PlaylistEntity>(entityName: "PlaylistEntity")
     }
 
-    @NSManaged public var createdAt: Date?
-    @NSManaged public var name: String?
+    @NSManaged public var createdAt: Date
+    @NSManaged public var name: String
+    @NSManaged public var isBookmark: Bool
     @NSManaged public var playlistVideos: NSSet?
 
 }

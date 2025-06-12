@@ -12,25 +12,22 @@ import UIKit
 final class SmallVideoCell: UICollectionViewCell, NibLodable {
 
     /// 썸네일 이미지를 표시하는 이미지 뷰
-    @IBOutlet weak var thumbnailImageView: UIImageView!
+    @IBOutlet private weak var thumbnailImageView: UIImageView!
 
     /// 썸네일에 그림자를 줄 때 사용하는 뷰 (목록임을 나타내는 이미지)
-    @IBOutlet weak var shadowView: UIView!
+    @IBOutlet private weak var shadowView: UIView!
 
     /// 동영상 재생목록 타이틀을 표시하는 라벨
-    @IBOutlet weak var titleLabel: UILabel!
+    @IBOutlet private weak var titleLabel: UILabel!
 
     /// 마지막 셀에만 표시되는 '+' 아이콘 이미지 뷰
-    @IBOutlet weak var plusImageView: UIImageView!
+    @IBOutlet private weak var plusImageView: UIImageView!
 
     /// 비디오 개수 뷰의 배경이 되는 스택 뷰
     @IBOutlet weak var videoCountBackgroundView: UIStackView!
 
     /// 재생목록에 포함된 비디오 개수 라벨
     @IBOutlet weak var videoCountLabel: UILabel!
-
-    /// 이미지 다운로드를 위한 데이터 전송 서비스
-    var dataTransferService: (any DataTransferService)?
 
     /// 마지막 셀인지 여부를 나타내는 플래그
     var isLast: Bool = false {

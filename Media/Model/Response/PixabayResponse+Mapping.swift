@@ -39,11 +39,7 @@ extension PixabayResponse.Hit {
         insertInto context: NSManagedObjectContext
     ) -> PlaybackHistoryEntity {
         let entity = PlaybackHistoryEntity(context: context)
-        #if DEBUG
-        entity.createdAt = Date().addingTimeInterval(86_400 * Double.random(in: -15...0))
-        #else
         entity.createdAt = Date()
-        #endif
         entity.id = Int64(self.id)
         entity.tags = self.tags
         entity.duration = Int64(self.duration)

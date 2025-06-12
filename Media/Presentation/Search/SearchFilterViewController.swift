@@ -57,6 +57,10 @@ class SearchFilterViewController: StoryboardViewController {
         print(selectedCategories, selectedOrder, selectedDuration)
     }
 
+    deinit {
+        print("filterView 해제")
+    }
+
     override func setupHierachy() {
         registerCollectionViews()
         if let flow = filterCategoryCollectionView.collectionViewLayout as? UICollectionViewFlowLayout {
@@ -73,6 +77,7 @@ class SearchFilterViewController: StoryboardViewController {
         filterOrderCollectionView.backgroundColor = .clear
         filterVideoDurationCollectionView.backgroundColor = .clear
     }
+
 
     @IBAction func applyButtonTapped(_ sender: UIButton) {
         if selectedCategories != nil {
@@ -110,6 +115,9 @@ class SearchFilterViewController: StoryboardViewController {
         filterCategoryCollectionView.reloadData()
         filterOrderCollectionView.reloadData()
         filterVideoDurationCollectionView.reloadData()
+
+        onApply?()
+        dismiss(animated: true)
     }
 
     private func registerCollectionViews() {
