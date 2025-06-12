@@ -62,6 +62,7 @@ final class BookmarkViewController: StoryboardViewController {
             title: (username != nil) ? "\(username!)'s Library" : "Library",
             isLeadingAligned: true
         )
+        collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 20, right: 0)
     }
 
     private func createCompositionalLayout() -> UICollectionViewCompositionalLayout {
@@ -136,19 +137,31 @@ extension BookmarkViewController {
     private func createPlaylistCellRagistration() -> UICollectionView.CellRegistration<SmallVideoCell, Bookmark.Item> {
         UICollectionView.CellRegistration<SmallVideoCell, Bookmark.Item>(cellNib: SmallVideoCell.nib) { cell, indexPath, item in
             if case .playlist(let playlist) = item {
-                guard let playlistName = playlist.name else { return }
+                guard let playlistName = playlist.name,
+                      let totalVideos = playlist.playlistVideos?.count
+                else { return }
 
+                var viewModel: PlayListViewModel
+                // 대표 이미지가 있다면 이미지와 함께 재생 목록 셀 구성
                 if let playlistVideoEntity = playlist.playlistVideos?.allObjects.first as? PlaylistVideoEntity,
                    let thumbnailUrl = playlistVideoEntity.video?.medium.thumbnail {
-                    cell.configure(url: thumbnailUrl, title: playlistName, isLast: false)
-                    print(thumbnailUrl)
+                    viewModel = PlayListViewModel(
+                        thumbnailUrl: thumbnailUrl,
+                        userName: playlistName,
+                        total: totalVideos
+                    )
+                // 대표 이미지가 없다면 이미지를 빼고 재생 목록 셀 구성
                 } else {
-                    cell.configure(title: playlistName, isLast: false)
+                    viewModel = PlayListViewModel(
+                        userName: playlistName,
+                        total: totalVideos
+                    )
                 }
+                cell.configure(viewModel)
             }
 
             if case .addPlaylist = item {
-                cell.configure(title: "", isLast: true)
+                cell.isLast = true
             }
         }
     }
@@ -174,7 +187,7 @@ extension BookmarkViewController {
 #warning("김건우 -> 스냅샷 관련 코드 리팩토링")
     private func applySnapshot() {
         var snapshot = NSDiffableDataSourceSnapshot<Bookmark.Section, Bookmark.Item>()
-        
+
         if let history = playbackFetchedResultsController?.fetchedObjects, !history.isEmpty {
             let items = history.map { Bookmark.Item.playback($0) }.prefix(10)
             let section = Bookmark.Section(type: .playback)
