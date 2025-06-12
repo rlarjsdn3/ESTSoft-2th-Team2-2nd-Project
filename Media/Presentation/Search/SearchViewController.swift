@@ -10,6 +10,7 @@ import UIKit
 final class SearchViewController: StoryboardViewController, NavigationBarDelegate {
     @IBOutlet weak var searchTableView: UITableView!
     @IBOutlet weak var navigationBar: NavigationBar!
+    @IBOutlet weak var placeholderImageView: UIImageView!
 
     var recordManager = SearchRecordManager()
     private var records: [SearchRecordEntity] = []
@@ -56,6 +57,9 @@ final class SearchViewController: StoryboardViewController, NavigationBarDelegat
     // 검색 기록 로드
     private func loadRecentSearches() {
         records = (try? recordManager.fetchRecent(limit: 20)) ?? []
+        if !records.isEmpty {
+            placeholderImageView.isHidden = true
+        }
         searchTableView.reloadData()
     }
 
