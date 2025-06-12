@@ -11,18 +11,6 @@ class OnBoardingTagsViewController: StoryboardViewController {
 
     @IBOutlet weak var tagsCollectionView: UICollectionView!
     
-    @IBAction func skipTagButton(_ sender: Any) {
-        // 바로 home뷰로 넘어가기
-//        var selectedCategories = selectedIndexPath.map { tags[$0.item] }
-        
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        if let vc = storyboard.instantiateViewController(withIdentifier: "MainVC") as? UITabBarController {
-            
-            vc.modalPresentationStyle = .fullScreen
-            self.navigationController?.pushViewController(vc, animated: true)
-        }
-    }
-    
     @IBOutlet weak var selectedTagButton: UIButton!
     
     @IBAction func selectedTagButton(_ sender: Any) {
