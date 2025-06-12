@@ -7,14 +7,34 @@
 
 import UIKit
 
-class ContentUnavailableView: UIView {
+final class ContentUnavailableView: NibView {
 
-    /*
-    // Only override draw() if you perform custom drawing.
-    // An empty implementation adversely affects performance during animation.
-    override func draw(_ rect: CGRect) {
-        // Drawing code
+    @IBOutlet weak var imageView: UIImageView!
+    @IBOutlet weak var titleLabel: UILabel!
+    @IBOutlet weak var subtitleLabel: UILabel!
+    
+    @IBInspectable var imageName: String = "default" {
+        didSet { imageView.image = UIImage(named: imageName) }
     }
-    */
-
+    
+    @IBInspectable var systemName: String = "sun.max" {
+        didSet { imageView.image = UIImage(systemName: systemName)  }
+    }
+    
+    @IBInspectable var title: String? {
+        didSet { titleLabel.text = title }
+    }
+    
+    @IBInspectable var subtitle: String? {
+        didSet { subtitleLabel.text = subtitle }
+    }
+    
+    @IBInspectable override var backgroundColor: UIColor? {
+        didSet { self.backgroundColor = backgroundColor }
+    }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        loadFromNib(owner: self)
+    }
 }
