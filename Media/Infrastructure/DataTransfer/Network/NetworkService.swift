@@ -15,11 +15,13 @@ protocol NetworkCancellable {
 
 extension URLSessionDataTask: NetworkCancellable { }
 
+extension URLSessionDownloadTask: NetworkCancellable { }
+
 
 /// 네트워크 요청을 수행하고, 그 결과를 비동기적으로 반환하는 기능을 정의한 프로토콜입니다.
 protocol NetworkService {
     /// 네트워크 요청 완료 시 호출되는 결과 처리 핸들러입니다.
-    typealias CompletionHandler = (Result<Data?, NetworkError>) -> Void
+    typealias CompletionHandler<T> = (Result<T?, NetworkError>) -> Void
 
     /// 지정된 엔드포인트를 기반으로 네트워크 요청을 수행합니다.
     /// - Parameters:
@@ -28,7 +30,13 @@ protocol NetworkService {
     /// - Returns: 실행 중인 네트워크 요청을 취소할 수 있는 객체이며, 요청 생성에 실패한 경우 `nil`을 반환합니다.
     func dataTask(
         _ endpoint: any Requestable,
-        completion: @escaping CompletionHandler
+        completion: @escaping CompletionHandler<Data>
+    ) -> (any NetworkCancellable)?
+
+    ///
+    func download(
+        _ endpoint: any Requestable,
+        completion: @escaping CompletionHandler<URL>
     ) -> (any NetworkCancellable)?
 }
 
@@ -60,7 +68,7 @@ final class DefaultNetworkService {
 
     private func dataTask(
         from request: URLRequest,
-        completion: @escaping CompletionHandler
+        completion: @escaping CompletionHandler<Data>
     ) -> (any NetworkCancellable) {
 
         let cancellable = sessionManager.dataTask(from: request) { data, response, requestError in
@@ -84,7 +92,34 @@ final class DefaultNetworkService {
 
         return cancellable
     }
-    
+
+    private func download(
+        from request: URLRequest,
+        completion: @escaping CompletionHandler<URL>
+    ) -> (any NetworkCancellable) {
+
+        let cancellable = sessionManager.download(from: request) { tempUrl, response, requestError in
+
+            if let requestError = requestError {
+                var error: NetworkError
+                if let response = response as? HTTPURLResponse {
+                    error = NetworkError.error(statusCode: response.statusCode, data: nil)
+                } else {
+                    error = self.resolveError(requestError)
+                }
+                self.logger.log(error: requestError)
+                completion(.failure(error))
+            } else {
+                self.logger.log(responseData: nil, response: response)
+                completion(.success(tempUrl))
+            }
+        }
+
+        logger.log(request: request)
+
+        return cancellable
+    }
+
     /// URLSession에서 발생한 에러를 내부에서 정의한 `NetworkError` 타입으로 변환합니다.
     /// - Parameter error: URLSession에서 발생한 에러 객체입니다.
     /// - Returns: `NetworkError` 열거형 값입니다.
@@ -96,19 +131,30 @@ final class DefaultNetworkService {
         default: return .generic(error)
         }
     }
-
-
 }
 
 extension DefaultNetworkService: NetworkService {
 
     func dataTask(
         _ endpoint: any Requestable,
-        completion: @escaping CompletionHandler
+        completion: @escaping CompletionHandler<Data>
     ) -> (any NetworkCancellable)? {
         do {
             let request = try endpoint.urlRequest(with: config)
             return dataTask(from: request, completion: completion)
+        } catch {
+            completion(.failure(NetworkError.urlGeneration))
+            return nil
+        }
+    }
+
+    func download(
+        _ endpoint: any Requestable,
+        completion: @escaping CompletionHandler<URL>
+    ) -> (any NetworkCancellable)? {
+        do {
+            let request = try endpoint.urlRequest(with: config)
+            return download(from: request, completion: completion)
         } catch {
             completion(.failure(NetworkError.urlGeneration))
             return nil
