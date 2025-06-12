@@ -143,23 +143,11 @@ final class VideoListViewController: StoryboardViewController {
 
 extension VideoListViewController {
 #warning("김건우 -> 참조 사이클 문제 다시 확인해보기")
-    #warning("김건우 -> 데이터 소스를 '진짜 셀'로 교체하기 + 임시 셀 삭제")
-#warning("김건우 -> Ragistration 관련 코도 리팩토링하기 ")
     private func setupDataSource() {
-        // 임시 셀 등록
-        let cellRagistration = UICollectionView.CellRegistration<HistoryCollectionViewCell, VideoList.Item> { cell, indexPath, item in
-            cell.backgroundColor = UIColor.random
-        }
 
-        // 임시 헤더 등록
-        let headerRagistration = UICollectionView.SupplementaryRegistration<ColorCollectiorReusableView>(elementKind: ColorCollectiorReusableView.id) { supplementaryView, elementKind, indexPath in
-            guard let section = self.dataSource?.sectionIdentifier(for: indexPath.section),
-            let createdAt = section.name else { return }
-            supplementaryView.label.text = "\(createdAt)"
-            supplementaryView.backgroundColor = UIColor.random
-        }
+        let cellRagistration = createVideoCellRagistration()
+        let headerRagistration = createHeaderRagistration()
 
-        // 임시 데이터 소스 코드
         dataSource = PlaylistDiffableDataSource(collectionView: collectionView) { collectionView, indexPath, item in
             return collectionView.dequeueConfiguredReusableCell(
                 using: cellRagistration,
@@ -167,8 +155,6 @@ extension VideoListViewController {
                 item: item
             )
         }
-
-        // 임시 데이터 소스 코드
         dataSource?.supplementaryViewProvider = { [weak self] collectionView, kind, indexPath in
             guard case .playback(_) = self?.videos else { return .init() }
 
@@ -179,6 +165,21 @@ extension VideoListViewController {
         }
 
         applySnapshot()
+    }
+#warning("김건우 -> 데이터 소스를 '진짜 셀'로 교체하기 + 임시 셀 삭제")
+    private func createVideoCellRagistration() -> UICollectionView.CellRegistration<HistoryCollectionViewCell, VideoList.Item> {
+        UICollectionView.CellRegistration<HistoryCollectionViewCell, VideoList.Item> { cell, indexPath, item in
+            cell.backgroundColor = UIColor.random
+        }
+    }
+
+    private func createHeaderRagistration() -> UICollectionView.SupplementaryRegistration<ColorCollectiorReusableView> {
+        UICollectionView.SupplementaryRegistration<ColorCollectiorReusableView>(elementKind: ColorCollectiorReusableView.id) { supplementaryView, elementKind, indexPath in
+            guard let section = self.dataSource?.sectionIdentifier(for: indexPath.section),
+            let createdAt = section.name else { return }
+            supplementaryView.label.text = "\(createdAt)"
+            supplementaryView.backgroundColor = UIColor.random
+        }
     }
 
 #warning("김건우 -> 스냅샷 관련 코도 리팩토링하기 ")
@@ -273,7 +274,6 @@ extension VideoListViewController: UITextFieldDelegate {
 
     func textFieldDidBeginEditing(_ textField: UITextField) {
         collectionView.scrollToTop()
-
         moveCloseButton(toRight: false)
     }
 
