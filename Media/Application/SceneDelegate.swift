@@ -20,6 +20,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
      - 각 탭(Home, Library, Interest, Setting)의 일반 상태와 선택된 상태 이미지 설정
      */
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
+        if let windowScene = scene as? UIWindowScene,
+           let window = windowScene.windows.first {
+            let isDark = UserDefaults.standard.bool(forKey: "isDarkMode")
+            window.overrideUserInterfaceStyle = isDark ? .dark : .light
+        }
+        
         if let tapBarController = self.window?.rootViewController as? UITabBarController {
             // 탭바 외관 설정
             let appearance = UITabBarAppearance()
