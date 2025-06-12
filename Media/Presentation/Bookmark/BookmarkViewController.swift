@@ -270,7 +270,15 @@ extension BookmarkViewController: NSFetchedResultsControllerDelegate {
             if let newPlaylist = anObject as? PlaylistEntity {
                 currentSnapshot.insertItems([.playlist(newPlaylist)], beforeItem: .addPlaylist)
             }
-            
+
+            if let newPlaylistVideo = anObject as? PlaylistVideoEntity,
+               let playlist = newPlaylistVideo.playlist  {
+                let playlistSection = Bookmark.Section(type: .playlist)
+                if currentSnapshot.sectionIdentifiers.contains(playlistSection) {
+                    currentSnapshot.reloadSections([playlistSection])
+                }
+            }
+
             // 새로운 재생 기록이 추가되었다면 맨 앞에 추가하기
             if let newPlayback = anObject as? PlaybackHistoryEntity {
                 let playbackSection = currentSnapshot.sectionIdentifiers.first(where: { $0.type == .playback })
@@ -295,23 +303,29 @@ extension BookmarkViewController: NSFetchedResultsControllerDelegate {
             if let oldPlaylist = anObject as? PlaylistEntity {
                 currentSnapshot.deleteItems([.playlist(oldPlaylist)])
             }
+            // 재생 기록이 삭제되었다면 삭제하기
+            if let oldPlayback = anObject as? PlaybackHistoryEntity {
+                currentSnapshot.deleteItems([.playback(oldPlayback)])
+            }
         case .update:
-            // 재생 목록 (이름 등)이 변경되었다면 해당 항목(cell) 재구성하기
-            if let updatedPlaylist = anObject as? PlaylistEntity {
-                let itemToReconfigure = Bookmark.Item.playlist(updatedPlaylist)
-                if currentSnapshot.itemIdentifiers.contains(itemToReconfigure) {
-                    currentSnapshot.reconfigureItems([itemToReconfigure])
-                }
-            }
-            
             // 재생 목록 속 비디오가 변경되었다면 해당 항목(cell) 재구성하기
-            if let updatedPlaylistVideo = anObject as? PlaylistVideoEntity,
-               let playlist = updatedPlaylistVideo.playlist {
-                let item = Bookmark.Item.playlist(playlist)
-                if currentSnapshot.itemIdentifiers.contains(item) {
-                    currentSnapshot.reconfigureItems([item])
-                }
-            }
+//            if let updatedPlaylistVideo = anObject as? PlaylistVideoEntity,
+//               let playlist = updatedPlaylistVideo.playlist {
+//                print(playlist.name, "----------------------------------------------------------")
+//                let item = Bookmark.Item.playlist(playlist)
+//                if currentSnapshot.itemIdentifiers.contains(item) {
+//                    currentSnapshot.reconfigureItems([item])
+//                }
+//            }
+
+            // 재생 목록 (이름 등)이 변경되었다면 해당 항목(cell) 재구성하기
+//            if let updatedPlaylist = anObject as? PlaylistEntity {
+//                let itemToReconfigure = Bookmark.Item.playlist(updatedPlaylist)
+//                if currentSnapshot.itemIdentifiers.contains(itemToReconfigure) {
+//                    currentSnapshot.reconfigureItems([itemToReconfigure])
+//                }
+//            }
+            break
         default:
             fatalError("can not handle change type")
         }
