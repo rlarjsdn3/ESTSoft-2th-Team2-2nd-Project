@@ -8,7 +8,6 @@
 import UIKit
 
 class SwitchTableViewCell: UITableViewCell, NibLodable {
-    static let identifier = "SwitchTableViewCell"
     
     @IBOutlet weak var iconImageView: UIImageView!
     @IBOutlet weak var titleLabel: UILabel!
