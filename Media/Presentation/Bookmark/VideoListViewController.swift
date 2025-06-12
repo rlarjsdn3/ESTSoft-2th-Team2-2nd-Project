@@ -10,9 +10,9 @@ import UIKit
 /// 재생 기록 또는 재생 목록에 따라 표시할 비디오 목록의 유형을 나타내는 열거형입니다.
 enum VideoListType {
     /// 재생 기록에 기반한 비디오 목록
-    case playback([PlaybackHistoryEntity])
+    case playback(entities: [PlaybackHistoryEntity])
     /// 재생 목록에 기반한 비디오 목록
-    case playlist([PlaylistVideoEntity])
+    case playlist(title: String, entities: [PlaylistVideoEntity])
 }
 
 final class VideoListViewController: StoryboardViewController {
@@ -69,25 +69,28 @@ final class VideoListViewController: StoryboardViewController {
         switch videos {
         case .playback:
             navigationBar.configure(
-                title: "Playback",
+                title: "재생 기록",
                 leftIcon: leftIcon,
                 leftIconTint: .mainLabelColor,
                 rightIcon: rightIcon,
                 rightIconTint: .systemRed
             )
-        default: // playlist
+        case let .playlist(title, _):
             navigationBar.configure(
-                title: "Playback",
+                title: title,
                 leftIcon: leftIcon,
                 leftIconTint: .mainLabelColor,
                 rightIcon: rightIcon, // rightIcon이 없으면 버튼이 표시 x
                 rightIconTint: .systemRed
             )
+        default:
+            break
         }
 
         navigationBar.delegate = self
     }
 
+#warning("김건우 -> 참조 사이클 문제 다시 확인해보기")
 #warning("김건우 -> CompositionalLayout 임시값 수정하기")
     private func createCompositionalLayout() -> UICollectionViewCompositionalLayout {
         let sectionProvider: UICollectionViewCompositionalLayoutSectionProvider = { [weak self] sectionIndex, environment in
@@ -139,7 +142,7 @@ final class VideoListViewController: StoryboardViewController {
 // MARK: - Setup DataSource
 
 extension VideoListViewController {
-    
+#warning("김건우 -> 참조 사이클 문제 다시 확인해보기")
     #warning("김건우 -> 데이터 소스를 '진짜 셀'로 교체하기 + 임시 셀 삭제")
 #warning("김건우 -> Ragistration 관련 코도 리팩토링하기 ")
     private func setupDataSource() {
@@ -177,7 +180,8 @@ extension VideoListViewController {
 
         applySnapshot()
     }
-    
+
+#warning("김건우 -> 스냅샷 관련 코도 리팩토링하기 ")
     private func applySnapshot(query: String? = nil) {
         switch videos {
         case .playback(_):
@@ -188,7 +192,7 @@ extension VideoListViewController {
     }
 
     private func applyPlaylistSnapshot(query: String? = nil) {
-        guard case let .playlist(entities) = videos else { return }
+        guard case let .playlist(_, entities) = videos else { return }
 
         let filteredEntities = entities.filter { entity in
             // 검색어가 nil이거나 비어있다면 필터링하지 않기 (전체 출력)

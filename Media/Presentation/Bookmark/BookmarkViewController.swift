@@ -46,10 +46,10 @@ final class BookmarkViewController: StoryboardViewController {
                       let playlistVideos = playlistEntity.playlistVideos?.allObjects as? [PlaylistVideoEntity] else {
                     return
                 }
-                playlistVC.videos = .playlist(playlistVideos)
+                playlistVC.videos = .playlist(title: playlistEntity.name ?? "재생 목록", entities: playlistVideos)
             } else {
                 guard let playbackVideos = playbackFetchedResultsController?.fetchedObjects else { return }
-                playlistVC.videos = .playback(playbackVideos)
+                playlistVC.videos = .playback(entities: playbackVideos)
             }
         }
     }
@@ -59,7 +59,7 @@ final class BookmarkViewController: StoryboardViewController {
 
         let username = userDefaultsService.userName
         navigationBar.configure(
-            title: (username != nil) ? "\(username!)'s Bookmark" : "Bookmark",
+            title: (username != nil) ? "\(username!)'s Library" : "Library",
             isLeadingAligned: true
         )
     }
@@ -73,10 +73,8 @@ final class BookmarkViewController: StoryboardViewController {
             }
             return sectionIdentifier.type.buildLayout(for: environment)
         }
-        let config = UICollectionViewCompositionalLayoutConfiguration()
-        config.interSectionSpacing = 16
 
-        return UICollectionViewCompositionalLayout(sectionProvider: sectionProvider, configuration: config)
+        return UICollectionViewCompositionalLayout(sectionProvider: sectionProvider)
     }
 }
 
@@ -86,12 +84,13 @@ final class BookmarkViewController: StoryboardViewController {
 extension BookmarkViewController {
 
     private func setupDataSource() {
+#warning("김건우 -> 참조 사이클 문제 다시 확인해보기")
         #warning("김건우 -> Ragistration 관련 코도 리팩토링하기 ")
         let playbackCellRagistration = UICollectionView.CellRegistration<VideoCell, Bookmark.Item>(cellNib: VideoCell.nib) { cell, indexPath, item in
             if case .playback(let playback) = item {
                 guard let thumbnailUrl = playback.video?.medium.thumbnail else { return }
                 let viewModel = VideoCellViewModel(
-                    title: playback.tags,
+                    title: playback.user,
                     viewCount: Int(playback.views),
                     duration: Int(playback.duration),
                     thumbnailURL: thumbnailUrl,

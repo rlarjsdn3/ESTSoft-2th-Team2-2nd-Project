@@ -28,7 +28,7 @@ extension Alertable where Self: UIViewController {
         let alertController = defaultAlertController(title, message: message)
 
         let okAction = TSAlertAction(title: "확인", style: .default, handler: onConfirm)
-        okAction.configuration.backgroundColor = UIColor.systemBlue // 임시 색상
+        okAction.configuration.backgroundColor = UIColor.primaryColor
         okAction.configuration.titleAttributes?[.foregroundColor] = UIColor.systemBackground
         alertController.addAction(okAction)
 
@@ -53,6 +53,7 @@ extension Alertable where Self: UIViewController {
         let alertController = defaultAlertController(title, message: message)
 
         let okAction = TSAlertAction(title: "삭제", style: .destructive, handler: onConfirm)
+        okAction.configuration.backgroundColor = UIColor.primaryColor
         okAction.configuration.titleAttributes?[.foregroundColor] = UIColor.systemBackground
         alertController.addAction(okAction)
 
@@ -89,7 +90,7 @@ extension Alertable where Self: UIViewController {
             }
             onConfirm((action, alertController.textFields?.first?.text ?? ""))
         }
-        okAction.configuration.backgroundColor = UIColor.systemBlue // 임시 색상
+        okAction.configuration.backgroundColor = UIColor.primaryColor
         okAction.configuration.titleAttributes?[.foregroundColor] = UIColor.systemBackground
         okAction.isEnabled = false
         alertController.addAction(okAction)
@@ -98,7 +99,7 @@ extension Alertable where Self: UIViewController {
         alertController.addTextField { textfield in
             textfield.text = defaultText
             textfield.placeholder = placeholder
-            #warning("김건우 -> 버튼 틴트 컬러 수정")
+
             #warning("김건우 -> 참조 사이클 문제 다시 확인해보기")
             observer = NotificationCenter.default.addObserver(
                 forName: UITextField.textDidChangeNotification,
