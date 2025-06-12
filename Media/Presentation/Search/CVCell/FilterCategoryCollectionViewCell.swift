@@ -11,12 +11,11 @@ class FilterCategoryCollectionViewCell: UICollectionViewCell {
     @IBOutlet weak var categoryContentView: UIView!
     @IBOutlet weak var categoryLabel: UILabel!
 
-    // tagUnselected <-> Bolder Color가 바뀐듯
     func defaultCellConfigure() {
         categoryContentView.layer.cornerRadius = 12
-        categoryContentView.backgroundColor = UIColor.tagBorder
+        categoryContentView.backgroundColor = UIColor.tagUnselected
         categoryContentView.layer.borderWidth = 1.0
-        categoryContentView.layer.borderColor = UIColor.tagUnselected.cgColor
+        categoryContentView.layer.borderColor = UIColor.tagBorder.cgColor
         categoryLabel.textColor = .black
     }
 
@@ -27,7 +26,7 @@ class FilterCategoryCollectionViewCell: UICollectionViewCell {
             categoryContentView.backgroundColor = UIColor.tagSelected
             categoryLabel.textColor = .white
         } else {
-            categoryContentView.backgroundColor = UIColor.tagBorder
+            categoryContentView.backgroundColor = UIColor.tagUnselected
             categoryLabel.textColor = .label
         }
     }

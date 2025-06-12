@@ -247,8 +247,11 @@
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="40" id="F4v-wO-1To"/>
                                                 </constraints>
+                                                <color key="tintColor" name="MainLabel"/>
                                                 <state key="normal" title="Button"/>
-                                                <buttonConfiguration key="configuration" style="tinted" title="Cancel"/>
+                                                <buttonConfiguration key="configuration" style="tinted" title="취소">
+                                                    <color key="baseForegroundColor" systemColor="labelColor"/>
+                                                </buttonConfiguration>
                                                 <connections>
                                                     <action selector="cancelButtonTapped:" destination="Y6W-OH-hqX" eventType="touchUpInside" id="KGw-Uc-TjB"/>
                                                 </connections>
@@ -258,8 +261,9 @@
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="40" id="qp4-be-YCL"/>
                                                 </constraints>
+                                                <color key="tintColor" name="Primary"/>
                                                 <state key="normal" title="Button"/>
-                                                <buttonConfiguration key="configuration" style="filled" title="Apply"/>
+                                                <buttonConfiguration key="configuration" style="filled" title="검색하기"/>
                                                 <connections>
                                                     <action selector="applyButtonTapped:" destination="Y6W-OH-hqX" eventType="touchUpInside" id="Rlc-Ww-PE0"/>
                                                 </connections>
@@ -318,6 +322,12 @@
         <namedColor name="MainLabel">
             <color red="0.23137254901960785" green="0.23137254901960785" blue="0.23137254901960785" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
+        <namedColor name="Primary">
+            <color red="0.29803921568627451" green="0.36078431372549019" blue="0.36078431372549019" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <systemColor name="labelColor">
+            <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

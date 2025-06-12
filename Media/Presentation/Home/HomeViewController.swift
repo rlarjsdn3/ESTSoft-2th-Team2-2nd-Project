@@ -104,6 +104,11 @@ final class HomeViewController: StoryboardViewController {
         fetchVideo()
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.setNavigationBarHidden(false, animated: animated)
+    }
+
     // "mm:ss" 형식으로 문자열 변환
     func formatDuration(seconds: Int) -> String {
         let minutes = seconds / 60

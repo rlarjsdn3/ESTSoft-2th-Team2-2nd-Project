@@ -85,6 +85,7 @@ final class SearchViewController: StoryboardViewController, NavigationBarDelegat
                         identifier: "SearchResultViewController"
                     ) as! SearchResultViewController
 
+                    resultVC.keyword = self.navigationBar.searchBar.text
                     resultVC.getCategories = categories.first
                     resultVC.getOrder = order.first
                     resultVC.getDuration = duration.first
@@ -92,8 +93,6 @@ final class SearchViewController: StoryboardViewController, NavigationBarDelegat
                     self.navigationController?.pushViewController(resultVC, animated: true)
                 }
             }
-
-
 
         vc.modalPresentationStyle = .pageSheet
         if let sheet = vc.sheetPresentationController {

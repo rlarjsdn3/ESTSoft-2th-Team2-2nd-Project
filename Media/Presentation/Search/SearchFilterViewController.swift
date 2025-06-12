@@ -20,13 +20,13 @@ class SearchFilterViewController: StoryboardViewController {
     @IBOutlet weak var filterCategoryCVHeightConstraint: NSLayoutConstraint!
 
     private let categories = Category.allCases
-    private var selectedCategories: Set<Category> = []
+    var selectedCategories: Set<Category> = []
 
     private let orders = Order.allCases
-    private var selectedOrder: Set<Order> = []
+   	var selectedOrder: Set<Order> = []
 
     private let durations: [Duration] = Duration.allCases
-    private var selectedDuration: Set<Duration> = []
+    var selectedDuration: Set<Duration> = []
 
 	// 조건 검색을 위한 클로저 프로퍼티
     var onApply: ((_ categories: Set<Category>,
@@ -35,16 +35,15 @@ class SearchFilterViewController: StoryboardViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+    }
 
+    override func setupHierachy() {
         registerCollectionViews()
         if let flow = filterCategoryCollectionView.collectionViewLayout as? UICollectionViewFlowLayout {
             flow.scrollDirection = .horizontal
         }
         filterCategoryCVHeightConstraint.constant = 40
         filterCategoryCollectionView.allowsMultipleSelection = false
-    }
-
-    override func setupHierachy() {
     }
 
     override func setupAttributes() {
@@ -56,7 +55,6 @@ class SearchFilterViewController: StoryboardViewController {
     }
 
     @IBAction func applyButtonTapped(_ sender: UIButton) {
-        print(selectedCategories, selectedOrder, selectedDuration)
         onApply?(selectedCategories, selectedOrder, selectedDuration)
         dismiss(animated: true)
     }
@@ -80,6 +78,11 @@ class SearchFilterViewController: StoryboardViewController {
         filterVideoDurationCollectionView.dataSource = self
     }
 
+}
+
+//MARK: - CollectionView Delegate
+
+extension SearchFilterViewController: UICollectionViewDataSource {
     // collectionView Inset setting
     private func collectionViewInset(collectionView: UICollectionView) {
         if let flow = collectionView.collectionViewLayout as? UICollectionViewFlowLayout {
@@ -89,9 +92,7 @@ class SearchFilterViewController: StoryboardViewController {
             flow.sectionInset = .init(top: 0, left: 16, bottom: 0, right: 16)
         }
     }
-}
 
-extension SearchFilterViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         switch collectionView {
         case filterCategoryCollectionView:
@@ -193,6 +194,7 @@ extension SearchFilterViewController: UICollectionViewDelegate {
     }
 }
 
+ // MARK: - Detent
 extension SearchFilterViewController: UISheetPresentationControllerDelegate {
     func sheetPresentationControllerDidChangeSelectedDetentIdentifier(
         _ sheetPresentationController: UISheetPresentationController

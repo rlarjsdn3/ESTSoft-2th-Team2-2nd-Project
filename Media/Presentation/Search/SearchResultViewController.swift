@@ -14,13 +14,18 @@ final class SearchResultViewController: StoryboardViewController {
     private lazy var refreshControl = UIRefreshControl()
 
     var keyword: String?
-
     var getCategories: Category?
     var getOrder: Order?
     var getDuration: Duration?
 
-    private var hits: [PixabayResponse.Hit] = []
     private let dataService: DataTransferService = DefaultDataTransferService()
+
+    //페이지네이션 프로퍼티
+    private var hits: [PixabayResponse.Hit] = []
+    private var currentPage = 1
+    private let perPage = 20 // 한 페이지당 영상 개수
+    private var totalHits = 0 // 전체 결과 수
+    private var isLoading = false
 
     deinit {
         print("resultVC 메모리 해제")
@@ -32,7 +37,7 @@ final class SearchResultViewController: StoryboardViewController {
         videoCollectionView.isHidden = true
         activityIndicator.hidesWhenStopped = true
         activityIndicator.startAnimating()
-        fetchVideos(category: getCategories, order: getOrder, duration: getDuration)
+        fetchVideos(page: 1, category: getCategories, order: getOrder, duration: getDuration)
     }
 
     override func setupHierachy() {
@@ -88,11 +93,12 @@ final class SearchResultViewController: StoryboardViewController {
             vc.dismiss(animated: true) {
                 self.activityIndicator.startAnimating()
                 self.videoCollectionView.isHidden = true
-                self.fetchVideos(category: self.getCategories, order: self.getOrder, duration: self.getDuration)
+                self.fetchVideos(page: 1, category: self.getCategories, order: self.getOrder, duration: self.getDuration)
             }
         }
 
         vc.modalPresentationStyle = .pageSheet
+
         if let sheet = vc.sheetPresentationController {
             sheet.detents = [.medium(), .large()]
             sheet.selectedDetentIdentifier = .medium
@@ -117,7 +123,7 @@ final class SearchResultViewController: StoryboardViewController {
 
     @objc private func didPullToRefresh() {
         refreshControl.beginRefreshing()
-        fetchVideos(category: self.getCategories, order: self.getOrder, duration: self.getDuration)
+        fetchVideos(page: 1, category: self.getCategories, order: self.getOrder, duration: self.getDuration)
     }
 
     private func endRefreshing() {
@@ -128,49 +134,66 @@ final class SearchResultViewController: StoryboardViewController {
 
     // MARK: – 데이터 Fetch
     private func fetchVideos(
+        page: Int,
         category: Category? = nil,
-        order: Order?,
+        order: Order? = nil,
         duration: Duration? = nil
     ) {
+        guard !isLoading else { return }
+        isLoading = true
+
+        if page == 1 {
+            hits.removeAll()
+        }
+        currentPage = page
 
         let endpoint = APIEndpoints.pixabay(
             query: keyword,
             category: category,
             order: order ?? .popular,
-            page: 1,
-            perPage: 20
+            page: page,
+            perPage: perPage
         )
 
-
-
-        dataService.request(endpoint) { [weak self] (result: Result<PixabayResponse, DataTransferError>) in
+        dataService.request(endpoint) { [weak self] result in
             guard let self = self else { return }
-
-            DispatchQueue.main.async {
-                self.activityIndicator.stopAnimating()
-                self.endRefreshing()
-                self.videoCollectionView.isHidden = false
-            }
+            self.isLoading = false
 
             switch result {
             case .success(let response):
-                self.hits = response.hits
+                self.totalHits = response.totalHits
 
-                // duration필터 조건이 nil이 아닐 때
-                //                if let durationFilter = duration {
-                //                    self.hits = self.hits.filter { hit in
-                //                        let last = Duration(seconds: hit.duration)
-                //                        return last ==  durationFilter
-                //                    }
-                //                }
+                self.hits.append(contentsOf: response.hits)
+
+                if let dur = duration {
+                    self.hits = self.hits.filter {
+                        Duration(seconds: $0.duration) == dur
+                    }
+                }
 
                 DispatchQueue.main.async {
+                    self.activityIndicator.stopAnimating()
+                    self.endRefreshing()
+
+                    if self.hits.isEmpty {
+                        let label = UILabel()
+                        label.text = "검색 결과가 없습니다."
+                        label.textColor = .secondaryLabel
+                        label.textAlignment = .center
+                        label.font = .systemFont(ofSize: 20)
+                        self.videoCollectionView.backgroundView = label
+                    } else {
+                        self.videoCollectionView.backgroundView = nil
+                    }
+
+                    self.videoCollectionView.isHidden = false
                     self.videoCollectionView.reloadData()
                 }
 
             case .failure(let error):
-
                 DispatchQueue.main.async {
+                    self.activityIndicator.stopAnimating()
+                    self.endRefreshing()
                     self.showAlert("오류", message: "영상을 불러오는 중 문제가 발생했습니다.") { _ in
                         print("확인", error)
                     } onCancel: { _ in
@@ -180,6 +203,7 @@ final class SearchResultViewController: StoryboardViewController {
             }
         }
     }
+
 }
 
 extension SearchResultViewController: UICollectionViewDataSource {
@@ -234,6 +258,15 @@ extension SearchResultViewController: UICollectionViewDataSource {
         cell.configure(with: viewModel)
         return cell
     }
+
+    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        let oldIndex = hits.count - 5
+
+        // 5개 나타나면, 다음 페이지 로드
+        if indexPath.item >= oldIndex && hits.count < totalHits {
+            fetchVideos(page: currentPage + 1, category: getCategories, order: getOrder, duration: getDuration)
+        }
+    }
 }
 
 extension SearchResultViewController: UICollectionViewDelegateFlowLayout {
@@ -280,6 +313,7 @@ extension SearchResultViewController: UISearchBarDelegate {
         self.videoCollectionView.isHidden = true
 
         fetchVideos(
+            page: 1,
             category: getCategories,
             order: getOrder,
             duration: getDuration
