@@ -7,8 +7,21 @@
 
 import UIKit
 
-class MediumVideoCell: UICollectionViewCell, NibLodable {
+class MediumVideoCell: UICollectionViewCell, NibLodable, UIContextMenuInteractionDelegate {
 
+    var previewProvider: UIContextMenuContentPreviewProvider?
+    var actionProvider: UIContextMenuActionProvider?
+
+    func contextMenuInteraction(_ interaction: UIContextMenuInteraction, configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
+        return UIContextMenuConfiguration(
+                    identifier: nil,
+                    previewProvider: previewProvider,
+                    actionProvider: actionProvider
+                )
+    }
+    
+    @IBOutlet weak var containerView: UIView!
+    
     /// 썸네일 이미지를 표시하는 뷰
     @IBOutlet private weak var thumbnailImageView: UIImageView!
 
@@ -36,16 +49,16 @@ class MediumVideoCell: UICollectionViewCell, NibLodable {
     /// 북마크 여부
     var isBookMark: Bool = false {
         didSet {
-            actionButton
-                .setImage(
-                    isBookMark
-                    ? UIImage(systemName: "bookmark.fill")
-                    : UIImage(systemName: "bookmark.fill"),
-                    for: .normal
-                )
-
+            let config = UIImage.SymbolConfiguration(pointSize: 12)
+            let image = if isBookMark {
+                UIImage(systemName: "bookmark.fill")?
+                    .withConfiguration(config)
+            } else {
+                UIImage(systemName: "trash")?
+                    .withConfiguration(config)
+            }
+            actionButton.setImage(image, for: .normal)
             actionButton.tintColor = isBookMark ? .label: .systemRed
-
         }
     }
 
@@ -77,6 +90,26 @@ class MediumVideoCell: UICollectionViewCell, NibLodable {
     private func setViews() {
         thumbnailImageView.layer.cornerRadius = 8
         paddingLabel.layer.cornerRadius = 3
+
+        let destruct = UIAction(title: "전체 삭제", image: UIImage(systemName: "trash"), attributes: .destructive) { _ in
+            print("전체 삭제")
+        }
+
+        containerView.backgroundColor = .systemBackground
+        containerView.layer.cornerRadius = 12
+        containerView.layer.masksToBounds = true
+    }
+
+    func configureMenu(deleteAction: @escaping () -> Void) {
+        let destruct = UIAction(title: "전체 삭제", image: UIImage(systemName: "trash"), attributes: .destructive) { _ in
+            deleteAction()
+        }
+        let interaction = UIContextMenuInteraction(delegate: self)
+        actionButton.addInteraction(interaction)
+        actionProvider = { _ in
+            UIMenu(title: "", children: [destruct])
+        }
+        actionButton.isContextMenuInteractionEnabled = true
     }
 
 }
@@ -85,7 +118,7 @@ extension MediumVideoCell {
     func configure(_ history: MediumVideoViewModel) {
         currentThumbnailURL = history.thumbnailUrl
         configureThumbnail(from: history.thumbnailUrl)
-        tagsLabel.text = history.tags
+        tagsLabel.text = history.tags.split(by: ",").prefix(2).joined(separator: ", ")
         userNameLabel.text = history.userName
         durationLabel.text = formatDuration(history.duration)
         let numberFormatter = NumberFormatter()

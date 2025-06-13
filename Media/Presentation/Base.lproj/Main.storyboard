@@ -40,11 +40,10 @@
         <!--Item-->
         <scene sceneID="TW6-H7-lIn">
             <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="mav-Kk-pyA" sceneMemberID="viewController">
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" navigationBarHidden="YES" id="mav-Kk-pyA" sceneMemberID="viewController">
                     <tabBarItem key="tabBarItem" title="Item" id="vYp-i5-kfE"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="pn9-tY-Cds">
-                        <rect key="frame" x="0.0" y="118" width="393" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <nil name="viewControllers"/>
@@ -94,10 +93,10 @@
             </objects>
             <point key="canvasLocation" x="857" y="1299"/>
         </scene>
-        <!--HistoryViewController-->
+        <!--SettingsViewController-->
         <scene sceneID="6cc-TQ-5Yg">
             <objects>
-                <viewControllerPlaceholder storyboardName="HistoryViewController" referencedIdentifier="HistoryViewController" id="kwJ-Kk-vBb" sceneMemberID="viewController">
+                <viewControllerPlaceholder storyboardName="SettingsViewController" referencedIdentifier="SettingsViewController" id="kwJ-Kk-vBb" sceneMemberID="viewController">
                     <navigationItem key="navigationItem" id="GfQ-Vs-CbN"/>
                 </viewControllerPlaceholder>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="RLq-F0-2LI" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>

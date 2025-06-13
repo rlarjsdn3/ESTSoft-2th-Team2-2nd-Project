@@ -3,6 +3,8 @@ import UIKit
 
 final class VideoCell: UICollectionViewCell, NibLodable {
 
+    var video: PixabayResponse.Hit?
+
     @IBOutlet weak var thumbnailImage: UIImageView!
 
     @IBOutlet weak var profileImage: UIImageView!
@@ -33,7 +35,7 @@ final class VideoCell: UICollectionViewCell, NibLodable {
     override func awakeFromNib() {
         super.awakeFromNib()
 
-        thumbnailImage.contentMode = .scaleAspectFit
+        thumbnailImage.contentMode = .scaleAspectFill
         thumbnailImage.clipsToBounds = true
 
         profileImage.contentMode = .scaleAspectFill
@@ -81,24 +83,19 @@ final class VideoCell: UICollectionViewCell, NibLodable {
     }
 
     // Ellipsis 버튼 함수
-    func configureMenu(bookmarkAction: @escaping () -> Void,
-                       playlistAction: @escaping () -> Void,
-                       deleteAction: @escaping () -> Void,
-                       cancelAction: @escaping () -> Void) {
+    func configureMenu(bookmarkAction: @escaping () -> Void, playlistAction: @escaping () -> Void) {
+
         let bookmark = UIAction(title: "북마크") { _ in
             bookmarkAction()
-        }
-        let playlist = UIAction(title: "재생목록") { _ in
-            playlistAction()
-        }
-        let delete = UIAction(title: "삭제", attributes: .destructive) { _ in
-            deleteAction()
-        }
-        let cancel = UIAction(title: "취소") { _ in
-            cancelAction()
+
         }
 
-        let menu = UIMenu(title: "", children: [bookmark, playlist, delete, cancel])
+        let playlist = UIAction(title: "재생목록") { _ in
+            playlistAction()
+
+        }
+
+        let menu = UIMenu(title: "", children: [bookmark, playlist])
         ellipsisButton.menu = menu
         ellipsisButton.showsMenuAsPrimaryAction = true
     }
@@ -115,7 +112,7 @@ final class VideoCell: UICollectionViewCell, NibLodable {
         if let thumbnailURL = viewModel.thumbnailURL {
             loadImage(from: thumbnailURL, into: thumbnailImage)
         } else {
-            thumbnailImage.image = nil
+            thumbnailImage.image = UIImage(named: "no_videos")
         }
         if let profileURL = viewModel.profileImageURL {
             loadImage(from: profileURL, into: profileImage)

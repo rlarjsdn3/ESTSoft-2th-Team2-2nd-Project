@@ -22,7 +22,12 @@ extension CoreDataService {
     /// - Returns: 생성된 PlaybackHistoryEntity 객체 배열입니다.
     @discardableResult
     private func generatePlaybackHistoryEntity() -> [PlaybackHistoryEntity] {
-        return PixabayResponse.mock.hits.map { $0.mapToPlaybackHistoryEntity(insertInto: self.viewContext) }
+        return PixabayResponse.mock.hits.map {
+            let entity = $0.mapToPlaybackHistoryEntity(insertInto: self.viewContext)
+            let randomInterval = TimeInterval.random(in: -10...0) * 86_400
+            entity.createdAt = Date().addingTimeInterval(randomInterval)
+            return entity
+        }
     }
 
     /// 고정된 이름의 재생목록과 PixabayResponse의 목 데이터를 기반으로 PlaylistEntity 배열을 생성하여 Core Data에 삽입합니다.
@@ -32,9 +37,10 @@ extension CoreDataService {
     private func generatePlaylistEntity() -> [PlaylistEntity] {
         let names = ["북마크를 표시한 재생목록", "재생목록1", "재생목록2", "재생목록3"]
 
-        let playlists: [PlaylistEntity] = names.map {
+        let playlists: [PlaylistEntity] = names.enumerated().map { index, name in
             let playlist = PlaylistEntity(context: self.viewContext)
-            playlist.name = $0
+            playlist.name = name
+            playlist.isBookmark = (index == 0)
             playlist.createdAt = Date().addingTimeInterval(86_400 * Double.random(in: -10...0))
             PixabayResponse.mock.hits.map {
                 let video = $0.mapToPlaylistVideoEntity(insertInto: self.viewContext)

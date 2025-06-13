@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import CoreData
 
 enum Bookmark {
     
@@ -35,9 +36,9 @@ enum Bookmark {
         func hash(into hasher: inout Hasher) {
             switch self {
             case .playback(let entity):
-                hasher.combine(entity.objectID)
+                hasher.combine(entity.id)
             case .playlist(let entity):
-                hasher.combine(entity.objectID)
+                hasher.combine(entity.id)
             case .addPlaylist:
                 hasher.combine("addPlaylist")
             }
@@ -46,9 +47,9 @@ enum Bookmark {
         static func == (lhs: Item, rhs: Item) -> Bool {
             switch (lhs, rhs) {
             case (.playback(let a), .playback(let b)):
-                return a.objectID == b.objectID
+                return a.id == b.id
             case (.playlist(let a), .playlist(let b)):
-                return a.objectID == b.objectID
+                return a.id == b.id
             case (.addPlaylist, .addPlaylist):
                 return true
             default:
@@ -57,7 +58,6 @@ enum Bookmark {
         }
     }
 }
-
 
 extension Bookmark.SectionType {
 
@@ -92,7 +92,7 @@ extension Bookmark.SectionType {
             subitems: [item]
         )
         group.interItemSpacing = .flexible(10)
-        group.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 20, trailing: 0)
+        group.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 8, bottom: 20, trailing: 0)
 
         let headerSize = NSCollectionLayoutSize(
             widthDimension: .fractionalWidth(1.0),

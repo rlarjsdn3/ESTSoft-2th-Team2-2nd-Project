@@ -54,5 +54,16 @@ enum VideoList {
                 hasher.combine(entity.id)
             }
         }
+
+        static func == (lhs: Item, rhs: Item) -> Bool {
+            switch (lhs, rhs) {
+            case (.playlist(let a), .playlist(let b)):
+                return a.id == b.id
+            case (.playback(let a), .playback(let b)):
+                return a.id == b.id
+            default:
+                return false
+            }
+        }
     }
 }
