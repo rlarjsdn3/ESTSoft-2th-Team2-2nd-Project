@@ -82,14 +82,16 @@ final class VideoListViewController: StoryboardViewController {
                 rightIcon: rightIcon,
                 rightIconTint: .systemRed
             )
+            navigationBar.hideRightButton()
         case let .playlist(title, _, _):
             navigationBar.configure(
                 title: title,
                 leftIcon: leftIcon,
                 leftIconTint: .mainLabelColor,
-                rightIcon: rightIcon, // rightIcon이 없으면 버튼이 표시 x
+                rightIcon: rightIcon,
                 rightIconTint: .systemRed
             )
+            navigationBar.hideRightButton()
         default:
             break
         }

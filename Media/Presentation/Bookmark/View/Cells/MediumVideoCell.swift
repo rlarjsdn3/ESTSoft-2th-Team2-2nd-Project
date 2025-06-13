@@ -52,7 +52,7 @@ class MediumVideoCell: UICollectionViewCell, NibLodable, UIContextMenuInteractio
                 .setImage(
                     isBookMark
                     ? UIImage(systemName: "bookmark.fill")
-                    : UIImage(systemName: "trash.fill"),
+                    : UIImage(systemName: "trash"),
                     for: .normal
                 )
             actionButton.tintColor = isBookMark ? .label: .systemRed
@@ -88,7 +88,7 @@ class MediumVideoCell: UICollectionViewCell, NibLodable, UIContextMenuInteractio
         thumbnailImageView.layer.cornerRadius = 8
         paddingLabel.layer.cornerRadius = 3
 
-        let destruct = UIAction(title: "전체 삭제", attributes: .destructive) { _ in
+        let destruct = UIAction(title: "전체 삭제", image: UIImage(systemName: "trash"), attributes: .destructive) { _ in
             print("전체 삭제")
         }
 
