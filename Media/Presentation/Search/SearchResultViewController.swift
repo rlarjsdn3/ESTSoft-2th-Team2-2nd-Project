@@ -50,6 +50,19 @@ final class SearchResultViewController: StoryboardViewController {
         return Int(ceil(pages))
     }
 
+    //필터 갯수 표현 라벨
+    private lazy var filterLabel: UILabel = {
+        let	label = UILabel()
+    	label.translatesAutoresizingMaskIntoConstraints = false
+    	label.backgroundColor = .systemRed
+    	label.textColor = .white
+    	label.font = .systemFont(ofSize: 10, weight: .bold)
+        label.textAlignment = .center
+    	label.layer.masksToBounds = true
+    	label.isHidden = true
+        return label
+    }()
+
     deinit {
         print("resultVC 메모리 해제")
     }
@@ -57,7 +70,7 @@ final class SearchResultViewController: StoryboardViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        print(selectedCategories, selectedOrder, selectedDuration)
+        //print(selectedCategories, selectedOrder, selectedDuration)
         videoCollectionView.isHidden = true
         activityIndicator.hidesWhenStopped = true
         activityIndicator.startAnimating()
@@ -68,12 +81,24 @@ final class SearchResultViewController: StoryboardViewController {
         configureSearchBar()
         configureCollectionView()
         configureRefreshControl()
+
+        NSLayoutConstraint.activate([
+            filterLabel.trailingAnchor.constraint(equalTo: navigationBar.rightButton.trailingAnchor, constant: 5),
+            filterLabel.topAnchor.constraint(equalTo: navigationBar.rightButton.topAnchor, constant: -10),
+            filterLabel.widthAnchor.constraint(greaterThanOrEqualToConstant: 15),
+            filterLabel.heightAnchor.constraint(equalToConstant: 15)
+        ])
     }
 
     override func setupAttributes() {
         self.view.backgroundColor = UIColor.background
         self.videoCollectionView.backgroundColor = .clear
         changeStateOfFilterButton()
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        filterLabel.layer.cornerRadius = filterLabel.frame.size.height / 2
     }
 
 
@@ -90,6 +115,7 @@ final class SearchResultViewController: StoryboardViewController {
             rightIcon: UIImage(systemName: "slider.horizontal.3"),
             isSearchMode: true
         )
+        navigationBar.rightButton.addSubview(filterLabel)
         navigationBar.searchBar.text = keyword
     }
 
@@ -130,12 +156,15 @@ final class SearchResultViewController: StoryboardViewController {
         }
     }
 
-    // 필터가 하나라도 켜져 있으면 filterButton 색변경
+    // 필터가 하나라도 켜져 있으면 filterButton색, filterLabel 활성화
     private func changeStateOfFilterButton() {
-        if selectedCategories != nil || selectedOrder != nil || selectedDuration != nil {
+        let count = (selectedCategories != nil ? 1 : 0) + (selectedOrder != nil ? 1 : 0) + (selectedDuration != nil ? 1 : 0)
+        if count > 0 {
             navigationBar.rightButton.tintColor = .red
+            filterLabel.isHidden = false
+            filterLabel.text = "\(count)"
         } else {
-            navigationBar.rightButton.tintColor = .label
+            filterLabel.isHidden = true
         }
     }
 
