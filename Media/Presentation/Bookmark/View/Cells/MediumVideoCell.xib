@@ -40,29 +40,29 @@
                                                         <nil key="textColor"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
-                                                    <stackView opaque="NO" contentMode="scaleToFill" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="cIi-2k-O0W">
-                                                        <rect key="frame" x="0.0" y="83" width="136" height="18"/>
+                                                    <stackView opaque="NO" contentMode="scaleToFill" alignment="firstBaseline" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="cIi-2k-O0W">
+                                                        <rect key="frame" x="0.0" y="86.666666666666671" width="187" height="14.333333333333329"/>
                                                         <subviews>
-                                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="UserName" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="krd-54-2bl">
-                                                                <rect key="frame" x="0.0" y="0.0" width="59.666666666666664" height="18"/>
+                                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="749" text="flower, yellow, blossom, bee, insect, bee" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="krd-54-2bl">
+                                                                <rect key="frame" x="0.0" y="0.0" width="111" height="14.333333333333334"/>
                                                                 <fontDescription key="fontDescription" type="system" pointSize="12"/>
                                                                 <color key="textColor" systemColor="systemGray2Color"/>
                                                                 <nil key="highlightedColor"/>
                                                             </label>
                                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="•" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Nqc-kP-GOp">
-                                                                <rect key="frame" x="64.666666666666686" y="0.0" width="5.6666666666666714" height="18"/>
+                                                                <rect key="frame" x="116" y="0.0" width="5.6666666666666714" height="14.333333333333334"/>
                                                                 <fontDescription key="fontDescription" type="system" pointSize="12"/>
                                                                 <color key="textColor" systemColor="systemGray2Color"/>
                                                                 <nil key="highlightedColor"/>
                                                             </label>
                                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="views" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2Z5-Eg-gaB">
-                                                                <rect key="frame" x="75.333333333333314" y="0.0" width="38.666666666666657" height="18"/>
-                                                                <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                                                <rect key="frame" x="126.66666666666669" y="0.0" width="32" height="14.333333333333334"/>
+                                                                <fontDescription key="fontDescription" type="system" pointSize="12"/>
                                                                 <color key="textColor" systemColor="systemGray2Color"/>
                                                                 <nil key="highlightedColor"/>
                                                             </label>
-                                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="111" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="VFQ-fP-2y8">
-                                                                <rect key="frame" x="119" y="0.0" width="17" height="18"/>
+                                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="111k" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="VFQ-fP-2y8">
+                                                                <rect key="frame" x="163.66666666666669" y="0.0" width="23.333333333333343" height="14.333333333333334"/>
                                                                 <fontDescription key="fontDescription" type="system" pointSize="12"/>
                                                                 <color key="textColor" systemColor="systemGray2Color"/>
                                                                 <nil key="highlightedColor"/>
@@ -76,6 +76,7 @@
                                                     <constraint firstAttribute="trailing" secondItem="tqf-pO-Axe" secondAttribute="trailing" id="IF1-8l-Ra6"/>
                                                     <constraint firstItem="cIi-2k-O0W" firstAttribute="leading" secondItem="tqf-pO-Axe" secondAttribute="leading" id="Xm2-it-Cpf"/>
                                                     <constraint firstItem="tqf-pO-Axe" firstAttribute="top" secondItem="w73-i0-xhW" secondAttribute="top" constant="6" id="cS6-xA-FkM"/>
+                                                    <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="cIi-2k-O0W" secondAttribute="trailing" id="nLF-2o-v3S"/>
                                                     <constraint firstItem="tqf-pO-Axe" firstAttribute="leading" secondItem="w73-i0-xhW" secondAttribute="leading" id="ojw-mt-ppV"/>
                                                 </constraints>
                                             </view>

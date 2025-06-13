@@ -55,6 +55,7 @@ final class SmallVideoCell: UICollectionViewCell, NibLodable {
 
     override func layoutSubviews() {
         super.layoutSubviews()
+        setViews()
     }
 
     override func awakeFromNib() {
@@ -65,7 +66,7 @@ final class SmallVideoCell: UICollectionViewCell, NibLodable {
     private func setViews() {
         plusImageView.layer.cornerRadius = plusImageView.frame.height/2
         thumbnailImageView.layer.borderWidth = 2
-        thumbnailImageView.layer.borderColor = UIColor.white.cgColor
+        thumbnailImageView.layer.borderColor = UIColor.background.resolvedColor(with: traitCollection).cgColor
         thumbnailImageView.layer.cornerRadius = 8
         shadowView.layer.cornerRadius = 8
         videoCountBackgroundView.layer.cornerRadius = 3
