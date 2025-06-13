@@ -35,7 +35,7 @@ final class VideoCell: UICollectionViewCell, NibLodable {
     override func awakeFromNib() {
         super.awakeFromNib()
 
-        thumbnailImage.contentMode = .scaleAspectFit
+        thumbnailImage.contentMode = .scaleAspectFill
         thumbnailImage.clipsToBounds = true
 
         profileImage.contentMode = .scaleAspectFill
