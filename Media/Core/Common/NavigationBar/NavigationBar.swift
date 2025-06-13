@@ -98,9 +98,6 @@ class NavigationBar: NibView {
         leftButton.tintColor = leftIconTint
         rightButton.tintColor = rightIconTint
         
-        leftButton.isHidden = (leftIcon == nil)
-        rightButton.isHidden = (rightIcon == nil)
-        
         // 검색 모드인 경우
         if isSearchMode {
             searchBarContainerView.isHidden = false
@@ -115,6 +112,9 @@ class NavigationBar: NibView {
             return
         }
 
+        leftButton.isHidden = (leftIcon == nil)
+        rightButton.isHidden = (rightIcon == nil)
+        
         // 타이틀 모드인 경우
         searchBarContainerView.isHidden = true
         titleStackView.isHidden = false
@@ -154,5 +154,31 @@ class NavigationBar: NibView {
     /// 오른쪽 버튼이 눌렸을 때 delegate에 이벤트 전달
     @objc private func rightTapped(_ sender: Any) {
         delegate?.navigationBarDidTapRight?(self)
+    }
+}
+
+extension NavigationBar {
+    /// 오른쪽 버튼을 시각적으로 숨기고 터치 이벤트를 비활성화
+    func hideRightButton() {
+        rightButton.alpha = 0
+        rightButton.isUserInteractionEnabled = false
+    }
+    
+    /// 오른쪽 버튼을 다시 보이게 하고 터치 이벤트를 활성화
+    func showRightButton() {
+        rightButton.alpha = 1
+        rightButton.isUserInteractionEnabled = true
+    }
+    
+    /// 왼쪽 버튼을 시각적으로 숨기고 터치 이벤트를 비활성화
+    func hideLeftButton() {
+        leftButton.alpha = 0
+        leftButton.isUserInteractionEnabled = false
+    }
+    
+    /// 왼쪽 버튼을 다시 보이게 하고 터치 이벤트를 활성화
+    func showLeftButton() {
+        leftButton.alpha = 1
+        leftButton.isUserInteractionEnabled = true
     }
 }

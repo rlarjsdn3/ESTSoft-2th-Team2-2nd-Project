@@ -52,7 +52,7 @@ class MediumVideoCell: UICollectionViewCell, NibLodable, UIContextMenuInteractio
                 .setImage(
                     isBookMark
                     ? UIImage(systemName: "bookmark.fill")
-                    : UIImage(systemName: "bookmark.fill"),
+                    : UIImage(systemName: "trash.fill"),
                     for: .normal
                 )
             actionButton.tintColor = isBookMark ? .label: .systemRed

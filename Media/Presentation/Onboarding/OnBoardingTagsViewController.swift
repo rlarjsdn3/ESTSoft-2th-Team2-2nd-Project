@@ -11,18 +11,6 @@ class OnBoardingTagsViewController: StoryboardViewController {
 
     @IBOutlet weak var tagsCollectionView: UICollectionView!
     
-    @IBAction func skipTagButton(_ sender: Any) {
-        // 바로 home뷰로 넘어가기
-//        var selectedCategories = selectedIndexPath.map { tags[$0.item] }
-        
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        if let vc = storyboard.instantiateViewController(withIdentifier: "MainVC") as? UITabBarController {
-            
-            vc.modalPresentationStyle = .fullScreen
-            self.navigationController?.pushViewController(vc, animated: true)
-        }
-    }
-    
     @IBOutlet weak var selectedTagButton: UIButton!
     
     @IBAction func selectedTagButton(_ sender: Any) {
@@ -87,9 +75,9 @@ class OnBoardingTagsViewController: StoryboardViewController {
         self.navigationItem.hidesBackButton = true
     }
     
-    // 셀이 1개 이상 선택되면 버튼 활성화
+    // 셀이 3개 이상 선택되면 버튼 활성화
     func buttonIsEnabled() {
-        if selectedIndexPath.count >= 1 {
+        if selectedIndexPath.count >= 3 {
             selectedTagButton.isEnabled = true
         } else {
             selectedTagButton.isEnabled = false

@@ -249,11 +249,11 @@
                                                 </constraints>
                                                 <color key="tintColor" name="MainLabel"/>
                                                 <state key="normal" title="Button"/>
-                                                <buttonConfiguration key="configuration" style="tinted" title="취소">
+                                                <buttonConfiguration key="configuration" style="tinted" title="초기화">
                                                     <color key="baseForegroundColor" systemColor="labelColor"/>
                                                 </buttonConfiguration>
                                                 <connections>
-                                                    <action selector="cancelButtonTapped:" destination="Y6W-OH-hqX" eventType="touchUpInside" id="KGw-Uc-TjB"/>
+                                                    <action selector="initButtonTapped:" destination="Y6W-OH-hqX" eventType="touchUpInside" id="1wT-SC-Zrc"/>
                                                 </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="bQB-YF-PGb">
@@ -263,7 +263,7 @@
                                                 </constraints>
                                                 <color key="tintColor" name="Primary"/>
                                                 <state key="normal" title="Button"/>
-                                                <buttonConfiguration key="configuration" style="filled" title="검색하기"/>
+                                                <buttonConfiguration key="configuration" style="filled" title="적용하기"/>
                                                 <connections>
                                                     <action selector="applyButtonTapped:" destination="Y6W-OH-hqX" eventType="touchUpInside" id="Rlc-Ww-PE0"/>
                                                 </connections>

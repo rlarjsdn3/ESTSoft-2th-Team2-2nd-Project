@@ -19,6 +19,15 @@ class FilterOrderCollectionViewCell: UICollectionViewCell {
         orderLabel.textColor = .black
     }
 
+    func selectedCellConfigure() {
+        orderContentView.layer.cornerRadius = 12
+        orderContentView.backgroundColor = UIColor.tagSelected
+        orderContentView.layer.borderWidth = 1.0
+        orderContentView.layer.borderColor = UIColor.tagBorder.cgColor
+        orderLabel.textColor = .white
+    }
+
+
     override var isSelected: Bool {
         didSet {
             if isSelected {

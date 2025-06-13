@@ -29,7 +29,7 @@
                 <stackView opaque="NO" contentMode="scaleToFill" alignment="center" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="Mnw-Y8-peK">
                     <rect key="frame" x="16" y="59" width="361" height="44"/>
                     <subviews>
-                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="oCq-2v-9Ye">
+                        <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="oCq-2v-9Ye">
                             <rect key="frame" x="0.0" y="10" width="24" height="24"/>
                             <constraints>
                                 <constraint firstAttribute="width" constant="24" id="MI5-NR-LhW"/>
@@ -38,7 +38,7 @@
                             <state key="normal" title="Button"/>
                             <buttonConfiguration key="configuration" style="plain"/>
                         </button>
-                        <view contentMode="scaleToFill" horizontalHuggingPriority="249" translatesAutoresizingMaskIntoConstraints="NO" id="JDx-wX-MeL" userLabel="Center Container View">
+                        <view contentMode="scaleToFill" horizontalHuggingPriority="249" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="JDx-wX-MeL" userLabel="Center Container View">
                             <rect key="frame" x="32" y="0.0" width="297" height="44"/>
                             <subviews>
                                 <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillProportionally" alignment="center" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="kXI-Si-QXX" userLabel="Title Stack View">
@@ -87,7 +87,7 @@
                                 <constraint firstItem="kXI-Si-QXX" firstAttribute="centerX" secondItem="JDx-wX-MeL" secondAttribute="centerX" priority="750" id="rjS-u5-ALx"/>
                             </constraints>
                         </view>
-                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="qAm-jW-axf">
+                        <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="qAm-jW-axf">
                             <rect key="frame" x="337" y="10" width="24" height="24"/>
                             <constraints>
                                 <constraint firstAttribute="height" constant="24" id="73j-4e-qB2"/>

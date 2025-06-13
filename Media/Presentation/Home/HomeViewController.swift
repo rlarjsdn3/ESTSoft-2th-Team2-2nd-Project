@@ -120,7 +120,8 @@ final class HomeViewController: StoryboardViewController {
         let remainingSeconds = seconds % 60
         return String(format: "%02d:%02d", minutes, remainingSeconds)
     }
-    // 비디오 재생
+
+        // 비디오 재생
     func playVideo(with url: URL) {
         print("▶️ playVideo called with URL: \(url.absoluteString)")
         // #1. PlayerItem 생성
@@ -139,22 +140,21 @@ final class HomeViewController: StoryboardViewController {
         present(vc, animated: true) {
             print("🔹 PlayerViewController presented")
         }
-
+        
         observation?.invalidate()
         print("🔹 Previous observation invalidated")
-
+        
         observation = item.observe(\.status) { playerItem, _ in
             print("🔸 PlayerItem status changed: \(playerItem.status.rawValue)")
-
+            
             if playerItem.status == .readyToPlay {
                 print("✅ PlayerItem is ready to play, starting playback")
-
+                
                 player.play()
             } else if playerItem.status == .failed {
-                print("❌ PlayerItem failed to load")
+                print("❌ PlayerItem failed to load\(playerItem.error.debugDescription)")
             }
         }
-
     }
 
     // 선택된 카테고리에 따라 Pixabay API에서 비디오 데이터 요청
