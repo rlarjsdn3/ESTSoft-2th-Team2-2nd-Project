@@ -8,13 +8,14 @@
 import AVKit
 import UIKit
 
-final class SearchResultViewController: StoryboardViewController {
+final class SearchResultViewController: StoryboardViewController, VideoPlayable {
     @IBOutlet weak var navigationBar: NavigationBar!
     @IBOutlet weak var videoCollectionView: UICollectionView!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var noVideoFoundImageView: UIImageView!
 
     private lazy var refreshControl = UIRefreshControl()
+
     var keyword: String?
 
     private let dataService: DataTransferService = DefaultDataTransferService()
@@ -40,7 +41,8 @@ final class SearchResultViewController: StoryboardViewController {
         }
     }()
 
-    private var observation: NSKeyValueObservation?
+    var observation: NSKeyValueObservation?
+
     private let videoDataService = VideoDataService.shared
 
     //페이지네이션 프로퍼티
@@ -286,58 +288,22 @@ final class SearchResultViewController: StoryboardViewController {
         }
     }
 
-    // MARK: - 비디오 관련 메서드
-    func playVideo(with url: URL) {
-        print("▶️ playVideo called with URL: \(url.absoluteString)")
-        // #1. PlayerItem 생성
-        let item = AVPlayerItem(url: url)
-        print("🔹 AVPlayerItem created")
-        // #2. Player 생성
-        let player = AVPlayer(playerItem: item)
-        print("🔹 AVPlayer created")
-        // #3. PlayerVC 생성
-        let vc = AVPlayerViewController()
-        print("🔹 AVPlayerViewController created")
-        // #4. 연결
-        vc.player = player
-        print("🔹 Player connected to PlayerViewController")
-        // #5. 표시
-        present(vc, animated: true) {
-            print("🔹 PlayerViewController presented")
-        }
-
-        observation?.invalidate()
-        print("🔹 Previous observation invalidated")
-
-        observation = item.observe(\.status) { playerItem, _ in
-            print("🔸 PlayerItem status changed: \(playerItem.status.rawValue)")
-
-            if playerItem.status == .readyToPlay {
-                print("✅ PlayerItem is ready to play, starting playback")
-
-                player.play()
-            } else if playerItem.status == .failed {
-                print("❌ PlayerItem failed to load\(playerItem.error.debugDescription)")
-            }
-        }
-    }
-
     // MARK: – 새 재생목록 Alert
-        private func showAddPlaylistAlert(for video: PixabayResponse.Hit) {
-            showTextFieldAlert(
-                "새로운 재생목록 추가",
-                message: "새 재생목록 이름을 입력하세요."
-            ) { [weak self] _, newName in
-                guard let self = self else { return }
-                switch self.videoDataService.createPlaylist(named: newName, with: video) {
-                case .success:
-                    Toast.makeToast("'\(newName)' 생성 및 추가 완료", systemName: "list.clipboard")
-                         .present()
-                case .failure(let err):
-                    Toast.makeToast(err.localizedDescription).present()
-                }
-            } onCancel: { _ in }
-        }
+    private func showAddPlaylistAlert(for video: PixabayResponse.Hit) {
+        showTextFieldAlert(
+            "새로운 재생목록 추가",
+            message: "새 재생목록 이름을 입력하세요."
+        ) { [weak self] _, newName in
+            guard let self = self else { return }
+            switch self.videoDataService.createPlaylist(named: newName, with: video) {
+            case .success:
+                Toast.makeToast("'\(newName)' 생성 및 추가 완료", systemName: "list.clipboard")
+                    .present()
+            case .failure(let err):
+                Toast.makeToast(err.localizedDescription).present()
+            }
+        } onCancel: { _ in }
+    }
 }
 
 extension SearchResultViewController: UICollectionViewDataSource {
@@ -393,13 +359,12 @@ extension SearchResultViewController: UICollectionViewDataSource {
 
         // 썸네일 터치시 영상 재생
         cell.onThumbnailTap = { [weak self] in
-            guard let self = self else { return }
+            guard let self = self,
+                  let url = video.videos.medium.url else { return }
 
             // 시청기록 저장
             self.videoDataService.addToWatchHistory(video)
-            if let url = video.videos.medium.url {
-                            self.playVideo(with: url) // extension 메서드 호출
-            }
+            self.playVideo(from: url)
         }
 
         // Ellipsis 버튼 실행
