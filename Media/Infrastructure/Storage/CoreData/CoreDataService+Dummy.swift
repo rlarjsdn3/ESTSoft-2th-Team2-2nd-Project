@@ -24,7 +24,7 @@ extension CoreDataService {
     private func generatePlaybackHistoryEntity() -> [PlaybackHistoryEntity] {
         return PixabayResponse.mock.hits.map {
             let entity = $0.mapToPlaybackHistoryEntity(insertInto: self.viewContext)
-            let randomInterval = TimeInterval.random(in: -10...10) * 86_400
+            let randomInterval = TimeInterval.random(in: -10...0) * 86_400
             entity.createdAt = Date().addingTimeInterval(randomInterval)
             return entity
         }

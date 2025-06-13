@@ -13,9 +13,8 @@ enum VideoListType {
     /// 재생 기록에 기반한 비디오 목록
     case playback(entities: [PlaybackHistoryEntity])
     /// 재생 목록에 기반한 비디오 목록
-    case playlist(title: String, entities: [PlaylistVideoEntity])
+    case playlist(title: String, entities: [PlaylistVideoEntity], isBookmark: Bool)
 
-//    case bookmark(entities: PlaylistEntity)
 }
 
 final class VideoListViewController: StoryboardViewController {
@@ -56,7 +55,7 @@ final class VideoListViewController: StoryboardViewController {
         searchBar.text = nil
         searchBar.endEditing(true)
         moveCloseButton(toRight: true)
-        applySnapshot()
+        applySnapshot(query: nil)
     }
 
     override func setupAttributes() {
@@ -70,7 +69,7 @@ final class VideoListViewController: StoryboardViewController {
         closeButtonTrailingConstraint.constant = -50
     }
 
-    #warning("김건우 -> 네비게이션 바 버튼 문제 해결하기")
+    // TODO: - 네비게이션 바에서 오른쪽 버튼 사라지게 하기
     private func setupNavigationBar() {
         let leftIcon = UIImage(systemName: "arrow.left")
         let rightIcon = UIImage(systemName: "trash")
@@ -83,7 +82,7 @@ final class VideoListViewController: StoryboardViewController {
                 rightIcon: rightIcon,
                 rightIconTint: .systemRed
             )
-        case let .playlist(title, _):
+        case let .playlist(title, _, _):
             navigationBar.configure(
                 title: title,
                 leftIcon: leftIcon,
@@ -143,8 +142,8 @@ final class VideoListViewController: StoryboardViewController {
         }
     }
 
-#warning("김건우 -> 각 셀을 클릭하면 동영상 출력되게 수정!!")
-#warning("김건우 -> CompositionalLayout 임시값 수정하기")
+    // TODO: - 각 셀을 클릭하면 동영상 띄우게 하기
+    // TODO: - 레이아웃 임시값 수치 수정하기
     private func createCompositionalLayout() -> UICollectionViewCompositionalLayout {
         let sectionProvider: UICollectionViewCompositionalLayoutSectionProvider = { [weak self] sectionIndex, environment in
 
@@ -195,7 +194,7 @@ final class VideoListViewController: StoryboardViewController {
 // MARK: - Setup DataSource
 
 extension VideoListViewController {
-#warning("김건우 -> 참조 사이클 문제 다시 확인해보기")
+
     private func setupDataSource() {
 
         let cellRagistration = createVideoCellRagistration()
@@ -217,11 +216,11 @@ extension VideoListViewController {
             )
         }
 
-        applySnapshot()
+        applySnapshot(query: nil)
     }
-
+    // TODO: - 북마크 재생목록인 경우, 버튼 구성 달리하기
     private func createVideoCellRagistration() -> UICollectionView.CellRegistration<MediumVideoCell, VideoList.Item> {
-        UICollectionView.CellRegistration<MediumVideoCell, VideoList.Item>(cellNib: MediumVideoCell.nib) { cell, indexPath, item in
+        UICollectionView.CellRegistration<MediumVideoCell, VideoList.Item>(cellNib: MediumVideoCell.nib) { [weak self] cell, indexPath, item in
             var viewModel: MediumVideoViewModel
             switch item {
             case .playback(let entity):
@@ -259,6 +258,10 @@ extension VideoListViewController {
                     )
                 }
             )
+
+            if case let .playlist(_, _, isBookmark) = self?.videos {
+                cell.isBookMark = isBookmark
+            }
         }
     }
 
@@ -270,7 +273,7 @@ extension VideoListViewController {
         }
     }
 
-    private func applySnapshot(query: String? = nil) {
+    private func applySnapshot(query: String?) {
         switch videos {
         case .playback(_):
             applyPlaybackSnapshot(query: query)
@@ -279,14 +282,33 @@ extension VideoListViewController {
         }
     }
 
-    private func applyPlaylistSnapshot(query: String? = nil) {
-        guard case let .playlist(name, _) = videos,
+    private func applyPlaylistSnapshot(query: String?) {
+        guard case let .playlist(name, _, _) = videos,
               let playback = self.playlistFetchedResultsController?.fetchedObjects?.first(where: { $0.name ==  name }),
-              let entities = playback.playlistVideos?.allObjects as? [PlaylistVideoEntity]    else {
+              let entities = playback.playlistVideos?.allObjects as? [PlaylistVideoEntity] else {
             return
         }
 
+        var snapshot = NSDiffableDataSourceSnapshot<VideoList.Section, VideoList.Item>()
+        let filtered = appendPlaylistItem(at: &snapshot, entities: entities, query: query)
+        dataSource?.apply(snapshot, animatingDifferences: true)
 
+        // 재생 목록이 비어있으면
+        if entities.isEmpty {
+            // TODO: - ContentUnavailableView 출력하기
+        }
+
+        // 검색 결과가 비어있으면
+        if filtered.isEmpty {
+            // TODO: - ContentUnavailableView 출력하기
+        }
+    }
+
+    private func appendPlaylistItem(
+        at snapshot: inout NSDiffableDataSourceSnapshot<VideoList.Section, VideoList.Item>,
+        entities: [PlaylistVideoEntity],
+        query: String?
+    ) -> [PlaylistVideoEntity] {
         let filteredEntities = entities.filter { entity in
             // 검색어가 nil이거나 비어있다면 필터링하지 않기 (전체 출력)
             guard let query = query, !query.isEmpty else { return true }
@@ -295,23 +317,12 @@ extension VideoListViewController {
             return tags.some({ $0.localizedCaseInsensitiveContains(query) }) || author.localizedCaseInsensitiveContains(query)
         }
 
-        let playlistItems: [VideoList.Item] = filteredEntities.map { VideoList.Item.playlist($0) }
-
-        var snapshot = NSDiffableDataSourceSnapshot<VideoList.Section, VideoList.Item>()
         let playlistSection = VideoList.Section(type: .playlist)
+        let playlistItems: [VideoList.Item] = filteredEntities.map { VideoList.Item.playlist($0) }
         snapshot.appendSections([playlistSection])
         snapshot.appendItems(playlistItems, toSection: playlistSection)
-        dataSource?.apply(snapshot, animatingDifferences: true)
-        
-        if entities.isEmpty {
-            print("비어 있음!")
-            return
-        }
 
-        if filteredEntities.isEmpty {
-            print("검색 결과 비어 있음!")
-            return
-        }
+        return filteredEntities
     }
 
     private func applyPlaybackSnapshot(query: String? = nil) {
@@ -320,8 +331,19 @@ extension VideoListViewController {
             return
         }
 
+        var snapshot = NSDiffableDataSourceSnapshot<VideoList.Section, VideoList.Item>()
+        let filtered = appendPlaybackItems(at: &snapshot, entities: entities, query: query)
+        dataSource?.apply(snapshot, animatingDifferences: true)
+
+        showContentUnavailableViewIfNeeded(entities, filtered)
+    }
+
+    private func appendPlaybackItems(
+        at snapshot: inout NSDiffableDataSourceSnapshot<VideoList.Section, VideoList.Item>,
+        entities: [PlaybackHistoryEntity],
+        query: String?
+    ) -> [PlaybackHistoryEntity] {
         let filteredEntities = entities.filter { entity in
-            // 검색어가 nil이거나 비어있다면 필터링하지 않기 (전체 출력)
             guard let query = query, !query.isEmpty else { return true }
             let tags = entity.tags.split(by: ","), author = entity.user
             // 태그 중 하나라도 검색어와 일치하면 or 저자가 검색어와 일치하면
@@ -333,7 +355,6 @@ extension VideoListViewController {
         }
         let descendingSortedEntities = groupedEntities.sorted { $0.key > $1.key }
 
-        var snapshot = NSDiffableDataSourceSnapshot<VideoList.Section, VideoList.Item>()
         descendingSortedEntities.forEach { date, entities in
             let playbackItems = entities.map { VideoList.Item.playback($0) }
             let playbackSection = VideoList.Section(
@@ -344,35 +365,30 @@ extension VideoListViewController {
             snapshot.appendSections([playbackSection])
             snapshot.appendItems(playbackItems, toSection: playbackSection)
         }
-        dataSource?.apply(snapshot, animatingDifferences: true)
 
+        return filteredEntities
+    }
 
+    private func showContentUnavailableViewIfNeeded<T, U>(_ entities: [T], _ filtered: [U]) {
+        // 재생 목록이 비어있으면
         if entities.isEmpty {
-            print("비어 있음!")
-            return
+            // TODO: - ContentUnavailableView 출력하기
         }
 
-        if filteredEntities.isEmpty {
-            print("검색 결과 비어 있음!")
-            return
+        // 검색 결과가 비어있으면
+        if filtered.isEmpty {
+            // TODO: - ContentUnavailableView 출력하기
         }
     }
+
 }
 
 // MARK: - NSFetchedResultsControllerDelegate
 
 extension VideoListViewController: NSFetchedResultsControllerDelegate {
 
-    func controller(
-        _ controller: NSFetchedResultsController<any NSFetchRequestResult>,
-        didChange anObject: Any,
-        at indexPath: IndexPath?,
-        for type: NSFetchedResultsChangeType,
-        newIndexPath: IndexPath?
-    ) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            self.applySnapshot()
-        }
+    func controllerDidChangeContent(_ controller: NSFetchedResultsController<any NSFetchRequestResult>) {
+        applySnapshot(query: nil)
     }
 }
 
@@ -474,6 +490,7 @@ extension VideoListViewController: MediumVideoButtonDelegate {
         }
     }
 }
+
 //extension VideoListViewController: MediumVideoButtonDelegate {
 //    func deleteAction(_ collectionViewCell: UICollectionViewCell) {
 //        self.showDeleteAlert(
