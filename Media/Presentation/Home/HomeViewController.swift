@@ -45,7 +45,7 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
 
         currentPage = 1
         hasMoreData = true
-        fetchVideo(page: 1)
+        fetchVideo(page: 1, isRepresh: true)
         videoCollectionView.setContentOffset(.zero, animated: true)
     }
 
@@ -255,7 +255,10 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
             print(error)
         }
 
-        videoCollectionView.refreshControl?.endRefreshing()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
+            self.videoCollectionView.refreshControl?.endRefreshing()
+        }
+
         isFetching = false
     }
 
@@ -295,7 +298,7 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
 
 
     // 선택된 카테고리에 따라 Pixabay API에서 비디오 데이터 요청
-    func fetchVideo(page: Int = 1) {
+    func fetchVideo(page: Int = 1, isRepresh: Bool = false) {
         guard !isFetching else { return }
         isFetching = true
 
@@ -373,12 +376,18 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
         // 완료 후 갱신
         dispatchGroup.notify(queue: .main) { [weak self] in
             guard let self = self else { return }
-            self.videos = combinedVideos.shuffled()
+            if isRepresh {
+                self.videos = combinedVideos.shuffled()
+            } else {
+                self.videos.append(contentsOf: combinedVideos.shuffled())
+            }
             self.currentPage = page
             self.hasMoreData = combinedVideos.count >= 15
             self.isFetching = false
             self.videoCollectionView.reloadData()
-            self.videoCollectionView.refreshControl?.endRefreshing()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                self.videoCollectionView.refreshControl?.endRefreshing()
+            }
         }
     }
 
