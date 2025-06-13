@@ -5,18 +5,13 @@ import AVFoundation
 import CoreData
 
 
-final class HomeViewController: StoryboardViewController {
+final class HomeViewController: StoryboardViewController, NavigationBarDelegate {
     private var selectedVideoURL: URL?
 
     private var observation: NSKeyValueObservation?
 
 
-    @IBAction func SearchButton(_ sender: Any) {
-        let storyboard = UIStoryboard(name: "SearchViewController", bundle: nil)
-        if let searchVC = storyboard.instantiateViewController(withIdentifier: "SearchViewController") as? SearchViewController {
-            navigationController?.pushViewController(searchVC, animated: true)
-        }
-    }
+    @IBOutlet weak var navigationBar: NavigationBar!
 
     @IBOutlet weak var categoryCollectionView: UICollectionView!
 
@@ -26,7 +21,7 @@ final class HomeViewController: StoryboardViewController {
     // 임시 코드 수정예정
     //    var selectedCategories: [Category] = [.fashion, .music, .business, .food, .health]
     //    var selectedCategories: [Category] = []
-    var selectedCategories: [String] = ["Flower", "Nature", "Animals", "Travel", "Food"]
+    var selectedCategories: [String] = ["Transportation", "Travel", "Buildings", "Business", "Music"]
 
     // 카테고리 배열 순서
     var displayedCategories: [String] {
@@ -48,7 +43,25 @@ final class HomeViewController: StoryboardViewController {
     @objc private func handleRefresh() {
         guard videoCollectionView.refreshControl?.isRefreshing == true else { return }
 
-        fetchVideo()
+        currentPage = 1
+        hasMoreDate = true
+        fetchVideo(page: 1)
+        videoCollectionView.setContentOffset(.zero, animated: true)
+    }
+
+    // 아래 스크롤할때 페이지요청함수
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        guard scrollView == videoCollectionView else { return }
+
+        let offsetY = scrollView.contentOffset.y
+        let contentHeight = scrollView.contentSize.height
+        let height = scrollView.frame.height
+
+        // 현재위치 기준 페이지 요청( 상수변경으로 조절가능 )
+        if offsetY > contentHeight - height - 200 {
+            guard hasMoreDate, !isFetching else { return }
+            fetchVideo(page: currentPage + 1)
+        }
     }
 
     let service = DefaultDataTransferService()
@@ -56,8 +69,32 @@ final class HomeViewController: StoryboardViewController {
     // Pixabay API에서 받아온 비디오 데이터 배열
     private var videos: [PixabayResponse.Hit] = []
 
+    // 랜덤 선택된 카테고리 비디오 영상 불러오기
+
+
+
+
+    // 네비게이션 서치뷰로
+    func navigationBarDidTapRight(_ navigationBar: NavigationBar) {
+        let storyboard = UIStoryboard(name: "SearchViewController", bundle: nil)
+        if let searchVC = storyboard.instantiateViewController(withIdentifier: "SearchViewController") as? SearchViewController {
+            navigationController?.pushViewController(searchVC, animated: true)
+        }
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        navigationBar.delegate = self
+
+        navigationBar.configure(
+            title: "Home",
+            subtitle: "",
+            rightIcon: UIImage(systemName: "magnifyingglass"),
+            isSearchMode: false
+        )
+
+
 
         //        NotificationCenter.default.addObserver(forName: .didSelectedCategories, object: nil, queue: .main) { [weak self]_ in
         //            self?.selectedCategories = TagsDataManager.shared.fetchSeletedCategories()
@@ -88,14 +125,8 @@ final class HomeViewController: StoryboardViewController {
         videoCollectionView.dataSource = self
         videoCollectionView.register(UINib(nibName: "VideoCell", bundle: nil), forCellWithReuseIdentifier: "VideoCell")
 
-        videoCollectionView.contentInset = .zero
+        videoCollectionView.contentInset = UIEdgeInsets(top: 10, left: 0, bottom: 80, right: 0)
 
-        if let layout = videoCollectionView.collectionViewLayout as? UICollectionViewFlowLayout {
-            layout.sectionInset = .zero
-            layout.minimumInteritemSpacing = 0
-            layout.minimumLineSpacing = 0
-            layout.invalidateLayout()
-        }
         //Pull to Refresh 기능
         let  refreshControl = UIRefreshControl()
         refreshControl.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
@@ -121,35 +152,35 @@ final class HomeViewController: StoryboardViewController {
         return String(format: "%02d:%02d", minutes, remainingSeconds)
     }
 
-        // 비디오 재생
+    // 비디오 재생
     func playVideo(with url: URL) {
-        print("▶️ playVideo called with URL: \(url.absoluteString)")
+
         // #1. PlayerItem 생성
         let item = AVPlayerItem(url: url)
-        print("🔹 AVPlayerItem created")
+
         // #2. Player 생성
         let player = AVPlayer(playerItem: item)
-        print("🔹 AVPlayer created")
+
         // #3. PlayerVC 생성
         let vc = AVPlayerViewController()
-        print("🔹 AVPlayerViewController created")
+
         // #4. 연결
         vc.player = player
-        print("🔹 Player connected to PlayerViewController")
+
         // #5. 표시
         present(vc, animated: true) {
-            print("🔹 PlayerViewController presented")
+
         }
-        
         observation?.invalidate()
-        print("🔹 Previous observation invalidated")
-        
+
+
+
         observation = item.observe(\.status) { playerItem, _ in
-            print("🔸 PlayerItem status changed: \(playerItem.status.rawValue)")
-            
+
+
             if playerItem.status == .readyToPlay {
-                print("✅ PlayerItem is ready to play, starting playback")
-                
+
+
                 player.play()
             } else if playerItem.status == .failed {
                 print("❌ PlayerItem failed to load\(playerItem.error.debugDescription)")
@@ -157,65 +188,138 @@ final class HomeViewController: StoryboardViewController {
         }
     }
 
-    // 선택된 카테고리에 따라 Pixabay API에서 비디오 데이터 요청
-    func fetchVideo() {
-        let query = selectedCategoryName
+    private var currentPage: Int = 1
 
-        let endpoint = APIEndpoints.pixabay(
-            query: query,
-            category: nil,
-            order: .popular,
-            page: 1,
-            perPage: 20
-        )
+    private var isFetching: Bool = false
 
+    private var hasMoreDate: Bool = true
 
-        let startTime = Date()
+    private func callPixabayAPI(
+        query: String?,
+        page: Int,
+        perPage: Int,
+        completion: @escaping (Result<PixabayResponse, Error>) -> Void) {
 
-        service.request(endpoint) { [weak self] result in
-            DispatchQueue.main.async {
-                guard let  self = self else { return }
-                // Refresh 딜레이 추가
-                let elapsed = Date().timeIntervalSince(startTime)
-                let delay = max(0.5 - elapsed, 0)
+            let endpoint = APIEndpoints.pixabay(
+                query: query,
+                category: nil,
+                order: .popular,
+                page: page,
+                perPage: perPage
+            )
 
-                DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                    self.videoCollectionView.refreshControl?.endRefreshing()
-
-
+            service.request(endpoint) { result in
+                DispatchQueue.main.async {
                     switch result {
                     case .success(let response):
-                        var fetchedVideos = response.hits
-
-                        if let selectedCategory = self.selectedCategoryName {
-                            // 선택한 카테고리(소문자)
-                            let filterCategory = selectedCategory.lowercased()
-                            // 첫번째 태그 기준 필터링
-                            fetchedVideos = fetchedVideos
-                                .filter { hit in
-                                    let tags = hit.tags.split(separator: ",")
-                                        .map { $0.trimmingCharacters(in: .whitespacesAndNewlines)
-                                                .lowercased()
-                                        }
-                                    return tags.contains(filterCategory)
-                                }
-                        }
-                        self.videos = fetchedVideos
-                        self.categoryCollectionView.reloadData()
-                        self.videoCollectionView.reloadData()
-
+                        completion(.success(response))
                     case .failure(let error):
-                        print(error)
+                        completion(.failure(error as Error))
                     }
                 }
             }
         }
+
+    private func handleVideoResponse(_ result: Result<PixabayResponse, Error>, page: Int) {
+        switch result {
+        case .success(let response):
+            var fetchedVideos = response.hits
+
+            // 카테고리 필터
+            if let selectedCategory = selectedCategoryName {
+                let filterCategory = selectedCategory.lowercased()
+                fetchedVideos = fetchedVideos.filter { hit in
+                    let tagsArray = hit.tags
+                        .split(separator: ",")
+                        .map { $0.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() }
+                    return tagsArray.contains(where: { $0.contains(filterCategory) })
+                }
+            }
+
+            // 중복 비디오 제거
+            let  existingIDs = Set(videos.map { $0.id })
+            let newVideos = fetchedVideos.filter { !existingIDs.contains($0.id) }
+
+            if page == 1 {
+                videos = newVideos.shuffled()
+            } else {
+                videos.append(contentsOf: newVideos)
+            }
+
+            currentPage = page
+            hasMoreDate = fetchedVideos.count == 20
+            videoCollectionView.reloadData()
+
+        case .failure(let error):
+            print(error)
+        }
+
+        videoCollectionView.refreshControl?.endRefreshing()
+        isFetching = false
     }
 
-    // 재생목록 비어있는지 체크
-    var playlistIsEmmpty: Bool = false
+    // 선택된 카테고리에 따라 Pixabay API에서 비디오 데이터 요청
+    func fetchVideo(page: Int = 1) {
+        guard !isFetching else { return }
+        isFetching = true
 
+        let selectedCategory = selectedCategoryName
+        let isAllselected = (selectedCategoryIndex == 0)
 
+        var videoSources: [String] = []
+        let dispatchGroup = DispatchGroup()
+        var combinedVideos: [PixabayResponse.Hit] = []
+
+        if isAllselected {
+            // All이 선택된 경우: 전체 카테고리 중 랜덤 1개 선택
+            let allCategories = Category.allCases.map { $0.rawValue }
+            if let randomCategory = allCategories.randomElement() {
+                videoSources.append(randomCategory)
+            }
+        } else {
+            // All이 아니면 selectedCategories 배열에서 선택된 인덱스가 유효한지 확인 후 추가
+            if selectedCategoryIndex - 1 >= 0 && selectedCategoryIndex - 1 < selectedCategories.count {
+                let category = selectedCategories[selectedCategoryIndex - 1]
+                videoSources.append(category)
+            }
+        }
+
+        // 검색어가 있으면 검색어 2번 추가
+        if let query = selectedCategoryName, !query.isEmpty {
+            videoSources.append(contentsOf: Array(repeating: query, count: 2))
+        } else {
+            // 검색어가 없으면 선택된 카테고리에서 랜덤 2개 선택
+            let randomFromSelected = selectedCategories.shuffled().prefix(2)
+            videoSources.append(contentsOf: randomFromSelected)
+        }
+
+        // 전체 카테고리에서 랜덤 2개 추가
+        let allCategories = Category.allCases.map { $0.rawValue }
+        let randomFromAll = allCategories.shuffled().prefix(2)
+        videoSources.append(contentsOf: randomFromAll)
+
+        // 각 키워드마다 3개씩 비디오 요청
+        for keyword in videoSources {
+            dispatchGroup.enter()
+            callPixabayAPI(query: keyword.lowercased(), page: page, perPage: 3) { result in
+                if case let .success(response) = result {
+                    combinedVideos.append(contentsOf: response.hits)
+                }
+                dispatchGroup.leave()
+            }
+        }
+
+        // 갱신
+        dispatchGroup.notify(queue: .main) { [weak self] in
+            guard let self = self else { return }
+            self.videos = combinedVideos.shuffled()
+            self.currentPage = page
+            self.hasMoreDate = false
+            self.isFetching = false
+            self.videoCollectionView.reloadData()
+            self.videoCollectionView.refreshControl?.endRefreshing()
+        }
+    }
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
@@ -234,9 +338,6 @@ final class HomeViewController: StoryboardViewController {
         //        }
     }
 
-
-    // 비디오 테스트용
-
     // 동영상 재생시 시청기록재생 함수
     func addToWatchHistory(_ video: PixabayResponse.Hit) {
         let context = CoreDataService.shared.persistentContainer.viewContext
@@ -249,7 +350,7 @@ final class HomeViewController: StoryboardViewController {
 
             // 기존 기록이 있으면 삭제
             for record in existing {
-              //  context.delete(record)
+                //  context.delete(record)
                 CoreDataService.shared.delete(record)
             }
 
@@ -409,6 +510,8 @@ extension HomeViewController: UICollectionViewDelegate {
             selectedCategoryIndex = indexPath.item
             // 카테고리 컬렉션뷰 다시 그리기 (선택 상태 반영)
             categoryCollectionView.reloadData()
+            // 맨 위로 스크롤
+            videoCollectionView.setContentOffset(.zero, animated: true)
             // 선택한 카테고리에 맞춰 비디오 재요청
             fetchVideo()
         }

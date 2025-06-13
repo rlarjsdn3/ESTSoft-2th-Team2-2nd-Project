@@ -46,13 +46,12 @@ final class BookmarkViewController: StoryboardViewController, VideoPlayable {
                       let playlistVideos = playlistEntity.playlistVideos?.allObjects as? [PlaylistVideoEntity] else {
                     return
                 }
-
+                
                 playlistVC.videos = .playlist(
                     title: playlistEntity.name,
                     entities: playlistVideos,
                     isBookmark: playlistEntity.isBookmark
                 )
-
             } else {
                 guard let playbackVideos = playbackFetchedResultsController?.fetchedObjects else { return }
                 playlistVC.videos = .playback(entities: playbackVideos)

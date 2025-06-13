@@ -135,6 +135,7 @@ extension CoreDataService {
         viewContext.delete(entity)
         saveContext()
     }
+
 }
 
 
@@ -148,7 +149,51 @@ extension CoreDataService {
             try clear(description.name!)
         }
     }
+    func deleteAll<T: NSManagedObject>(_ type: T.Type, context: NSManagedObjectContext? = nil) throws {
+        let viewContext = context ?? self.viewContext
 
+        let fetchRequest = T.fetchRequest()
+        let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
+        deleteRequest.resultType = .resultTypeObjectIDs
+
+        let result = try viewContext.execute(deleteRequest) as? NSBatchDeleteResult
+        if let objectIDs = result?.result as? [NSManagedObjectID] {
+            let changes: [AnyHashable: Any] = [
+                NSDeletedObjectsKey: objectIDs
+            ]
+            NSManagedObjectContext.mergeChanges(
+                fromRemoteContextSave: changes,
+                into: [viewContext]
+            )
+        }
+        try viewContext.save()
+    }
+
+    func deleteAll<T: NSManagedObject>(
+        _ type: T.Type,
+        name: String,
+        context: NSManagedObjectContext? = nil
+    ) throws {
+        let viewContext = context ?? self.viewContext
+        let entityName = String(describing: type)
+
+        // 조건부 fetch request 생성
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
+        fetchRequest.predicate = NSPredicate(format: "name == %@", name)
+
+        let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
+        deleteRequest.resultType = .resultTypeObjectIDs
+
+        // 실행 및 변경 병합
+        let result = try viewContext.execute(deleteRequest) as? NSBatchDeleteResult
+        if let objectIDs = result?.result as? [NSManagedObjectID] {
+            let changes = [NSDeletedObjectsKey: objectIDs]
+            NSManagedObjectContext.mergeChanges(fromRemoteContextSave: changes, into: [viewContext])
+        }
+        try viewContext.save()
+    }
+
+    
     /// 지정된 엔티티 이름의 모든 데이터를 삭제합니다.
     /// - Parameter entityName: 삭제할 엔티티 이름
     func clear(_ entityName: String) throws {
@@ -157,6 +202,7 @@ extension CoreDataService {
         
         do {
             try persistentStoreCoordinator.execute(deleteRequest, with: viewContext)
+
         } catch {
             throw CoreDataError.deleteError(error)
         }

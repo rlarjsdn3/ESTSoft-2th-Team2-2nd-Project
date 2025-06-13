@@ -109,6 +109,7 @@ class MediumVideoCell: UICollectionViewCell, NibLodable, UIContextMenuInteractio
         actionProvider = { _ in
             UIMenu(title: "", children: [destruct])
         }
+        actionButton.isContextMenuInteractionEnabled = true
     }
 
 }
