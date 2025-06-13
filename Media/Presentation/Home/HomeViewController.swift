@@ -246,7 +246,7 @@ final class HomeViewController: StoryboardViewController {
 
         do {
             let existing = try context.fetch(fetchRequest)
-            print(existing, "\\\\\\\\\\eqweqweqw")
+
             // 기존 기록이 있으면 삭제
             for record in existing {
               //  context.delete(record)
@@ -292,6 +292,7 @@ final class HomeViewController: StoryboardViewController {
         let context = CoreDataService.shared.persistentContainer.viewContext
 
         let fetchRequest: NSFetchRequest<PlaylistEntity> = PlaylistEntity.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "name != %@", CoreDataService.StaticString.bookmarkedPlaylistName)
         do {
             let playlists = try context.fetch(fetchRequest)
             let playlistNames = playlists.map { $0.name ?? ""}
@@ -308,6 +309,7 @@ final class HomeViewController: StoryboardViewController {
             // 새 재생목록 생성 옵션 추가
             let createNewAction = UIAlertAction(title: "새 재생목록 만들기", style: .default) { _ in
                 self.showAddPlaylistAlert()
+
             }
             alertController.addAction(createNewAction)
 
@@ -321,6 +323,7 @@ final class HomeViewController: StoryboardViewController {
         }
     }
 
+    // 재생목록 리스트
     func addVideoToPlaylist(_ video: PixabayResponse.Hit, playlistName: String) {
         let context = CoreDataService.shared.persistentContainer.viewContext
 
@@ -340,17 +343,19 @@ final class HomeViewController: StoryboardViewController {
         }
     }
 
+    // 재생목록 만들 시 필요함수
     func showAddPlaylistAlert() {
 
         showTextFieldAlert(
-            "새로운 재생 목록 추가",
-            message: "새로운 재생 목록 이름을 입력하세요.") { (action, newText) in
+            "새로운 재생 목록 추가",message: "새로운 재생 목록 이름을 입력하세요.") { (action, newText) in
                 if !PlaylistEntity.isExist(newText) {
                     let newPlaylist = PlaylistEntity(
                         name: newText,
                         insertInto: CoreDataService.shared.viewContext
                     )
                     CoreDataService.shared.insert(newPlaylist)
+                    Toast.makeToast("'\(newPlaylist.name)'생성되었습니다", systemName: "list.clipboard").present()
+
                 } else {
                     Toast.makeToast("이미 존재하는 재생 목록 이름입니다.").present()
                 }
@@ -359,6 +364,7 @@ final class HomeViewController: StoryboardViewController {
             }
     }
 
+    // 재생목록 만드는 함수
     func createPlaylist(name: String, video: PixabayResponse.Hit) {
         let context = CoreDataService.shared.persistentContainer.viewContext
 
@@ -373,12 +379,12 @@ final class HomeViewController: StoryboardViewController {
 
         do {
             try context.save()
-            Toast.makeToast("\(newPlaylist) 생성되었습니다", systemName: "list.clipboard").present()
         } catch {
             print(error)
         }
     }
 
+    // 북마크 갱신함수
     func fetchOrCreateBookmarkPlaylist(context: NSManagedObjectContext) -> PlaylistEntity {
         let request: NSFetchRequest<PlaylistEntity> = PlaylistEntity.fetchRequest()
         request.predicate = NSPredicate(format: "name == %@", CoreDataString.bookmarkedPlaylistName)

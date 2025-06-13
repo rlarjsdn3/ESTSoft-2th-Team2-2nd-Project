@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import CoreData
 
 /// 재생 기록 또는 재생 목록에 따라 표시할 비디오 목록의 유형을 나타내는 열거형입니다.
 enum VideoListType {
@@ -13,6 +14,8 @@ enum VideoListType {
     case playback(entities: [PlaybackHistoryEntity])
     /// 재생 목록에 기반한 비디오 목록
     case playlist(title: String, entities: [PlaylistVideoEntity])
+
+//    case bookmark(entities: PlaylistEntity)
 }
 
 final class VideoListViewController: StoryboardViewController {
@@ -33,12 +36,17 @@ final class VideoListViewController: StoryboardViewController {
 
     @IBOutlet weak var searchContainerTopConstraint: NSLayoutConstraint!
     @IBOutlet weak var closeButtonTrailingConstraint: NSLayoutConstraint!
-    
+
+    private var playbackFetchedResultsController: NSFetchedResultsController<PlaybackHistoryEntity>? = nil
+    private var playlistFetchedResultsController: NSFetchedResultsController<PlaylistEntity>? = nil
+    private var playlistVideoFetchedResultsController: NSFetchedResultsController<PlaylistVideoEntity>? = nil
+
     // MARK: - Lifecycles
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        setupFetchedResultsController()
         setupDataSource()
         
         collectionView.collectionViewLayout = createCompositionalLayout()
@@ -90,7 +98,52 @@ final class VideoListViewController: StoryboardViewController {
         navigationBar.delegate = self
     }
 
-#warning("김건우 -> 참조 사이클 문제 다시 확인해보기")
+    private func setupFetchedResultsController() {
+        let viewContext = coreDataService.viewContext
+
+        let playlistFetchRequest = PlaylistEntity.fetchRequest().apply {
+            $0.sortDescriptors = [NSSortDescriptor(keyPath: \PlaylistEntity.createdAt, ascending: true)]
+        }
+        playlistFetchedResultsController = NSFetchedResultsController(
+            fetchRequest: playlistFetchRequest,
+            managedObjectContext: viewContext,
+            sectionNameKeyPath: nil,
+            cacheName: nil
+        )
+        playlistFetchedResultsController?.delegate = self
+
+        let playbackFetchRequest = PlaybackHistoryEntity.fetchRequest().apply {
+            $0.sortDescriptors = [NSSortDescriptor(keyPath: \PlaybackHistoryEntity.createdAt, ascending: false)]
+        }
+        playbackFetchedResultsController = NSFetchedResultsController(
+            fetchRequest: playbackFetchRequest,
+            managedObjectContext: viewContext,
+            sectionNameKeyPath: nil,
+            cacheName: nil
+        )
+        playbackFetchedResultsController?.delegate = self
+
+        let playlistVideoFetchRequest = PlaylistVideoEntity.fetchRequest().apply {
+            $0.sortDescriptors = [NSSortDescriptor(keyPath: \PlaylistVideoEntity.id, ascending: true)]
+        }
+        playlistVideoFetchedResultsController = NSFetchedResultsController(
+            fetchRequest: playlistVideoFetchRequest,
+            managedObjectContext: viewContext,
+            sectionNameKeyPath: nil,
+            cacheName: nil
+        )
+        playlistVideoFetchedResultsController?.delegate = self
+
+        do {
+            try playlistFetchedResultsController?.performFetch()
+            try playbackFetchedResultsController?.performFetch()
+            try playlistVideoFetchedResultsController?.performFetch()
+        } catch {
+            print("FetchedResultsController performFetch error: \(error)")
+        }
+    }
+
+#warning("김건우 -> 각 셀을 클릭하면 동영상 출력되게 수정!!")
 #warning("김건우 -> CompositionalLayout 임시값 수정하기")
     private func createCompositionalLayout() -> UICollectionViewCompositionalLayout {
         let sectionProvider: UICollectionViewCompositionalLayoutSectionProvider = { [weak self] sectionIndex, environment in
@@ -187,8 +240,25 @@ extension VideoListViewController {
                     duration: Int(entity.duration),
                     thumbnailUrl: entity.video?.medium.thumbnail
                 )
+            
             }
+            cell.delegate = self
             cell.configure(viewModel)
+            cell.configureMenu(
+                deleteAction: { [weak self] in
+                    guard let self = self else { return }
+                    // 삭제 처리 코드
+                    self.showDeleteAlert(
+                        "재생 목록 전체 삭제",
+                        message: "정말 전체 재생목록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
+                        onConfirm: { _ in
+
+                        },
+                        onCancel: { _ in
+                        }
+                    )
+                }
+            )
         }
     }
 
@@ -210,7 +280,12 @@ extension VideoListViewController {
     }
 
     private func applyPlaylistSnapshot(query: String? = nil) {
-        guard case let .playlist(_, entities) = videos else { return }
+        guard case let .playlist(name, _) = videos,
+              let playback = self.playlistFetchedResultsController?.fetchedObjects?.first(where: { $0.name ==  name }),
+              let entities = playback.playlistVideos?.allObjects as? [PlaylistVideoEntity]    else {
+            return
+        }
+
 
         let filteredEntities = entities.filter { entity in
             // 검색어가 nil이거나 비어있다면 필터링하지 않기 (전체 출력)
@@ -227,10 +302,23 @@ extension VideoListViewController {
         snapshot.appendSections([playlistSection])
         snapshot.appendItems(playlistItems, toSection: playlistSection)
         dataSource?.apply(snapshot, animatingDifferences: true)
+        
+        if entities.isEmpty {
+            print("비어 있음!")
+            return
+        }
+
+        if filteredEntities.isEmpty {
+            print("검색 결과 비어 있음!")
+            return
+        }
     }
 
     private func applyPlaybackSnapshot(query: String? = nil) {
-        guard case let .playback(entities) = videos else { return }
+        guard case .playback = videos,
+              let entities = self.playbackFetchedResultsController?.fetchedObjects else {
+            return
+        }
 
         let filteredEntities = entities.filter { entity in
             // 검색어가 nil이거나 비어있다면 필터링하지 않기 (전체 출력)
@@ -257,6 +345,34 @@ extension VideoListViewController {
             snapshot.appendItems(playbackItems, toSection: playbackSection)
         }
         dataSource?.apply(snapshot, animatingDifferences: true)
+
+
+        if entities.isEmpty {
+            print("비어 있음!")
+            return
+        }
+
+        if filteredEntities.isEmpty {
+            print("검색 결과 비어 있음!")
+            return
+        }
+    }
+}
+
+// MARK: - NSFetchedResultsControllerDelegate
+
+extension VideoListViewController: NSFetchedResultsControllerDelegate {
+
+    func controller(
+        _ controller: NSFetchedResultsController<any NSFetchRequestResult>,
+        didChange anObject: Any,
+        at indexPath: IndexPath?,
+        for type: NSFetchedResultsChangeType,
+        newIndexPath: IndexPath?
+    ) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            self.applySnapshot()
+        }
     }
 }
 
@@ -282,6 +398,7 @@ extension VideoListViewController: UICollectionViewDelegate {
         didUnhighlightItemAt indexPath: IndexPath
     ) {
     }
+
 }
 
 
@@ -336,3 +453,37 @@ extension VideoListViewController: NavigationBarDelegate {
         navigationController?.popViewController(animated: true)
     }
 }
+
+
+
+// MARK: - MediumVideoButtonDelegate
+
+extension VideoListViewController: MediumVideoButtonDelegate {
+    
+    func deleteAction(_ collectionViewCell: UICollectionViewCell) {
+        guard let indexPath = collectionView.indexPath(for: collectionViewCell),
+              let item = dataSource?.itemIdentifier(for: indexPath) else {
+            return
+        }
+        
+        switch item {
+        case .playlist(let playlistVideoEntity):
+            CoreDataService.shared.delete(playlistVideoEntity)
+        case .playback(let playbackHistoryEntity):
+            CoreDataService.shared.delete(playbackHistoryEntity)
+        }
+    }
+}
+//extension VideoListViewController: MediumVideoButtonDelegate {
+//    func deleteAction(_ collectionViewCell: UICollectionViewCell) {
+//        self.showDeleteAlert(
+//            "재생 목록 삭제",
+//            message: "정말 이 재생목록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
+//            onConfirm: { _ in
+//
+//            },
+//            onCancel: { _ in
+//            }
+//        )
+//    }
+//}

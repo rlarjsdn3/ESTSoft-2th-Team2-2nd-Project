@@ -20,11 +20,11 @@ extension UserDefaultsKeys {
     var isFirstLaunch: UserDefaultsKey<Bool> {
         UserDefaultsKey(name: "isFirstLaunch", defaultValue: true)
     }
-    ///
+    /// 사용자 이름을 저장하는 키입니다.
+    /// 기본값은 `nil`입니다.
     var userName: UserDefaultsKey<String?> {
         UserDefaultsKey(name: "userName", defaultValue: nil)
     }
-
 
     /// [필터] 카테고리 배열을 저장하는 키입니다.
     var filterCategories: UserDefaultsKey<String?> {
@@ -38,6 +38,18 @@ extension UserDefaultsKeys {
 
     /// [필터] 영상 길이 배열을 저장하는 키입니다.
     var filterDurations: UserDefaultsKey<String?> {
-        UserDefaultsKey(name: "filterDurations_v1", defaultValue: nil)
+        UserDefaultsKey(name: "filterDurations", defaultValue: nil)
+    }
+
+    /// 사용자 이메일을 저장하는 키입니다.
+    /// 기본값은 `nil`입니다.
+    var userEmail: UserDefaultsKey<String?> {
+        UserDefaultsKey(name: "userEmail", defaultValue: nil)
+    }
+    /// 영상 해상도를 저장하는 키입니다.
+    /// 기본값은 `Medium`입니다.
+    var videoQuality: UserDefaultsKey<String> {
+        UserDefaultsKey(name: "video_quality", defaultValue: VideoQuality.medium.rawValue)
+
     }
 }
