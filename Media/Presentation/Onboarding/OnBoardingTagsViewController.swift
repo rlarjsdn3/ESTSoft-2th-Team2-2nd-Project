@@ -15,21 +15,51 @@ class OnBoardingTagsViewController: StoryboardViewController {
     
     @IBAction func selectedTagButton(_ sender: Any) {
         // 선택된 태그 데이터를 가지고 home뷰로 넘어가기
-        
-        // tags배열에서 해당 인덱스를 가지고 선택된 카테고리 추출
-//        let selectedCategories = selectedIndexPath.map { tags[$0.item] }
-        
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        if let vc = storyboard.instantiateViewController(withIdentifier: "MainVC") as? UITabBarController {
+        if let vc = storyboard.instantiateViewController(withIdentifier: "MainVC") as? UITabBarController, let nav1 = vc.viewControllers?.first as? UINavigationController, let _ = nav1.viewControllers.first as? HomeViewController {
+            
+            for category in selectedCategories {
+                TagsDataManager.shared.save(category: category)
+            }
+            
+            NotificationCenter.default.post(
+                name: .didSelectedCategories,
+                object: nil,
+                userInfo: ["categories": selectedCategories]
+            )
+            
+            UserDefaults.standard.seenOnboarding = true
             
             vc.modalPresentationStyle = .fullScreen
-            self.navigationController?.pushViewController(vc, animated: true)
+//            self.navigationController?.pushViewController(vc, animated: true)
+            self.navigationController?.setViewControllers([vc], animated: true)
         }
     }
+    
+    var selectedCategories: [Category] = []
     
     let tags: [Category] = Category.allCases
     
     var selectedIndexPath: Set<IndexPath> = []
+    
+    
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        setUpLayout()
+        
+        tagsCollectionView.allowsMultipleSelection = true
+        tagsCollectionView.allowsSelection = true
+        tagsCollectionView.delegate = self
+       
+        selectedTagButton.isEnabled = false
+        
+        self.navigationItem.hidesBackButton = true
+        
+        #warning("나중에 수정 할수도 있음")
+        self.navigationController?.navigationBar.isHidden = true
+    }
     
     func setUpLayout() {
         // item 사이즈
@@ -59,20 +89,6 @@ class OnBoardingTagsViewController: StoryboardViewController {
         // 레이아웃을 만들어서 컬렉션 뷰에 저장
         let layout = UICollectionViewCompositionalLayout(section: section)
         tagsCollectionView.collectionViewLayout = layout
-    }
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-
-        setUpLayout()
-        
-        tagsCollectionView.allowsMultipleSelection = true
-        tagsCollectionView.allowsSelection = true
-        tagsCollectionView.delegate = self
-       
-        selectedTagButton.isEnabled = false
-        
-        self.navigationItem.hidesBackButton = true
     }
     
     // 셀이 3개 이상 선택되면 버튼 활성화
@@ -123,10 +139,12 @@ extension OnBoardingTagsViewController: UICollectionViewDelegate {
             return
         }
         
-        let category = tags[indexPath.item]
-        TagsDataManager.shared.save(category: category)
-        
         selectedIndexPath.insert(indexPath)
+        selectedCategories = selectedIndexPath.map { tags[$0.item] }
+//        let category = tags[indexPath.item]
+//        TagsDataManager.shared.save(category: category)
+        
+//        selectedIndexPath.insert(indexPath)
         
         // 셀 선택시 색상변경
         if let cell = collectionView.cellForItem(at: indexPath) as? OnboardingTagsViewCell {
@@ -137,10 +155,11 @@ extension OnBoardingTagsViewController: UICollectionViewDelegate {
     }
     
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
+//        selectedIndexPath.remove(indexPath)
         selectedIndexPath.remove(indexPath)
-        
-        let category = tags[indexPath.item]
-        TagsDataManager.shared.delete(category: category)
+        selectedCategories = selectedIndexPath.map { tags[$0.item] }
+//        let category = tags[indexPath.item]
+//        TagsDataManager.shared.delete(category: category)
         
         // 셀 선택해제 시 색상변경
         if let cell = collectionView.cellForItem(at: indexPath) as? OnboardingTagsViewCell {
@@ -148,5 +167,16 @@ extension OnBoardingTagsViewController: UICollectionViewDelegate {
         }
         
         buttonIsEnabled()
+    }
+}
+
+extension UserDefaults {
+    var seenOnboarding: Bool {
+        get {
+            bool(forKey: "seenOnboariding")
+        }
+        set {
+           set(newValue, forKey: "seenOnboariding")
+        }
     }
 }
