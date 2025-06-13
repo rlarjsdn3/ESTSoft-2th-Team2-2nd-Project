@@ -17,12 +17,14 @@ enum VideoListType {
 
 }
 
-final class VideoListViewController: StoryboardViewController {
+final class VideoListViewController: StoryboardViewController, VideoPlayable {
 
     typealias PlaylistDiffableDataSource = UICollectionViewDiffableDataSource<VideoList.Section, VideoList.Item>
 
     var videos: VideoListType?
+    var observation: NSKeyValueObservation?
     private let coreDataService = CoreDataService.shared
+    private let videoCacher = DefaultVideoCacher()
 
     private var dataSource: PlaylistDiffableDataSource? = nil
 
@@ -414,6 +416,17 @@ extension VideoListViewController: UICollectionViewDelegate {
         _ collectionView: UICollectionView,
         didSelectItemAt indexPath: IndexPath
     ) {
+        guard let item = dataSource?.itemIdentifier(for: indexPath) else { return }
+
+        if case let .playback(entity) = item,
+           let videoUrl = entity.video?.medium.url {
+            playVideo(from: videoUrl)
+        }
+
+        if case let .playlist(entity) = item,
+           let videoUrl = entity.video?.medium.url{
+            playVideo(from: videoUrl)
+        }
     }
     
     func collectionView(
