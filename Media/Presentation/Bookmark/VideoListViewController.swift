@@ -14,7 +14,6 @@ enum VideoListType {
     case playback(entities: [PlaybackHistoryEntity])
     /// 재생 목록에 기반한 비디오 목록
     case playlist(title: String, entities: [PlaylistVideoEntity], isBookmark: Bool)
-
 }
 
 final class VideoListViewController: StoryboardViewController {
@@ -231,6 +230,27 @@ extension VideoListViewController {
                     duration: Int(entity.duration),
                     thumbnailUrl: entity.video?.medium.thumbnail
                 )
+                cell.configureMenu(
+                    deleteAction: { [weak self] in
+                        guard let self = self else { return }
+                        // 삭제 처리 코드
+                        self.showDeleteAlert(
+                            "재생 목록 전체 삭제",
+                            message: "정말 전체 재생목록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
+                            onConfirm: { _ in
+                                do {
+                                    try CoreDataService.shared.deleteAll(PlaybackHistoryEntity.self)
+                         
+                                    print("모든 Video 엔티티가 삭제되었습니다.")
+                                } catch {
+                                    print("삭제 중 오류 발생: \(error)")
+                                }
+                            },
+                            onCancel: { _ in
+                            }
+                        )
+                    }
+                )
             case .playlist(let entity):
                 viewModel = MediumVideoViewModel(
                     tags: entity.tags,
@@ -239,29 +259,40 @@ extension VideoListViewController {
                     duration: Int(entity.duration),
                     thumbnailUrl: entity.video?.medium.thumbnail
                 )
-            
-            }
-            cell.delegate = self
-            cell.configure(viewModel)
-            cell.configureMenu(
-                deleteAction: { [weak self] in
-                    guard let self = self else { return }
-                    // 삭제 처리 코드
-                    self.showDeleteAlert(
-                        "재생 목록 전체 삭제",
-                        message: "정말 전체 재생목록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
-                        onConfirm: { _ in
 
-                        },
-                        onCancel: { _ in
-                        }
-                    )
+                if case let .playlist(name, _, _) = self?.videos {
+                    if name == CoreDataString.bookmarkedPlaylistName {
+                        cell.isBookMark = true
+                    } else {
+                        cell.configureMenu(
+                            deleteAction: { [weak self] in
+                                guard let self = self else { return }
+                                // 삭제 처리 코드
+                                self.showDeleteAlert(
+                                    "플레이리스트 전체 삭제",
+                                    message: "정말 전체 플레이리스트를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
+                                    onConfirm: { _ in
+                                        do {
+                                            guard case let .playlist(name, _, _) = self.videos else { return }
+                                            try CoreDataService.shared.deleteAll(PlaylistEntity.self, name: name)
+                                            print("모든 Video 엔티티가 삭제되었습니다.")
+                                        } catch {
+                                            print("삭제 중 오류 발생: \(error)")
+                                        }
+                                    },
+                                    onCancel: { _ in
+                                    }
+                                )
+                            }
+                        )
+
+                    }
                 }
-            )
 
-            if case let .playlist(_, _, isBookmark) = self?.videos {
-                cell.isBookMark = isBookmark
             }
+            
+            cell.configure(viewModel)
+            cell.delegate = self
         }
     }
 
@@ -470,8 +501,6 @@ extension VideoListViewController: NavigationBarDelegate {
     }
 }
 
-
-
 // MARK: - MediumVideoButtonDelegate
 
 extension VideoListViewController: MediumVideoButtonDelegate {
@@ -491,16 +520,3 @@ extension VideoListViewController: MediumVideoButtonDelegate {
     }
 }
 
-//extension VideoListViewController: MediumVideoButtonDelegate {
-//    func deleteAction(_ collectionViewCell: UICollectionViewCell) {
-//        self.showDeleteAlert(
-//            "재생 목록 삭제",
-//            message: "정말 이 재생목록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
-//            onConfirm: { _ in
-//
-//            },
-//            onCancel: { _ in
-//            }
-//        )
-//    }
-//}
