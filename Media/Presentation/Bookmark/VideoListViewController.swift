@@ -70,7 +70,6 @@ final class VideoListViewController: StoryboardViewController, VideoPlayable {
         closeButtonTrailingConstraint.constant = -50
     }
 
-    // TODO: - 네비게이션 바에서 오른쪽 버튼 사라지게 하기
     private func setupNavigationBar() {
         let leftIcon = UIImage(systemName: "arrow.left")
         let rightIcon = UIImage(systemName: "trash")
@@ -232,6 +231,7 @@ extension VideoListViewController {
     private func createVideoCellRagistration() -> UICollectionView.CellRegistration<MediumVideoCell, VideoList.Item> {
         UICollectionView.CellRegistration<MediumVideoCell, VideoList.Item>(cellNib: MediumVideoCell.nib) { [weak self] cell, indexPath, item in
             var viewModel: MediumVideoViewModel
+            
             switch item {
             case .playback(let entity):
                 viewModel = MediumVideoViewModel(
@@ -296,19 +296,18 @@ extension VideoListViewController {
                                 )
                             }
                         )
-
                     }
                 }
-
-                if case let .playlist(_, _, isBookmark) = self?.videos {
-                    cell.isBookMark = isBookmark
-                } else {
-                    cell.isBookMark = false
-                }
-
-                cell.configure(viewModel)
-                cell.delegate = self
             }
+            
+            if case let .playlist(_, _, isBookmark) = self?.videos {
+                cell.isBookMark = isBookmark
+            } else {
+                cell.isBookMark = false
+            }
+            
+            cell.configure(viewModel)
+            cell.delegate = self
         }
     }
 
