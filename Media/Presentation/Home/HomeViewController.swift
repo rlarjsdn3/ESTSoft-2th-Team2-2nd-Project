@@ -125,7 +125,7 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
         videoCollectionView.dataSource = self
         videoCollectionView.register(UINib(nibName: "VideoCell", bundle: nil), forCellWithReuseIdentifier: "VideoCell")
 
-        videoCollectionView.contentInset = UIEdgeInsets(top: 10, left: 0, bottom: 80, right: 0)
+        videoCollectionView.contentInset = UIEdgeInsets(top: 10, left: 0, bottom: 90, right: 0)
 
         //Pull to Refresh 기능
         let  refreshControl = UIRefreshControl()
@@ -694,5 +694,10 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout,
                         minimumLineSpacingForSectionAt section: Int) -> CGFloat {
         return 8
+    }
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+
+        categoryCollectionView.reloadData()
     }
 }
