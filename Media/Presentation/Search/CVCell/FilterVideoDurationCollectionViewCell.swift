@@ -19,6 +19,15 @@ class FilterVideoDurationCollectionViewCell: UICollectionViewCell {
         durationLabel.textColor = .black
     }
 
+    func selectedCellConfigure() {
+        durationContentView.layer.cornerRadius = 12
+        durationContentView.backgroundColor = UIColor.tagSelected
+        durationContentView.layer.borderWidth = 1.0
+        durationContentView.layer.borderColor = UIColor.tagBorder.cgColor
+        durationLabel.textColor = .white
+    }
+
+
     override var isSelected: Bool {
         didSet {
             if isSelected {
