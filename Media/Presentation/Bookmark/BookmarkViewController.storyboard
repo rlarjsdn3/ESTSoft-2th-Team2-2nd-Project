@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23727" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="Y6W-OH-hqX">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="Y6W-OH-hqX">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23506"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -16,8 +16,14 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ELa-sZ-m6x" customClass="NavigationBar" customModule="Media" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="59" width="393" height="50"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="50" id="MdG-PM-dyg"/>
+                                </constraints>
+                            </view>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="6kr-uA-UTS">
-                                <rect key="frame" x="0.0" y="168" width="393" height="684"/>
+                                <rect key="frame" x="0.0" y="109" width="393" height="709"/>
                                 <color key="backgroundColor" name="Background"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" automaticEstimatedItemSize="YES" minimumLineSpacing="10" minimumInteritemSpacing="10" id="Ohw-jW-k82">
                                     <size key="itemSize" width="128" height="128"/>
@@ -30,12 +36,6 @@
                                     <outlet property="delegate" destination="Y6W-OH-hqX" id="QNy-c3-ePf"/>
                                 </connections>
                             </collectionView>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ELa-sZ-m6x" customClass="NavigationBar" customModule="Media" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="118" width="393" height="50"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="50" id="MdG-PM-dyg"/>
-                                </constraints>
-                            </view>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="vDu-zF-Fre"/>
                         <color key="backgroundColor" name="Background"/>
@@ -45,7 +45,7 @@
                             <constraint firstItem="6kr-uA-UTS" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="Z8R-4j-PWO"/>
                             <constraint firstItem="ELa-sZ-m6x" firstAttribute="trailing" secondItem="vDu-zF-Fre" secondAttribute="trailing" id="fHh-j1-9Cd"/>
                             <constraint firstItem="ELa-sZ-m6x" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="fpx-dx-RYG"/>
-                            <constraint firstAttribute="bottom" secondItem="6kr-uA-UTS" secondAttribute="bottom" id="tJ8-Ut-Bks"/>
+                            <constraint firstItem="vDu-zF-Fre" firstAttribute="bottom" secondItem="6kr-uA-UTS" secondAttribute="bottom" id="uVC-JH-YJE"/>
                             <constraint firstItem="6kr-uA-UTS" firstAttribute="trailing" secondItem="vDu-zF-Fre" secondAttribute="trailing" id="wdW-Je-UEZ"/>
                         </constraints>
                     </view>
