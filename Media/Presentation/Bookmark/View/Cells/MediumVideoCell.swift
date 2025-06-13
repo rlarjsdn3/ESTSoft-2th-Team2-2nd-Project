@@ -7,7 +7,19 @@
 
 import UIKit
 
-class MediumVideoCell: UICollectionViewCell, NibLodable {
+class MediumVideoCell: UICollectionViewCell, NibLodable, UIContextMenuInteractionDelegate {
+
+    var previewProvider: UIContextMenuContentPreviewProvider?
+    var actionProvider: UIContextMenuActionProvider?
+
+    func contextMenuInteraction(_ interaction: UIContextMenuInteraction, configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
+        return UIContextMenuConfiguration(
+                    identifier: nil,
+                    previewProvider: previewProvider,
+                    actionProvider: actionProvider
+                )
+    }
+    
 
     /// 썸네일 이미지를 표시하는 뷰
     @IBOutlet private weak var thumbnailImageView: UIImageView!
@@ -43,9 +55,7 @@ class MediumVideoCell: UICollectionViewCell, NibLodable {
                     : UIImage(systemName: "bookmark.fill"),
                     for: .normal
                 )
-
             actionButton.tintColor = isBookMark ? .label: .systemRed
-
         }
     }
 
@@ -77,6 +87,23 @@ class MediumVideoCell: UICollectionViewCell, NibLodable {
     private func setViews() {
         thumbnailImageView.layer.cornerRadius = 8
         paddingLabel.layer.cornerRadius = 3
+
+        let destruct = UIAction(title: "전체 삭제", attributes: .destructive) { _ in
+            print("전체 삭제")
+        }
+
+
+    }
+
+    func configureMenu(deleteAction: @escaping () -> Void) {
+        let destruct = UIAction(title: "전체 삭제", attributes: .destructive) { _ in
+            deleteAction()
+        }
+        let interaction = UIContextMenuInteraction(delegate: self)
+        actionButton.addInteraction(interaction)
+        actionProvider = { _ in
+            UIMenu(title: "", children: [destruct])
+        }
     }
 
 }
