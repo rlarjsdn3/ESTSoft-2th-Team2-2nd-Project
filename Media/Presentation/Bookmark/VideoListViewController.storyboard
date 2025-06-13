@@ -83,18 +83,45 @@
                                     <outlet property="delegate" destination="Y6W-OH-hqX" id="1Mk-i9-2D3"/>
                                 </connections>
                             </collectionView>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="OWg-aO-lHw" customClass="ContentUnavailableView" customModule="Media" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="159" width="393" height="693"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="string" keyPath="imageName" value="no_bookmark"/>
+                                    <userDefinedRuntimeAttribute type="string" keyPath="title" value="ddd"/>
+                                    <userDefinedRuntimeAttribute type="string" keyPath="subtitle" value="dd"/>
+                                    <userDefinedRuntimeAttribute type="color" keyPath="backgroundColor">
+                                        <color key="value" name="AccentColor"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
+                            </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="bUl-1M-8Gz" customClass="ContentUnavailableView" customModule="Media" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="159" width="393" height="659"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="string" keyPath="imageName" value="no_videos"/>
+                                </userDefinedRuntimeAttributes>
+                            </view>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="vDu-zF-Fre"/>
                         <color key="backgroundColor" name="Background"/>
                         <constraints>
                             <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="8B9-Ko-MSM" secondAttribute="trailing" id="2Cp-QO-vrg"/>
+                            <constraint firstItem="OWg-aO-lHw" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="B2l-xp-rJV"/>
+                            <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="OWg-aO-lHw" secondAttribute="trailing" id="LSV-SL-65C"/>
+                            <constraint firstAttribute="bottom" secondItem="OWg-aO-lHw" secondAttribute="bottom" id="Mdd-MT-asD"/>
                             <constraint firstItem="Fbz-n0-wHq" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="Q8C-sf-SYI"/>
+                            <constraint firstItem="vDu-zF-Fre" firstAttribute="bottom" secondItem="bUl-1M-8Gz" secondAttribute="bottom" id="QE8-BC-MaZ"/>
+                            <constraint firstItem="bUl-1M-8Gz" firstAttribute="top" secondItem="8B9-Ko-MSM" secondAttribute="bottom" id="QfV-Ky-qRc"/>
+                            <constraint firstItem="OWg-aO-lHw" firstAttribute="top" secondItem="8B9-Ko-MSM" secondAttribute="bottom" id="RKm-DQ-Von"/>
                             <constraint firstItem="8B9-Ko-MSM" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="Sbp-l4-YNc"/>
                             <constraint firstItem="kIT-TR-7aL" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="Uf7-JE-Bre"/>
+                            <constraint firstItem="bUl-1M-8Gz" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="ZzO-px-l7E"/>
                             <constraint firstItem="8B9-Ko-MSM" firstAttribute="top" secondItem="kIT-TR-7aL" secondAttribute="bottom" id="cx7-Zx-P7O"/>
                             <constraint firstItem="Fbz-n0-wHq" firstAttribute="top" secondItem="8B9-Ko-MSM" secondAttribute="bottom" id="oNN-NN-3a5"/>
                             <constraint firstItem="kIT-TR-7aL" firstAttribute="trailing" secondItem="vDu-zF-Fre" secondAttribute="trailing" id="tdb-oj-SmU"/>
                             <constraint firstItem="kIT-TR-7aL" firstAttribute="top" secondItem="vDu-zF-Fre" secondAttribute="top" id="tfk-BN-ROB"/>
+                            <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="bUl-1M-8Gz" secondAttribute="trailing" id="uML-Bo-2Ln"/>
                             <constraint firstAttribute="bottom" secondItem="Fbz-n0-wHq" secondAttribute="bottom" id="uYJ-ot-eah"/>
                             <constraint firstItem="Fbz-n0-wHq" firstAttribute="trailing" secondItem="vDu-zF-Fre" secondAttribute="trailing" id="y49-3S-kuL"/>
                         </constraints>
@@ -104,6 +131,8 @@
                         <outlet property="closeButtonTrailingConstraint" destination="nLB-Z6-iWe" id="tkz-5F-5yx"/>
                         <outlet property="collectionView" destination="Fbz-n0-wHq" id="G6z-j0-1b8"/>
                         <outlet property="navigationBar" destination="kIT-TR-7aL" id="JIu-en-QW3"/>
+                        <outlet property="noBookmarkView" destination="OWg-aO-lHw" id="mcb-YD-oVe"/>
+                        <outlet property="noVideosFoundView" destination="bUl-1M-8Gz" id="jXn-Yb-gQY"/>
                         <outlet property="searchBar" destination="9BH-Kg-GDp" id="po0-gZ-rVo"/>
                         <outlet property="searchContainer" destination="8B9-Ko-MSM" id="4aU-Ue-aBF"/>
                         <outlet property="searchContainerTopConstraint" destination="cx7-Zx-P7O" id="5Lb-Bp-FS0"/>
@@ -117,6 +146,9 @@
     <resources>
         <image name="magnifyingglass" catalog="system" width="128" height="117"/>
         <image name="xmark.app.fill" catalog="system" width="128" height="114"/>
+        <namedColor name="AccentColor">
+            <color red="0.0" green="0.46000000000000002" blue="0.89000000000000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
         <namedColor name="Background">
             <color red="0.98039215686274506" green="0.98039215686274506" blue="0.98039215686274506" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>

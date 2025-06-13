@@ -14,18 +14,22 @@ enum VideoListType {
     case playback(entities: [PlaybackHistoryEntity])
     /// 재생 목록에 기반한 비디오 목록
     case playlist(title: String, entities: [PlaylistVideoEntity], isBookmark: Bool)
-
 }
 
-final class VideoListViewController: StoryboardViewController {
+final class VideoListViewController: StoryboardViewController, VideoPlayable {
 
     typealias PlaylistDiffableDataSource = UICollectionViewDiffableDataSource<VideoList.Section, VideoList.Item>
 
     var videos: VideoListType?
+    var observation: NSKeyValueObservation?
     private let coreDataService = CoreDataService.shared
+    private let videoCacher = DefaultVideoCacher()
 
     private var dataSource: PlaylistDiffableDataSource? = nil
 
+    @IBOutlet weak var noBookmarkView: ContentUnavailableView!
+    @IBOutlet weak var noVideosFoundView: ContentUnavailableView!
+    
     @IBOutlet weak var closeButton: UIButton!
     @IBOutlet weak var navigationBar: NavigationBar!
     @IBOutlet weak var collectionView: UICollectionView!
@@ -41,16 +45,14 @@ final class VideoListViewController: StoryboardViewController {
     private var playlistVideoFetchedResultsController: NSFetchedResultsController<PlaylistVideoEntity>? = nil
 
     // MARK: - Lifecycles
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
         setupFetchedResultsController()
         setupDataSource()
-        
-        collectionView.collectionViewLayout = createCompositionalLayout()
     }
-    
+
     @IBAction func didTapCloseButton(_ sender: Any) {
         searchBar.text = nil
         searchBar.endEditing(true)
@@ -62,14 +64,17 @@ final class VideoListViewController: StoryboardViewController {
         super.setupAttributes()
 
         setupNavigationBar()
+        
+        noBookmarkView.alpha = 0.0
+        noVideosFoundView.alpha = 0.0
         searchBar.apply {
             $0.delegate = self
             $0.placeholder = "검색어를 입력하세요."
         }
+        collectionView.collectionViewLayout = createCompositionalLayout()
         closeButtonTrailingConstraint.constant = -50
     }
 
-    // TODO: - 네비게이션 바에서 오른쪽 버튼 사라지게 하기
     private func setupNavigationBar() {
         let leftIcon = UIImage(systemName: "arrow.left")
         let rightIcon = UIImage(systemName: "trash")
@@ -82,14 +87,16 @@ final class VideoListViewController: StoryboardViewController {
                 rightIcon: rightIcon,
                 rightIconTint: .systemRed
             )
+            navigationBar.hideRightButton()
         case let .playlist(title, _, _):
             navigationBar.configure(
                 title: title,
                 leftIcon: leftIcon,
                 leftIconTint: .mainLabelColor,
-                rightIcon: rightIcon, // rightIcon이 없으면 버튼이 표시 x
+                rightIcon: rightIcon,
                 rightIconTint: .systemRed
             )
+            navigationBar.hideRightButton()
         default:
             break
         }
@@ -142,33 +149,40 @@ final class VideoListViewController: StoryboardViewController {
         }
     }
 
-    // TODO: - 각 셀을 클릭하면 동영상 띄우게 하기
-    // TODO: - 레이아웃 임시값 수치 수정하기
     private func createCompositionalLayout() -> UICollectionViewCompositionalLayout {
         let sectionProvider: UICollectionViewCompositionalLayoutSectionProvider = { [weak self] sectionIndex, environment in
 
-            let itemWidthDimension: NSCollectionLayoutDimension = environment.isHorizontalSizeClassCompact
-            ? .fractionalWidth(1.0) : .fractionalWidth(0.33)
+            let itemWidthDimension: NSCollectionLayoutDimension = switch environment.container.effectiveContentSize.width {
+            case ..<500:      .fractionalWidth(1.0)  // 아이폰 세로모드
+            case 500..<1000:  .fractionalWidth(0.5)  // 아이패드 세로 모드
+            default:          .fractionalWidth(0.33) // 아이패드 가로 모드
+            }
             let itemSize = NSCollectionLayoutSize(
-                widthDimension: itemWidthDimension, // 임시 값
-                heightDimension: .absolute(100) // 임시 값
+                widthDimension: itemWidthDimension,
+                heightDimension: .absolute(100)
             )
             let item = NSCollectionLayoutItem(layoutSize: itemSize)
 
-            let columnCount = environment.isHorizontalSizeClassCompact ? 1 : 3
+            let columnCount = switch environment.container.effectiveContentSize.width {
+            case ..<500:      1 // 아이폰 세로모드
+            case 500..<1000:  2 // 아이패드 세로 모드
+            default:          3 // 아이패드 가로 모드
+            }
             let groupSize = NSCollectionLayoutSize(
-                widthDimension: .fractionalWidth(1.0), // 임시 값
-                heightDimension: .absolute(100) // 임시 값
+                widthDimension: .fractionalWidth(1.0),
+                heightDimension: .absolute(100)
             )
             let group = NSCollectionLayoutGroup.horizontal(
                 layoutSize: groupSize,
                 repeatingSubitem: item,
                 count: columnCount
             )
-            group.interItemSpacing = .flexible(8) // 임시 값
+            group.interItemSpacing = .fixed(8)
+            group.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 8, bottom: 0, trailing: 8)
 
             let section = NSCollectionLayoutSection(group: group)
-            section.interGroupSpacing = 8 // 임시 값
+            section.interGroupSpacing = 8
+            section.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 0)
 
             if case .playback(_) = self?.videos {
                 let headerSize = NSCollectionLayoutSize(
@@ -218,10 +232,11 @@ extension VideoListViewController {
 
         applySnapshot(query: nil)
     }
-    // TODO: - 북마크 재생목록인 경우, 버튼 구성 달리하기
+
     private func createVideoCellRagistration() -> UICollectionView.CellRegistration<MediumVideoCell, VideoList.Item> {
         UICollectionView.CellRegistration<MediumVideoCell, VideoList.Item>(cellNib: MediumVideoCell.nib) { [weak self] cell, indexPath, item in
             var viewModel: MediumVideoViewModel
+            
             switch item {
             case .playback(let entity):
                 viewModel = MediumVideoViewModel(
@@ -231,6 +246,27 @@ extension VideoListViewController {
                     duration: Int(entity.duration),
                     thumbnailUrl: entity.video?.medium.thumbnail
                 )
+                cell.configureMenu(
+                    deleteAction: { [weak self] in
+                        guard let self = self else { return }
+                        // 삭제 처리 코드
+                        self.showDeleteAlert(
+                            "재생 목록 전체 삭제",
+                            message: "정말 전체 재생목록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
+                            onConfirm: { _ in
+                                do {
+                                    try CoreDataService.shared.deleteAll(PlaybackHistoryEntity.self)
+
+                                    print("모든 Video 엔티티가 삭제되었습니다.")
+                                } catch {
+                                    print("삭제 중 오류 발생: \(error)")
+                                }
+                            },
+                            onCancel: { _ in
+                            }
+                        )
+                    }
+                )
             case .playlist(let entity):
                 viewModel = MediumVideoViewModel(
                     tags: entity.tags,
@@ -239,36 +275,51 @@ extension VideoListViewController {
                     duration: Int(entity.duration),
                     thumbnailUrl: entity.video?.medium.thumbnail
                 )
-            
-            }
-            cell.delegate = self
-            cell.configure(viewModel)
-            cell.configureMenu(
-                deleteAction: { [weak self] in
-                    guard let self = self else { return }
-                    // 삭제 처리 코드
-                    self.showDeleteAlert(
-                        "재생 목록 전체 삭제",
-                        message: "정말 전체 재생목록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
-                        onConfirm: { _ in
 
-                        },
-                        onCancel: { _ in
-                        }
-                    )
+                if case let .playlist(name, _, _) = self?.videos {
+                    if name == CoreDataString.bookmarkedPlaylistName {
+                        cell.isBookMark = true
+                    } else {
+                        cell.configureMenu(
+                            deleteAction: { [weak self] in
+                                guard let self = self else { return }
+                                // 삭제 처리 코드
+                                self.showDeleteAlert(
+                                    "플레이리스트 전체 삭제",
+                                    message: "정말 전체 플레이리스트를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
+                                    onConfirm: { _ in
+                                        do {
+                                            guard case let .playlist(name, _, _) = self.videos else { return }
+                                            try CoreDataService.shared.deleteAll(PlaylistEntity.self, name: name)
+                                            print("모든 Video 엔티티가 삭제되었습니다.")
+                                        } catch {
+                                            print("삭제 중 오류 발생: \(error)")
+                                        }
+                                    },
+                                    onCancel: { _ in
+                                    }
+                                )
+                            }
+                        )
+                    }
                 }
-            )
-
+            }
+            
             if case let .playlist(_, _, isBookmark) = self?.videos {
                 cell.isBookMark = isBookmark
+            } else {
+                cell.isBookMark = false
             }
+            
+            cell.configure(viewModel)
+            cell.delegate = self
         }
     }
 
     private func createHeaderRagistration() -> UICollectionView.SupplementaryRegistration<HeaderReusableView> {
         UICollectionView.SupplementaryRegistration<HeaderReusableView>(supplementaryNib: HeaderReusableView.nib, elementKind: HeaderReusableView.id) { supplementaryView, elementKind, indexPath in
             guard let section = self.dataSource?.sectionIdentifier(for: indexPath.section),
-            let createdAt = section.name else { return }
+                  let createdAt = section.name else { return }
             supplementaryView.configure(title: createdAt)
         }
     }
@@ -293,15 +344,7 @@ extension VideoListViewController {
         let filtered = appendPlaylistItem(at: &snapshot, entities: entities, query: query)
         dataSource?.apply(snapshot, animatingDifferences: true)
 
-        // 재생 목록이 비어있으면
-        if entities.isEmpty {
-            // TODO: - ContentUnavailableView 출력하기
-        }
-
-        // 검색 결과가 비어있으면
-        if filtered.isEmpty {
-            // TODO: - ContentUnavailableView 출력하기
-        }
+        showContentUnavailableViewIfNeeded(entities, filtered)
     }
 
     private func appendPlaylistItem(
@@ -370,18 +413,25 @@ extension VideoListViewController {
     }
 
     private func showContentUnavailableViewIfNeeded<T, U>(_ entities: [T], _ filtered: [U]) {
-        // 재생 목록이 비어있으면
-        if entities.isEmpty {
-            // TODO: - ContentUnavailableView 출력하기
-        }
-
-        // 검색 결과가 비어있으면
-        if filtered.isEmpty {
-            // TODO: - ContentUnavailableView 출력하기
+        print(entities.isEmpty, filtered.isEmpty)
+        
+        UIView.animate(withDuration: 0.25, delay: 0.25) {
+            // 재생 목록이 비어있으면
+            if entities.isEmpty {
+                self.noBookmarkView.alpha = 1.0
+                self.noVideosFoundView.alpha = 0.0
+            // 검색 결과가 비어있으면
+            } else if filtered.isEmpty {
+                self.noBookmarkView.alpha = 0.0
+                self.noVideosFoundView.alpha = 1.0
+            } else {
+                self.noBookmarkView.alpha = 0.0
+                self.noVideosFoundView.alpha = 0.0
+            }
         }
     }
-
 }
+
 
 // MARK: - NSFetchedResultsControllerDelegate
 
@@ -401,14 +451,25 @@ extension VideoListViewController: UICollectionViewDelegate {
         _ collectionView: UICollectionView,
         didSelectItemAt indexPath: IndexPath
     ) {
+        guard let item = dataSource?.itemIdentifier(for: indexPath) else { return }
+
+        if case let .playback(entity) = item,
+           let videoUrl = entity.video?.medium.url {
+            playVideo(from: videoUrl)
+        }
+
+        if case let .playlist(entity) = item,
+           let videoUrl = entity.video?.medium.url{
+            playVideo(from: videoUrl)
+        }
     }
-    
+
     func collectionView(
         _ collectionView: UICollectionView,
         didHighlightItemAt indexPath: IndexPath
     ) {
     }
-    
+
     func collectionView(
         _ collectionView: UICollectionView,
         didUnhighlightItemAt indexPath: IndexPath
@@ -470,18 +531,16 @@ extension VideoListViewController: NavigationBarDelegate {
     }
 }
 
-
-
 // MARK: - MediumVideoButtonDelegate
 
 extension VideoListViewController: MediumVideoButtonDelegate {
-    
+
     func deleteAction(_ collectionViewCell: UICollectionViewCell) {
         guard let indexPath = collectionView.indexPath(for: collectionViewCell),
               let item = dataSource?.itemIdentifier(for: indexPath) else {
             return
         }
-        
+
         switch item {
         case .playlist(let playlistVideoEntity):
             CoreDataService.shared.delete(playlistVideoEntity)
@@ -491,16 +550,3 @@ extension VideoListViewController: MediumVideoButtonDelegate {
     }
 }
 
-//extension VideoListViewController: MediumVideoButtonDelegate {
-//    func deleteAction(_ collectionViewCell: UICollectionViewCell) {
-//        self.showDeleteAlert(
-//            "재생 목록 삭제",
-//            message: "정말 이 재생목록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
-//            onConfirm: { _ in
-//
-//            },
-//            onCancel: { _ in
-//            }
-//        )
-//    }
-//}

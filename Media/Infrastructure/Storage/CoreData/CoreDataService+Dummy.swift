@@ -37,9 +37,10 @@ extension CoreDataService {
     private func generatePlaylistEntity() -> [PlaylistEntity] {
         let names = ["북마크를 표시한 재생목록", "재생목록1", "재생목록2", "재생목록3"]
 
-        let playlists: [PlaylistEntity] = names.map {
+        let playlists: [PlaylistEntity] = names.enumerated().map { index, name in
             let playlist = PlaylistEntity(context: self.viewContext)
-            playlist.name = $0
+            playlist.name = name
+            playlist.isBookmark = (index == 0)
             playlist.createdAt = Date().addingTimeInterval(86_400 * Double.random(in: -10...0))
             PixabayResponse.mock.hits.map {
                 let video = $0.mapToPlaylistVideoEntity(insertInto: self.viewContext)

@@ -5,13 +5,14 @@
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="Stack View standard spacing" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--Onboarding Image View Controller-->
+        <!--On Boarding Image View Controller-->
         <scene sceneID="s0d-6b-0kx">
             <objects>
-                <viewController id="Y6W-OH-hqX" customClass="OnboardingImageViewController" customModule="Media" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="OnboardingVC" id="Y6W-OH-hqX" customClass="OnBoardingImageViewController" customModule="Media" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="5EZ-qb-Rvc">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -40,8 +41,8 @@
                                     </constraint>
                                 </constraints>
                             </imageView>
-                            <stackView opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" axis="vertical" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="ubn-Hr-hC0">
-                                <rect key="frame" x="89.000000000000014" y="566" width="215.33333333333337" height="106"/>
+                            <stackView opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" axis="vertical" spacingType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="ubn-Hr-hC0">
+                                <rect key="frame" x="89.000000000000014" y="551" width="215.33333333333337" height="104"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Welcome!" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ZMJ-tN-0ph">
                                         <rect key="frame" x="0.0" y="0.0" width="215.33333333333334" height="48"/>
@@ -49,35 +50,35 @@
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                         <variation key="heightClass=regular-widthClass=regular">
-                                            <fontDescription key="fontDescription" type="boldSystem" pointSize="50"/>
+                                            <fontDescription key="fontDescription" type="boldSystem" pointSize="60"/>
                                         </variation>
                                     </label>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" textAlignment="center" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Qdh-5j-l2I">
-                                        <rect key="frame" x="0.0" y="58" width="215.33333333333334" height="48"/>
+                                        <rect key="frame" x="0.0" y="56" width="215.33333333333334" height="48"/>
                                         <string key="text">Your personalized
 video world starts here.</string>
                                         <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="20"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                         <variation key="heightClass=regular-widthClass=regular">
-                                            <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="30"/>
+                                            <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="40"/>
                                         </variation>
                                     </label>
                                 </subviews>
                             </stackView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="vDu-zF-Fre"/>
-                        <color key="backgroundColor" name="Background"/>
+                        <color key="backgroundColor" name="OnboardingBackground"/>
                         <constraints>
+                            <constraint firstItem="NQ1-xI-WMX" firstAttribute="top" secondItem="ubn-Hr-hC0" secondAttribute="bottom" constant="39" id="11j-6s-058"/>
                             <constraint firstItem="vDu-zF-Fre" firstAttribute="bottom" secondItem="NQ1-xI-WMX" secondAttribute="bottom" constant="30" id="5vR-cy-Ldw"/>
                             <constraint firstItem="NQ1-xI-WMX" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" constant="16" id="HhI-Ej-gLc"/>
                             <constraint firstItem="a5H-sD-mbg" firstAttribute="centerY" secondItem="5EZ-qb-Rvc" secondAttribute="centerY" constant="-80" id="WBf-ur-799"/>
                             <constraint firstItem="a5H-sD-mbg" firstAttribute="centerX" secondItem="5EZ-qb-Rvc" secondAttribute="centerX" id="WPZ-TG-ByZ"/>
                             <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="ubn-Hr-hC0" secondAttribute="trailing" constant="88.670000000000002" id="bw1-KA-NYf"/>
                             <constraint firstItem="ubn-Hr-hC0" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" constant="89" id="iXa-sA-vDK"/>
-                            <constraint firstItem="ubn-Hr-hC0" firstAttribute="top" secondItem="a5H-sD-mbg" secondAttribute="bottom" constant="20" id="nXT-sg-hOI"/>
+                            <constraint firstItem="ubn-Hr-hC0" firstAttribute="top" secondItem="a5H-sD-mbg" secondAttribute="bottom" constant="5" id="nXT-sg-hOI"/>
                             <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="NQ1-xI-WMX" secondAttribute="trailing" constant="16" id="pDh-3g-jRR"/>
-                            <constraint firstItem="NQ1-xI-WMX" firstAttribute="top" secondItem="ubn-Hr-hC0" secondAttribute="bottom" constant="22" id="sX7-0R-uuZ"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="h9h-YI-ne7"/>
@@ -116,8 +117,8 @@ video world starts here.</string>
     </scenes>
     <resources>
         <image name="onboarding" width="512" height="768"/>
-        <namedColor name="Background">
-            <color red="0.98039215686274506" green="0.98039215686274506" blue="0.98039215686274506" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        <namedColor name="OnboardingBackground">
+            <color red="0.9882352941176471" green="0.96862745098039216" blue="0.94117647058823528" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="Primary">
             <color red="0.29803921568627451" green="0.36078431372549019" blue="0.36078431372549019" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>

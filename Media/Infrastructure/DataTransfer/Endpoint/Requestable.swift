@@ -57,6 +57,7 @@ extension Requestable {
             guard let url = URL(string: baseUrl) else {
                 throw RequestGenerationError.components
             }
+            return url
         }
 
         //

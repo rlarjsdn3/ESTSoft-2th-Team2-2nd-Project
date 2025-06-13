@@ -35,7 +35,7 @@ final class VideoCell: UICollectionViewCell, NibLodable {
     override func awakeFromNib() {
         super.awakeFromNib()
 
-        thumbnailImage.contentMode = .scaleAspectFit
+        thumbnailImage.contentMode = .scaleAspectFill
         thumbnailImage.clipsToBounds = true
 
         profileImage.contentMode = .scaleAspectFill
@@ -112,7 +112,7 @@ final class VideoCell: UICollectionViewCell, NibLodable {
         if let thumbnailURL = viewModel.thumbnailURL {
             loadImage(from: thumbnailURL, into: thumbnailImage)
         } else {
-            thumbnailImage.image = nil
+            thumbnailImage.image = UIImage(named: "no_videos")
         }
         if let profileURL = viewModel.profileImageURL {
             loadImage(from: profileURL, into: profileImage)

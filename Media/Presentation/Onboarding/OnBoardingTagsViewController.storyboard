@@ -20,7 +20,7 @@
                         <subviews>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="1uu-2b-HNG" userLabel="Tags Collection View">
                                 <rect key="frame" x="0.0" y="160" width="393" height="514"/>
-                                <color key="backgroundColor" name="Background"/>
+                                <color key="backgroundColor" name="OnboardingBackground"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" automaticEstimatedItemSize="YES" minimumLineSpacing="10" minimumInteritemSpacing="10" id="VxO-ZB-wqM">
                                     <size key="itemSize" width="348" height="307"/>
                                     <size key="headerReferenceSize" width="0.0" height="0.0"/>
@@ -85,34 +85,42 @@
                                     <action selector="selectedTagButton:" destination="Y6W-OH-hqX" eventType="touchUpInside" id="Kvs-b1-wBF"/>
                                 </connections>
                             </button>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Choose an interesting topic" textAlignment="center" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mi6-AG-fEJ">
-                                <rect key="frame" x="25" y="90" width="343" height="30"/>
-                                <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="25"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Please select more than 3 categories" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zdw-fa-8tm">
-                                <rect key="frame" x="56" y="130" width="281" height="21"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" systemColor="secondaryLabelColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="LAS-kj-GQ9">
+                                <rect key="frame" x="42" y="85" width="309.66666666666669" height="60.333333333333343"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Choose an interesting topic" textAlignment="center" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mi6-AG-fEJ">
+                                        <rect key="frame" x="0.0" y="0.0" width="309.66666666666669" height="30"/>
+                                        <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="25"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                        <variation key="heightClass=regular-widthClass=regular">
+                                            <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="40"/>
+                                        </variation>
+                                    </label>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Please select more than 3 categories" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zdw-fa-8tm">
+                                        <rect key="frame" x="14.333333333333343" y="40" width="281" height="20.333333333333329"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <color key="textColor" systemColor="secondaryLabelColor"/>
+                                        <nil key="highlightedColor"/>
+                                        <variation key="heightClass=regular-widthClass=regular">
+                                            <fontDescription key="fontDescription" type="system" pointSize="27"/>
+                                        </variation>
+                                    </label>
+                                </subviews>
+                            </stackView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="vDu-zF-Fre"/>
-                        <color key="backgroundColor" name="Background"/>
+                        <color key="backgroundColor" name="OnboardingBackground"/>
                         <constraints>
                             <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="U5W-G9-zzg" secondAttribute="trailing" constant="16" id="2aO-Nk-9Y3"/>
                             <constraint firstItem="vDu-zF-Fre" firstAttribute="bottom" secondItem="U5W-G9-zzg" secondAttribute="bottom" constant="40" id="7ot-ET-EY3"/>
-                            <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="mi6-AG-fEJ" secondAttribute="trailing" constant="25" id="C5k-Xg-LAO"/>
+                            <constraint firstItem="LAS-kj-GQ9" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" constant="42" id="Bf2-r0-CbA"/>
                             <constraint firstItem="U5W-G9-zzg" firstAttribute="top" secondItem="1uu-2b-HNG" secondAttribute="bottom" constant="10" id="EaX-wk-f5T"/>
-                            <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="zdw-fa-8tm" secondAttribute="trailing" constant="56" id="Ha0-cD-b3l"/>
                             <constraint firstItem="1uu-2b-HNG" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="LAR-dU-1mm"/>
-                            <constraint firstItem="mi6-AG-fEJ" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" constant="25" id="NU3-3Q-ZVN"/>
-                            <constraint firstItem="1uu-2b-HNG" firstAttribute="top" secondItem="mi6-AG-fEJ" secondAttribute="bottom" constant="40" id="RMw-YG-5iT"/>
-                            <constraint firstItem="zdw-fa-8tm" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" constant="56" id="gNb-Un-ZcO"/>
-                            <constraint firstItem="zdw-fa-8tm" firstAttribute="top" secondItem="mi6-AG-fEJ" secondAttribute="bottom" constant="10" id="i9V-uS-ur6"/>
+                            <constraint firstItem="LAS-kj-GQ9" firstAttribute="top" secondItem="5EZ-qb-Rvc" secondAttribute="top" constant="85" id="OtZ-wX-ib2"/>
+                            <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="LAS-kj-GQ9" secondAttribute="trailing" constant="41.329999999999998" id="ZTi-69-AIa"/>
                             <constraint firstItem="1uu-2b-HNG" firstAttribute="trailing" secondItem="vDu-zF-Fre" secondAttribute="trailing" id="mAr-RC-PSW"/>
-                            <constraint firstItem="mi6-AG-fEJ" firstAttribute="top" secondItem="5EZ-qb-Rvc" secondAttribute="top" constant="90" id="reK-si-MvQ"/>
+                            <constraint firstItem="1uu-2b-HNG" firstAttribute="top" secondItem="LAS-kj-GQ9" secondAttribute="bottom" constant="14.67" id="t1F-3d-Kvo"/>
                             <constraint firstItem="U5W-G9-zzg" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" constant="16" id="wbS-4L-18A"/>
                         </constraints>
                     </view>
@@ -130,6 +138,9 @@
         <image name="square.and.arrow.up" catalog="system" width="110" height="128"/>
         <namedColor name="Background">
             <color red="0.98039215686274506" green="0.98039215686274506" blue="0.98039215686274506" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="OnboardingBackground">
+            <color red="0.9882352941176471" green="0.96862745098039216" blue="0.94117647058823528" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="Primary">
             <color red="0.29803921568627451" green="0.36078431372549019" blue="0.36078431372549019" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>

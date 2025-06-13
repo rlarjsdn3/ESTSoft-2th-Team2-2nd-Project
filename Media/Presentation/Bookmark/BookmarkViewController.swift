@@ -8,9 +8,11 @@
 import UIKit
 import CoreData
 
-final class BookmarkViewController: StoryboardViewController {
+final class BookmarkViewController: StoryboardViewController, VideoPlayable {
 
     private typealias BookmarkDiffableDataSource = UICollectionViewDiffableDataSource<Bookmark.Section, Bookmark.Item>
+
+    var observation: NSKeyValueObservation? = nil
 
     private let userDefaultsService = UserDefaultsService.shared
     private let coreDataService = CoreDataService.shared
@@ -24,9 +26,9 @@ final class BookmarkViewController: StoryboardViewController {
     private var playlistFetchedResultsController: NSFetchedResultsController<PlaylistEntity>? = nil
     private var playlistVideoFetchedResultsController: NSFetchedResultsController<PlaylistVideoEntity>? = nil
 
-    
+
     // MARK: - Lifecycles
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -44,10 +46,12 @@ final class BookmarkViewController: StoryboardViewController {
                       let playlistVideos = playlistEntity.playlistVideos?.allObjects as? [PlaylistVideoEntity] else {
                     return
                 }
-                playlistVC.videos = playlistEntity.isBookmark
-                ? .playlist(title: playlistEntity.name, entities: playlistVideos, isBookmark: true)
-                : .playlist(title: playlistEntity.name, entities: playlistVideos, isBookmark: false)
-
+                
+                playlistVC.videos = .playlist(
+                    title: playlistEntity.name,
+                    entities: playlistVideos,
+                    isBookmark: playlistEntity.isBookmark
+                )
             } else {
                 guard let playbackVideos = playbackFetchedResultsController?.fetchedObjects else { return }
                 playlistVC.videos = .playback(entities: playbackVideos)
@@ -129,6 +133,10 @@ extension BookmarkViewController {
                     tags: playback.tags
 
                 )
+                cell.onThumbnailTap = { [weak self] in
+                    guard let url = playback.video?.medium.url else { return }
+                    self?.playVideo(from: url)
+                }
                 cell.configure(with: viewModel)
             }
         }
@@ -149,7 +157,7 @@ extension BookmarkViewController {
                         userName: playlist.name,
                         total: totalVideos
                     )
-                // 대표 이미지가 없다면 이미지를 빼고 재생 목록 셀 구성
+                    // 대표 이미지가 없다면 이미지를 빼고 재생 목록 셀 구성
                 } else {
                     viewModel = PlayListViewModel(
                         userName: playlist.name,
@@ -194,10 +202,10 @@ extension BookmarkViewController {
     private func appendPlaybackItems(to snapshot: inout NSDiffableDataSourceSnapshot<Bookmark.Section, Bookmark.Item>) {
         guard let playback = playbackFetchedResultsController?.fetchedObjects,
               !playback.isEmpty else { return }
-        let items = playback.map { Bookmark.Item.playback($0) }
+        let items = playback.map { Bookmark.Item.playback($0) }.prefix(10)
         let section = Bookmark.Section(type: .playback)
         snapshot.appendSections([section])
-        snapshot.appendItems(items, toSection: section)
+        snapshot.appendItems(Array(items), toSection: section)
     }
 
     private func appendPlaylistItems(to snapshot: inout NSDiffableDataSourceSnapshot<Bookmark.Section, Bookmark.Item>) {
@@ -244,7 +252,7 @@ extension BookmarkViewController {
             cacheName: nil
         )
         playlistVideoFetchedResultsController?.delegate = self
-        
+
         do {
             try playlistFetchedResultsController?.performFetch()
             try playbackFetchedResultsController?.performFetch()
@@ -314,11 +322,11 @@ extension BookmarkViewController: UICollectionViewDelegate {
         _ collectionView: UICollectionView,
         didSelectItemAt indexPath: IndexPath
     ) {
-        guard let item = self.dataSource?.itemIdentifier(for: indexPath) else { return }
+        guard let item = dataSource?.itemIdentifier(for: indexPath) else { return }
 
         switch item {
         case .playback:
-            break // TODO: - 셀을 클릭하면 비디오가 출력되도록 코드 수정
+            break
         case .playlist:
             performSegue(
                 withIdentifier: "navigateToPlaylistVideos",
@@ -378,7 +386,7 @@ extension BookmarkViewController: HeaderButtonDelegate {
 // MARK: - Extension
 
 extension BookmarkViewController {
-    
+
     private func showAddPlaylistAlert() {
 
         showTextFieldAlert(
@@ -393,7 +401,7 @@ extension BookmarkViewController {
                 } else {
                     Toast.makeToast("이미 존재하는 재생 목록 이름입니다.").present()
                 }
-        } onCancel: { _ in }
+            } onCancel: { _ in }
     }
 
     private func renamePlaylistAction(for indexPath: IndexPath) -> UIAction {
