@@ -7,7 +7,7 @@
 
 import UIKit
 
-class OnboardingImageViewController: StoryboardViewController {
+class OnBoardingImageViewController: StoryboardViewController {
     
     
     override func viewDidLoad() {

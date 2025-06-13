@@ -7,21 +7,14 @@
 
 import UIKit
 
-extension Notification.Name {
-    static let didSelectedCategories = Notification.Name("didSelectedCategories")
-}
-
 class SelectedTagsViewController: StoryboardViewController {
-
+    
     @IBOutlet weak var tagsCollectionView: UICollectionView!
     
     @IBOutlet weak var selectedTagsButton: UIButton!
     
     @IBAction func selectedTagsButton(_ sender: Any) {
-//        selectedCategories = selectIndexPath.map { tags[$0.item] }
-        
         TagsDataManager.shared.deleteAll()
-//        TagsDataManager.shared.saveSeletedCategories(category: selectedCategories)
         
         for category in selectedCategories {
             TagsDataManager.shared.save(category: category)
@@ -42,12 +35,40 @@ class SelectedTagsViewController: StoryboardViewController {
         
     }
     
-    
     let tags: [Category] = Category.allCases
     
     var selectIndexPath: Set<IndexPath> = []
     
     var selectedCategories: [Category] = []
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        selectedCategories = TagsDataManager.shared.fetchSeletedCategories()
+        
+        for (index, tag) in tags.enumerated() {
+            if selectedCategories.contains(tag) {
+                let indexPath = IndexPath(item: index, section: 0)
+                selectIndexPath.insert(indexPath)
+            }
+        }
+        
+        setUpLayout()
+        
+        tagsCollectionView.allowsMultipleSelection = true
+        tagsCollectionView.allowsSelection = true
+        tagsCollectionView.delegate = self
+        
+        // 실제 셀 선택이 반영되도록 메인 스레드에서 업데이트
+        DispatchQueue.main.async {
+            for indexPath in self.selectIndexPath {
+                self.tagsCollectionView.selectItem(at: indexPath, animated: false, scrollPosition: [])
+            }
+        }
+        
+        buttonIsEnabled()
+        
+    }
     
     func setUpLayout() {
         // item 사이즈
@@ -78,38 +99,15 @@ class SelectedTagsViewController: StoryboardViewController {
         let layout = UICollectionViewCompositionalLayout(section: section)
         tagsCollectionView.collectionViewLayout = layout
     }
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-
-       selectedCategories = TagsDataManager.shared.fetchSeletedCategories()
-        
-        for (index, tag) in tags.enumerated() {
-            if selectedCategories.contains(tag) {
-                let indexPath = IndexPath(item: index, section: 0)
-                selectIndexPath.insert(indexPath)
-            }
-        }
-        
-        setUpLayout()
-        
-        tagsCollectionView.allowsMultipleSelection = true
-        tagsCollectionView.allowsSelection = true
-        tagsCollectionView.delegate = self
-       
-        buttonIsEnabled()
-        
-    }
     
-    // 셀이 1개 이상 선택되면 버튼 활성화
+    // 셀이 3개 이상 선택되면 버튼 활성화
     func buttonIsEnabled() {
-        if selectIndexPath.count >= 1 {
+        if selectIndexPath.count >= 3 {
             selectedTagsButton.isEnabled = true
         } else {
             selectedTagsButton.isEnabled = false
         }
     }
-    
 }
 
 extension SelectedTagsViewController: UICollectionViewDataSource {
@@ -130,7 +128,7 @@ extension SelectedTagsViewController: UICollectionViewDataSource {
         
         cell.tagsTitle.text = target.rawValue.capitalized
         cell.tagsImageView.image = target.symbolImage
-
+        
         return cell
     }
 }
@@ -146,11 +144,11 @@ extension SelectedTagsViewController: UICollectionViewDelegate {
             } onCancel: { _ in
                 self.dismiss(animated: true)
             }
-
+            
             collectionView.deselectItem(at: indexPath, animated: false)
             return
         }
-
+        
         selectIndexPath.insert(indexPath)
         selectedCategories = selectIndexPath.map { tags[$0.item] }
         
@@ -160,7 +158,7 @@ extension SelectedTagsViewController: UICollectionViewDelegate {
             cell.contentView.backgroundColor = .tagSelected
         }
         
-       buttonIsEnabled()
+        buttonIsEnabled()
     }
     
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
