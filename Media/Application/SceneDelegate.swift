@@ -20,69 +20,26 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
      - 각 탭(Home, Library, Interest, Setting)의 일반 상태와 선택된 상태 이미지 설정
      */
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-        if let windowScene = scene as? UIWindowScene,
-           let window = windowScene.windows.first {
-            let isDark = UserDefaults.standard.bool(forKey: "isDarkMode")
-            window.overrideUserInterfaceStyle = isDark ? .dark : .light
-        }
+        guard let windowScene = scene as? UIWindowScene else { return }
+        applyUserInterfaceStyle(from: windowScene)
         
         if let tapBarController = self.window?.rootViewController as? UITabBarController {
-            // 탭바 외관 설정
-            let appearance = UITabBarAppearance()
-            appearance.configureWithOpaqueBackground()
-            appearance.backgroundColor = UIColor.backgroundColor
-            
-            tapBarController.tabBar.standardAppearance = appearance
-            tapBarController.tabBar.scrollEdgeAppearance = appearance
-            
-            // 선택된 탭 색상
-            tapBarController.tabBar.tintColor = UIColor.primaryColor
-            // 선택되지 않은 탭 색상
-            tapBarController.tabBar.unselectedItemTintColor = UIColor.secondaryLabel
-            
-            // 각 탭의 일반 상태와 선택된 상태 이미지 설정
-            if let tapBarItems = tapBarController.tabBar.items {
-                // Home 탭 설정
-                tapBarItems[0].image = UIImage(systemName: "house")
-                tapBarItems[0].selectedImage = UIImage(systemName: "house.fill")
-                tapBarItems[0].title = "Home"
-                
-                // Library 탭 설정
-                tapBarItems[1].image = UIImage(systemName: "folder")
-                tapBarItems[1].selectedImage = UIImage(systemName: "folder.fill")
-                tapBarItems[1].title = "Library"
-
-                // Interest 탭 설정
-                tapBarItems[2].image = UIImage(systemName: "tag")
-                tapBarItems[2].selectedImage = UIImage(systemName: "tag.fill")
-                tapBarItems[2].title = "Interest"
-
-                // Setting 탭 설정
-                tapBarItems[3].image = UIImage(systemName: "gearshape")
-                tapBarItems[3].selectedImage = UIImage(systemName: "gearshape.fill")
-                tapBarItems[3].title = "Setting"
-            }
+            TabBarConfigurator.configure(tabBarController: tapBarController)
         }
-        
-        guard let _ = (scene as? UIWindowScene) else { return }
-        
+    }
+    
+    /// 사용자 설정에 따라 라이트 / 다크 모드를 적용
+    private func applyUserInterfaceStyle(from windowScene: UIWindowScene) {
+        let isDark = UserDefaults.standard.bool(forKey: "isDarkMode")
+        if let window = windowScene.windows.first {
+            window.overrideUserInterfaceStyle = isDark ? .dark : .light
+        }
     }
 
-    func sceneDidDisconnect(_ scene: UIScene) {
-    }
-
-    func sceneDidBecomeActive(_ scene: UIScene) {
-    }
-
-    func sceneWillResignActive(_ scene: UIScene) {
-    }
-
-    func sceneWillEnterForeground(_ scene: UIScene) {
-    }
-
-    func sceneDidEnterBackground(_ scene: UIScene) {
-    }
-
-
+    func sceneDidDisconnect(_ scene: UIScene) {}
+    func sceneDidBecomeActive(_ scene: UIScene) {}
+    func sceneWillResignActive(_ scene: UIScene) {}
+    func sceneWillEnterForeground(_ scene: UIScene) {}
+    func sceneDidEnterBackground(_ scene: UIScene) {}
 }
 
