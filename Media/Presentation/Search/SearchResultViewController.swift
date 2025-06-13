@@ -15,11 +15,29 @@ final class SearchResultViewController: StoryboardViewController {
 
     private lazy var refreshControl = UIRefreshControl()
     var keyword: String?
-    var getCategories: Category?
-    var getOrder: Order?
-    var getDuration: Duration?
 
     private let dataService: DataTransferService = DefaultDataTransferService()
+    private let userDefaults = UserDefaultsService.shared
+
+    private var selectedCategories: Category? = {
+        let raw: String? = UserDefaultsService.shared[keyPath: \.filterCategories]
+
+        return raw.flatMap { Category(rawValue: $0) }
+    }()
+
+    private var selectedOrder: Order? = {
+        let raw: String? = UserDefaultsService.shared[keyPath: \.filterOrders]
+
+        return raw.flatMap { Order(rawValue: $0) }
+    }()
+
+    private lazy var selectedDuration: Duration? = {
+        let raw: String? = UserDefaultsService.shared[keyPath: \.filterDurations]
+
+        return raw.flatMap { descript in
+            Duration.allCases.first { $0.description == descript }
+        }
+    }()
 
     //페이지네이션 프로퍼티
     private var hits: [PixabayResponse.Hit] = []
@@ -27,6 +45,23 @@ final class SearchResultViewController: StoryboardViewController {
     private let perPage = 20 // 한 페이지당 영상 개수
     private var totalHits = 0 // 전체 결과 수
     private var isLoading = false
+    private var totalPages: Int { // 전체 페이지 수 계산 프로퍼티
+        let pages = Double(totalHits) / Double(perPage)
+        return Int(ceil(pages))
+    }
+
+    //필터 갯수 표현 라벨
+    private lazy var filterLabel: UILabel = {
+        let	label = UILabel()
+    	label.translatesAutoresizingMaskIntoConstraints = false
+    	label.backgroundColor = .systemRed
+    	label.textColor = .white
+    	label.font = .systemFont(ofSize: 10, weight: .bold)
+        label.textAlignment = .center
+    	label.layer.masksToBounds = true
+    	label.isHidden = true
+        return label
+    }()
 
     deinit {
         print("resultVC 메모리 해제")
@@ -35,22 +70,37 @@ final class SearchResultViewController: StoryboardViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        //print(selectedCategories, selectedOrder, selectedDuration)
         videoCollectionView.isHidden = true
         activityIndicator.hidesWhenStopped = true
         activityIndicator.startAnimating()
-        fetchVideos(page: 1, category: getCategories, order: getOrder, duration: getDuration)
+        fetchVideos(page: 1, category: selectedCategories, order: selectedOrder, duration: selectedDuration)
     }
 
     override func setupHierachy() {
         configureSearchBar()
         configureCollectionView()
         configureRefreshControl()
+
+        NSLayoutConstraint.activate([
+            filterLabel.trailingAnchor.constraint(equalTo: navigationBar.rightButton.trailingAnchor, constant: 5),
+            filterLabel.topAnchor.constraint(equalTo: navigationBar.rightButton.topAnchor, constant: -10),
+            filterLabel.widthAnchor.constraint(greaterThanOrEqualToConstant: 15),
+            filterLabel.heightAnchor.constraint(equalToConstant: 15)
+        ])
     }
 
     override func setupAttributes() {
         self.view.backgroundColor = UIColor.background
         self.videoCollectionView.backgroundColor = .clear
+        changeStateOfFilterButton()
     }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        filterLabel.layer.cornerRadius = filterLabel.frame.size.height / 2
+    }
+
 
     // 네비게이션 바 기본 설정
     private func configureSearchBar() {
@@ -65,6 +115,7 @@ final class SearchResultViewController: StoryboardViewController {
             rightIcon: UIImage(systemName: "slider.horizontal.3"),
             isSearchMode: true
         )
+        navigationBar.rightButton.addSubview(filterLabel)
         navigationBar.searchBar.text = keyword
     }
 
@@ -78,24 +129,55 @@ final class SearchResultViewController: StoryboardViewController {
         videoCollectionView.delegate = self
     }
 
+    // 실시간 필터 색 반영하기 위한 userDefault 리로드
+    func reloadSavedFilters() {
+        // 1) 카테고리
+        if let rawCat: String = userDefaults[keyPath: \.filterCategories],
+           let cat = Category(rawValue: rawCat) {
+            selectedCategories = cat
+        } else {
+            selectedCategories = nil
+        }
+
+        // 2) 정렬
+        if let rawOrd: String = userDefaults[keyPath: \.filterOrders],
+           let ord = Order(rawValue: rawOrd) {
+            selectedOrder = ord
+        } else {
+            selectedOrder = nil
+        }
+
+        // 3) 길이
+        if let rawDur: String = userDefaults[keyPath: \.filterDurations],
+           let dur = Duration.allCases.first(where: { $0.description == rawDur }) {
+            selectedDuration = dur
+        } else {
+            selectedDuration = nil
+        }
+    }
+
+    // 필터가 하나라도 켜져 있으면 filterButton색, filterLabel 활성화
+    private func changeStateOfFilterButton() {
+        let count = (selectedCategories != nil ? 1 : 0) + (selectedOrder != nil ? 1 : 0) + (selectedDuration != nil ? 1 : 0)
+        if count > 0 {
+            navigationBar.rightButton.tintColor = .red
+            filterLabel.isHidden = false
+            filterLabel.text = "\(count)"
+        } else {
+            filterLabel.isHidden = true
+        }
+    }
+
     func showSheet() {
         let storyboard = UIStoryboard(name: "SearchFilterViewController", bundle: nil)
         let vc = storyboard.instantiateViewController(
             identifier: "SearchFilterViewController"
         ) as! SearchFilterViewController
 
-        // 콜백
-        vc.onApply = { [weak self] categories, order, duration in
-            guard let self = self else { return }
-            self.getCategories = categories.first
-            self.getOrder = order.first
-            self.getDuration = duration.first
-
-            vc.dismiss(animated: true) {
-                self.activityIndicator.startAnimating()
-                self.videoCollectionView.isHidden = true
-                self.fetchVideos(page: 1, category: self.getCategories, order: self.getOrder, duration: self.getDuration)
-            }
+        vc.onApply = {
+            Toast.makeToast("필터가 적용되었습니다.", systemName: "slider.horizontal.3").present()
+            self.reloadSavedFilters()
+            self.changeStateOfFilterButton()
         }
 
         vc.modalPresentationStyle = .pageSheet
@@ -124,7 +206,7 @@ final class SearchResultViewController: StoryboardViewController {
 
     @objc private func didPullToRefresh() {
         refreshControl.beginRefreshing()
-        fetchVideos(page: 1, category: self.getCategories, order: self.getOrder, duration: self.getDuration)
+        fetchVideos(page: 1, category: selectedCategories, order: selectedOrder, duration: selectedDuration)
     }
 
     private func endRefreshing() {
@@ -177,15 +259,9 @@ final class SearchResultViewController: StoryboardViewController {
                     self.endRefreshing()
 
                     if self.hits.isEmpty {
-                        let label = UILabel()
-                        label.text = "검색 결과가 없습니다."
-                        label.textColor = .secondaryLabel
-                        label.textAlignment = .center
-                        label.font = .systemFont(ofSize: 20)
-                        self.videoCollectionView.backgroundView = label
                         self.noVideoFoundImageView.isHidden = false
                     } else {
-                        self.videoCollectionView.backgroundView = nil
+                        self.noVideoFoundImageView.isHidden = true
                     }
 
                     self.videoCollectionView.isHidden = false
@@ -205,7 +281,6 @@ final class SearchResultViewController: StoryboardViewController {
             }
         }
     }
-
 }
 
 extension SearchResultViewController: UICollectionViewDataSource {
@@ -262,11 +337,22 @@ extension SearchResultViewController: UICollectionViewDataSource {
     }
 
     func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        let oldIndex = hits.count - 5
+        // 마지막 몇 개 앞일 때만 트리거
+        let thresholdIndex = hits.count - 5
 
-        // 5개 나타나면, 다음 페이지 로드
-        if indexPath.item >= oldIndex && hits.count < totalHits {
-            fetchVideos(page: currentPage + 1, category: getCategories, order: getOrder, duration: getDuration)
+        // 요청 할 페이지가 남아있어야 페이지네이션 진행
+        guard currentPage < totalPages else { return }
+
+
+        guard hits.count > 5 else { return }
+
+        if indexPath.item >= thresholdIndex {
+            fetchVideos(
+                page: currentPage + 1,
+                category: selectedCategories,
+                order: selectedOrder,
+                duration: selectedDuration
+            )
         }
     }
 }
@@ -316,9 +402,9 @@ extension SearchResultViewController: UISearchBarDelegate {
 
         fetchVideos(
             page: 1,
-            category: getCategories,
-            order: getOrder,
-            duration: getDuration
+            category: selectedCategories,
+            order: selectedOrder,
+            duration: selectedDuration
         )
     }
 }

@@ -20,21 +20,45 @@ class SearchFilterViewController: StoryboardViewController {
     @IBOutlet weak var filterCategoryCVHeightConstraint: NSLayoutConstraint!
 
     private let categories = Category.allCases
-    var selectedCategories: Set<Category> = []
 
     private let orders = Order.allCases
-   	var selectedOrder: Set<Order> = []
 
     private let durations: [Duration] = Duration.allCases
-    var selectedDuration: Set<Duration> = []
 
-	// 조건 검색을 위한 클로저 프로퍼티
-    var onApply: ((_ categories: Set<Category>,
-                      _ order: Set<Order>,
-                      _ duration: Set<Duration>) -> Void)?
+    private let dataService: DataTransferService = DefaultDataTransferService()
+
+    private var selectedCategories: Category? = {
+        let raw: String? = UserDefaultsService.shared[keyPath: \.filterCategories]
+
+        return raw.flatMap { Category(rawValue: $0) }
+    }()
+
+    private var selectedOrder: Order? = {
+        let raw: String? = UserDefaultsService.shared[keyPath: \.filterOrders]
+
+        return raw.flatMap { Order(rawValue: $0) }
+    }()
+
+    private var selectedDuration: Duration? = {
+        let raw: String? = UserDefaultsService.shared[keyPath: \.filterDurations]
+
+        return raw.flatMap { descript in
+            Duration.allCases.first { $0.description == descript }
+        }
+    }()
+
+    let userDefaults = UserDefaultsService.shared
+
+    var onApply: (() -> Void)?
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        print(selectedCategories, selectedOrder, selectedDuration)
+    }
+
+    deinit {
+        print("filterView 해제")
     }
 
     override func setupHierachy() {
@@ -54,13 +78,83 @@ class SearchFilterViewController: StoryboardViewController {
         filterVideoDurationCollectionView.backgroundColor = .clear
     }
 
+    // 오토 스크롤
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        if let selCat = selectedCategories,
+           let catIdx = categories.firstIndex(of: selCat) {
+            let ip = IndexPath(item: catIdx, section: 0)
+            filterCategoryCollectionView.selectItem(
+                at: ip, animated: false, scrollPosition: []
+            )
+            filterCategoryCollectionView.scrollToItem(
+                at: ip, at: .centeredHorizontally, animated: true
+            )
+        }
+
+        if let selOrd = selectedOrder,
+           let ordIdx = orders.firstIndex(of: selOrd) {
+            let ip = IndexPath(item: ordIdx, section: 0)
+            filterOrderCollectionView.selectItem(
+                at: ip, animated: false, scrollPosition: []
+            )
+            filterOrderCollectionView.scrollToItem(
+                at: ip, at: .centeredHorizontally, animated: true
+            )
+        }
+
+        if let selDur = selectedDuration,
+           let durIdx = durations.firstIndex(of: selDur) {
+            let ip = IndexPath(item: durIdx, section: 0)
+            filterVideoDurationCollectionView.selectItem(
+                at: ip, animated: false, scrollPosition: []
+            )
+            filterVideoDurationCollectionView.scrollToItem(
+                at: ip, at: .centeredHorizontally, animated: true
+            )
+        }
+    }
+
+
     @IBAction func applyButtonTapped(_ sender: UIButton) {
-        onApply?(selectedCategories, selectedOrder, selectedDuration)
+        if selectedCategories != nil {
+            userDefaults.filterCategories = selectedCategories.map { $0.rawValue }
+        } else {
+            userDefaults.clear(forKey: \.filterCategories)
+        }
+
+        if selectedOrder != nil {
+            userDefaults.filterOrders = selectedOrder.map { $0.rawValue }
+        } else {
+            userDefaults.clear(forKey: \.filterOrders)
+        }
+
+        if selectedDuration != nil {
+            userDefaults.filterDurations = selectedDuration.map { $0.description }
+        } else {
+            userDefaults.clear(forKey: \.filterDurations)
+        }
+
+        // 콜백 메서드
+        onApply?()
         dismiss(animated: true)
     }
 
-    @IBAction func cancelButtonTapped(_ sender: UIButton) {
-        self.dismiss(animated: true)
+    @IBAction func initButtonTapped(_ sender: UIButton) {
+        userDefaults.clear(forKey: \.filterCategories)
+        userDefaults.clear(forKey: \.filterOrders)
+        userDefaults.clear(forKey: \.filterDurations)
+
+        selectedCategories = nil
+        selectedOrder = nil
+        selectedDuration = nil
+
+        filterCategoryCollectionView.reloadData()
+        filterOrderCollectionView.reloadData()
+        filterVideoDurationCollectionView.reloadData()
+
+        onApply?()
+        dismiss(animated: true)
     }
 
     private func registerCollectionViews() {
@@ -77,7 +171,6 @@ class SearchFilterViewController: StoryboardViewController {
         filterVideoDurationCollectionView.delegate = self
         filterVideoDurationCollectionView.dataSource = self
     }
-
 }
 
 //MARK: - CollectionView Delegate
@@ -122,6 +215,7 @@ extension SearchFilterViewController: UICollectionViewDataSource {
             let target = orders[indexPath.item]
             cell.defaultCellConfigure()
             cell.orderLabel.text = target.rawValue
+
             return cell
         case filterVideoDurationCollectionView:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FilterVideoDurationCollectionViewCell.id, for: indexPath) as! FilterVideoDurationCollectionViewCell
@@ -129,6 +223,7 @@ extension SearchFilterViewController: UICollectionViewDataSource {
             let target = durations[indexPath.item]
             cell.defaultCellConfigure()
             cell.durationLabel.text = target.description
+
             return cell
         default:
             return UICollectionViewCell()
@@ -143,58 +238,56 @@ extension SearchFilterViewController: UICollectionViewDelegate {
             // 카테고리: 단일 선택
         case filterCategoryCollectionView:
             let category = categories[indexPath.item]
-            if selectedCategories.contains(category) {
-                // 이미 선택돼 있었으면 해제
-                selectedCategories.remove(category)
+
+            if selectedCategories == category {
+                selectedCategories = nil
                 collectionView.deselectItem(at: indexPath, animated: true)
             } else {
-                selectedCategories.insert(category)
+                if let prev = selectedCategories,
+                   let prevIndex = categories.firstIndex(of: prev) {
+                    collectionView.deselectItem(at: IndexPath(item: prevIndex, section: 0), animated: false)
+                }
+
+                selectedCategories = category
             }
 
             // 날짜: 단일 선택
         case filterOrderCollectionView:
             let order = orders[indexPath.item]
-            if selectedOrder.contains(order) {
-                // 이미 선택돼 있었으면 해제
-                selectedOrder.remove(order)
+
+            if selectedOrder == order {
+                selectedOrder = nil
                 collectionView.deselectItem(at: indexPath, animated: true)
             } else {
-                selectedOrder.insert(order)
+                if let prev = selectedOrder,
+                   let prevIndex = orders.firstIndex(of: prev) {
+                    collectionView.deselectItem(at: IndexPath(item: prevIndex, section: 0), animated: false)
+                }
+                selectedOrder = order
             }
 
             // 길이: 단일 선택
         case filterVideoDurationCollectionView:
             let duration = durations[indexPath.item]
-            if selectedDuration.contains(duration) {
-                // 이미 선택돼 있었으면 해제
-                selectedDuration.remove(duration)
+
+            if selectedDuration == duration {
+                selectedDuration = nil
                 collectionView.deselectItem(at: indexPath, animated: true)
             } else {
-                selectedDuration.insert(duration)
+                if let prev = selectedDuration,
+                   let prevIndex = durations.firstIndex(of: prev) {
+                    collectionView.deselectItem(at: IndexPath(item: prevIndex, section: 0), animated: false)
+                }
+                selectedDuration = duration
             }
-        default:
-            break
-        }
-    }
 
-    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
-        switch collectionView {
-        case filterCategoryCollectionView:
-            let category = categories[indexPath.item]
-            selectedCategories.remove(category)
-        case filterOrderCollectionView:
-            let order = orders[indexPath.item]
-            selectedOrder.remove(order)
-        case filterVideoDurationCollectionView:
-            let duration = durations[indexPath.item]
-            selectedDuration.remove(duration)
         default:
             break
         }
     }
 }
 
- // MARK: - Detent
+// MARK: - Detent
 extension SearchFilterViewController: UISheetPresentationControllerDelegate {
     func sheetPresentationControllerDidChangeSelectedDetentIdentifier(
         _ sheetPresentationController: UISheetPresentationController

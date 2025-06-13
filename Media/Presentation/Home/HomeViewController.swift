@@ -76,11 +76,11 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
 
     // 네비게이션 서치뷰로
     func navigationBarDidTapRight(_ navigationBar: NavigationBar) {
-            let storyboard = UIStoryboard(name: "SearchViewController", bundle: nil)
-            if let searchVC = storyboard.instantiateViewController(withIdentifier: "SearchViewController") as? SearchViewController {
-                navigationController?.pushViewController(searchVC, animated: true)
-            }
+        let storyboard = UIStoryboard(name: "SearchViewController", bundle: nil)
+        if let searchVC = storyboard.instantiateViewController(withIdentifier: "SearchViewController") as? SearchViewController {
+            navigationController?.pushViewController(searchVC, animated: true)
         }
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -151,6 +151,7 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
         let remainingSeconds = seconds % 60
         return String(format: "%02d:%02d", minutes, remainingSeconds)
     }
+
     // 비디오 재생
     func playVideo(with url: URL) {
 
@@ -170,8 +171,8 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
         present(vc, animated: true) {
 
         }
-
         observation?.invalidate()
+
 
 
         observation = item.observe(\.status) { playerItem, _ in
@@ -182,10 +183,9 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
 
                 player.play()
             } else if playerItem.status == .failed {
-
+                print("❌ PlayerItem failed to load\(playerItem.error.debugDescription)")
             }
         }
-
     }
 
     private var currentPage: Int = 1
@@ -200,25 +200,25 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
         perPage: Int,
         completion: @escaping (Result<PixabayResponse, Error>) -> Void) {
 
-        let endpoint = APIEndpoints.pixabay(
-            query: query,
-            category: nil,
-            order: .popular,
-            page: page,
-            perPage: perPage
-        )
+            let endpoint = APIEndpoints.pixabay(
+                query: query,
+                category: nil,
+                order: .popular,
+                page: page,
+                perPage: perPage
+            )
 
-        service.request(endpoint) { result in
-            DispatchQueue.main.async {
-                switch result {
-                case .success(let response):
-                    completion(.success(response))
-                case .failure(let error):
-                    completion(.failure(error as Error))
+            service.request(endpoint) { result in
+                DispatchQueue.main.async {
+                    switch result {
+                    case .success(let response):
+                        completion(.success(response))
+                    case .failure(let error):
+                        completion(.failure(error as Error))
+                    }
                 }
             }
         }
-    }
 
     private func handleVideoResponse(_ result: Result<PixabayResponse, Error>, page: Int) {
         switch result {
@@ -350,7 +350,7 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
 
             // 기존 기록이 있으면 삭제
             for record in existing {
-              //  context.delete(record)
+                //  context.delete(record)
                 CoreDataService.shared.delete(record)
             }
 

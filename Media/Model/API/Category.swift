@@ -24,7 +24,7 @@ enum Category: String, CaseIterable {
     case computer
     case food
     case sports
-    case trasnsportation
+    case transportation
     case travel
     case buildings
     case business
@@ -62,7 +62,7 @@ enum Category: String, CaseIterable {
             return UIImage(systemName: "fork.knife")
         case .sports:
             return UIImage(systemName: "figure.run")
-        case .trasnsportation:
+        case .transportation:
             return UIImage(systemName: "car.fill")
         case .travel:
             return UIImage(systemName: "airplane.departure")
