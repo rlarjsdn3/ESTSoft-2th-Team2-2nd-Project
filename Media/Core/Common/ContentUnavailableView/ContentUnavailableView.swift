@@ -10,27 +10,9 @@ import UIKit
 final class ContentUnavailableView: NibView {
 
     @IBOutlet weak var imageView: UIImageView!
-    @IBOutlet weak var titleLabel: UILabel!
-    @IBOutlet weak var subtitleLabel: UILabel!
     
-    @IBInspectable var imageName: String = "default" {
+    @IBInspectable var imageName: String = "no_bookmark" {
         didSet { imageView.image = UIImage(named: imageName) }
-    }
-    
-    @IBInspectable var systemName: String = "sun.max" {
-        didSet { imageView.image = UIImage(systemName: systemName)  }
-    }
-    
-    @IBInspectable var title: String? {
-        didSet { titleLabel.text = title }
-    }
-    
-    @IBInspectable var subtitle: String? {
-        didSet { subtitleLabel.text = subtitle }
-    }
-    
-    @IBInspectable override var backgroundColor: UIColor? {
-        didSet { self.backgroundColor = backgroundColor }
     }
     
     required init?(coder: NSCoder) {

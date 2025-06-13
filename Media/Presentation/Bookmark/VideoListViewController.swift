@@ -27,6 +27,9 @@ final class VideoListViewController: StoryboardViewController, VideoPlayable {
 
     private var dataSource: PlaylistDiffableDataSource? = nil
 
+    @IBOutlet weak var noBookmarkView: ContentUnavailableView!
+    @IBOutlet weak var noVideosFoundView: ContentUnavailableView!
+    
     @IBOutlet weak var closeButton: UIButton!
     @IBOutlet weak var navigationBar: NavigationBar!
     @IBOutlet weak var collectionView: UICollectionView!
@@ -48,8 +51,6 @@ final class VideoListViewController: StoryboardViewController, VideoPlayable {
 
         setupFetchedResultsController()
         setupDataSource()
-
-        collectionView.collectionViewLayout = createCompositionalLayout()
     }
 
     @IBAction func didTapCloseButton(_ sender: Any) {
@@ -63,10 +64,14 @@ final class VideoListViewController: StoryboardViewController, VideoPlayable {
         super.setupAttributes()
 
         setupNavigationBar()
+        
+        noBookmarkView.alpha = 0.0
+        noVideosFoundView.alpha = 0.0
         searchBar.apply {
             $0.delegate = self
             $0.placeholder = "검색어를 입력하세요."
         }
+        collectionView.collectionViewLayout = createCompositionalLayout()
         closeButtonTrailingConstraint.constant = -50
     }
 
@@ -339,15 +344,7 @@ extension VideoListViewController {
         let filtered = appendPlaylistItem(at: &snapshot, entities: entities, query: query)
         dataSource?.apply(snapshot, animatingDifferences: true)
 
-        // 재생 목록이 비어있으면
-        if entities.isEmpty {
-            // TODO: - ContentUnavailableView 출력하기
-        }
-
-        // 검색 결과가 비어있으면
-        if filtered.isEmpty {
-            // TODO: - ContentUnavailableView 출력하기
-        }
+        showContentUnavailableViewIfNeeded(entities, filtered)
     }
 
     private func appendPlaylistItem(
@@ -416,14 +413,21 @@ extension VideoListViewController {
     }
 
     private func showContentUnavailableViewIfNeeded<T, U>(_ entities: [T], _ filtered: [U]) {
-        // 재생 목록이 비어있으면
-        if entities.isEmpty {
-            // TODO: - ContentUnavailableView 출력하기
-        }
-
-        // 검색 결과가 비어있으면
-        if filtered.isEmpty {
-            // TODO: - ContentUnavailableView 출력하기
+        print(entities.isEmpty, filtered.isEmpty)
+        
+        UIView.animate(withDuration: 0.25, delay: 0.25) {
+            // 재생 목록이 비어있으면
+            if entities.isEmpty {
+                self.noBookmarkView.alpha = 1.0
+                self.noVideosFoundView.alpha = 0.0
+            // 검색 결과가 비어있으면
+            } else if filtered.isEmpty {
+                self.noBookmarkView.alpha = 0.0
+                self.noVideosFoundView.alpha = 1.0
+            } else {
+                self.noBookmarkView.alpha = 0.0
+                self.noVideosFoundView.alpha = 0.0
+            }
         }
     }
 }
