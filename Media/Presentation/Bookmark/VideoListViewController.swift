@@ -166,19 +166,19 @@ final class VideoListViewController: StoryboardViewController {
             default:          3 // 아이패드 가로 모드
             }
             let groupSize = NSCollectionLayoutSize(
-                widthDimension: .fractionalWidth(1.0), // 임시 값
-                heightDimension: .absolute(100) // 임시 값
+                widthDimension: .fractionalWidth(1.0),
+                heightDimension: .absolute(100)
             )
             let group = NSCollectionLayoutGroup.horizontal(
                 layoutSize: groupSize,
                 repeatingSubitem: item,
                 count: columnCount
             )
-            group.interItemSpacing = .fixed(8) // 임시 값
+            group.interItemSpacing = .fixed(8)
             group.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 8, bottom: 0, trailing: 8)
 
             let section = NSCollectionLayoutSection(group: group)
-            section.interGroupSpacing = 8 // 임시 값
+            section.interGroupSpacing = 8 
             section.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 0)
 
             if case .playback(_) = self?.videos {
