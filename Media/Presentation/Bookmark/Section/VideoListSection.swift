@@ -49,18 +49,18 @@ enum VideoList {
         func hash(into hasher: inout Hasher) {
             switch self {
             case .playlist(let entity):
-                hasher.combine(entity.objectID)
+                hasher.combine(entity.id)
             case .playback(let entity):
-                hasher.combine(entity.objectID)
+                hasher.combine(entity.id)
             }
         }
 
         static func == (lhs: Item, rhs: Item) -> Bool {
             switch (lhs, rhs) {
             case (.playlist(let a), .playlist(let b)):
-                return a.objectID == b.objectID
+                return a.id == b.id
             case (.playback(let a), .playback(let b)):
-                return a.objectID == b.objectID
+                return a.id == b.id
             default:
                 return false
             }
