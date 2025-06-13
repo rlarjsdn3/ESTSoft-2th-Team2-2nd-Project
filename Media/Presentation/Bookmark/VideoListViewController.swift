@@ -255,8 +255,8 @@ extension VideoListViewController {
                             message: "정말 전체 재생목록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
                             onConfirm: { _ in
                                 do {
-                                    try CoreDataService.shared.deleteAll(PlaybackHistoryEntity.self)
-
+                                    guard case let .playback(entities) = self.videos else { return }
+                                    entities.forEach { CoreDataService.shared.delete($0) }
                                     print("모든 Video 엔티티가 삭제되었습니다.")
                                 } catch {
                                     print("삭제 중 오류 발생: \(error)")
@@ -289,8 +289,8 @@ extension VideoListViewController {
                                     message: "정말 전체 플레이리스트를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
                                     onConfirm: { _ in
                                         do {
-                                            guard case let .playlist(name, _, _) = self.videos else { return }
-                                            try CoreDataService.shared.deleteAll(PlaylistEntity.self, name: name)
+                                            guard case let .playlist(_, entities, _) = self.videos else { return }
+                                            entities.forEach { CoreDataService.shared.delete($0) }
                                             print("모든 Video 엔티티가 삭제되었습니다.")
                                         } catch {
                                             print("삭제 중 오류 발생: \(error)")
