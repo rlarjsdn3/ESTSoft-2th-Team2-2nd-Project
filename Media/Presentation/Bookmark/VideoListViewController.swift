@@ -239,7 +239,8 @@ extension VideoListViewController {
                             message: "정말 전체 재생목록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
                             onConfirm: { _ in
                                 do {
-//                                    try CoreDataService.shared.deleteAll(PlaybackHistoryEntity.self)
+                                    try CoreDataService.shared.deleteAll(PlaybackHistoryEntity.self)
+                         
                                     print("모든 Video 엔티티가 삭제되었습니다.")
                                 } catch {
                                     print("삭제 중 오류 발생: \(error)")
@@ -259,37 +260,39 @@ extension VideoListViewController {
                     thumbnailUrl: entity.video?.medium.thumbnail
                 )
 
-                if case let .playlist(name, _, _) = self?.videos,
-                   name != CoreDataString.bookmarkedPlaylistName {
-                    cell.configureMenu(
-                        deleteAction: { [weak self] in
-                            guard let self = self else { return }
-                            // 삭제 처리 코드
-                            self.showDeleteAlert(
-                                "플레이리스트 전체 삭제",
-                                message: "정말 전체 플레이리스트를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
-                                onConfirm: { _ in
-                                    do {
-//                                        try CoreDataService.shared.deleteAll(PlaylistEntity.self, name: name)
-                                        print("모든 Video 엔티티가 삭제되었습니다.")
-                                    } catch {
-                                        print("삭제 중 오류 발생: \(error)")
+                if case let .playlist(name, _, _) = self?.videos {
+                    if name == CoreDataString.bookmarkedPlaylistName {
+                        cell.isBookMark = true
+                    } else {
+                        cell.configureMenu(
+                            deleteAction: { [weak self] in
+                                guard let self = self else { return }
+                                // 삭제 처리 코드
+                                self.showDeleteAlert(
+                                    "플레이리스트 전체 삭제",
+                                    message: "정말 전체 플레이리스트를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
+                                    onConfirm: { _ in
+                                        do {
+                                            guard case let .playlist(name, _, _) = self.videos else { return }
+                                            try CoreDataService.shared.deleteAll(PlaylistEntity.self, name: name)
+                                            print("모든 Video 엔티티가 삭제되었습니다.")
+                                        } catch {
+                                            print("삭제 중 오류 발생: \(error)")
+                                        }
+                                    },
+                                    onCancel: { _ in
                                     }
-                                },
-                                onCancel: { _ in
-                                }
-                            )
-                        }
-                    )
+                                )
+                            }
+                        )
+
+                    }
                 }
+
             }
+            
             cell.configure(viewModel)
             cell.delegate = self
-
-            if case let .playlist(_, _, isBookmark) = self?.videos {
-                cell.isBookMark = isBookmark
-
-            }
         }
     }
 
