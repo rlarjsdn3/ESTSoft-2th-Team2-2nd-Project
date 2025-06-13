@@ -221,6 +221,7 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
             }
         }
 
+    // 카테고리 필터 함수
     private func handleVideoResponse(_ result: Result<PixabayResponse, Error>, page: Int) {
         switch result {
         case .success(let response):
@@ -255,13 +256,11 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
             print(error)
         }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
-            self.videoCollectionView.refreshControl?.endRefreshing()
-        }
-
+        videoCollectionView.refreshControl?.endRefreshing()
         isFetching = false
     }
 
+    // 개인화된 맞춤 비디오 함수
     func fetchRecentSearchQueries(limit: Int = 5) -> [String] {
         let context = CoreDataService.shared.viewContext
         let fetchRequest: NSFetchRequest<SearchRecordEntity> = SearchRecordEntity.fetchRequest()
@@ -583,8 +582,8 @@ extension HomeViewController: UICollectionViewDelegate {
             categoryCollectionView.reloadData()
             // 맨 위로 스크롤
             videoCollectionView.setContentOffset(.zero, animated: true)
-            // 선택한 카테고리에 맞춰 비디오 재요청
-            fetchVideo()
+            // 선택한 카테고리에 맞춰 비디오 재요청(초기화)
+            fetchVideo(page: 1, isRepresh: true)
         }
     }
 
