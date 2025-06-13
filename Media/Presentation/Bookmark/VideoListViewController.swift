@@ -149,15 +149,22 @@ final class VideoListViewController: StoryboardViewController {
     private func createCompositionalLayout() -> UICollectionViewCompositionalLayout {
         let sectionProvider: UICollectionViewCompositionalLayoutSectionProvider = { [weak self] sectionIndex, environment in
 
-            let itemWidthDimension: NSCollectionLayoutDimension = environment.isHorizontalSizeClassCompact
-            ? .fractionalWidth(1.0) : .fractionalWidth(0.33)
+            let itemWidthDimension: NSCollectionLayoutDimension = switch environment.container.effectiveContentSize.width {
+            case ..<500:      .fractionalWidth(1.0)  // 아이폰 세로모드
+            case 500..<1000:  .fractionalWidth(0.5)  // 아이패드 세로 모드
+            default:          .fractionalWidth(0.33) // 아이패드 가로 모드
+            }
             let itemSize = NSCollectionLayoutSize(
-                widthDimension: itemWidthDimension, // 임시 값
-                heightDimension: .absolute(100) // 임시 값
+                widthDimension: itemWidthDimension,
+                heightDimension: .absolute(100)
             )
             let item = NSCollectionLayoutItem(layoutSize: itemSize)
 
-            let columnCount = environment.isHorizontalSizeClassCompact ? 1 : 3
+            let columnCount = switch environment.container.effectiveContentSize.width {
+            case ..<500:      1 // 아이폰 세로모드
+            case 500..<1000:  2 // 아이패드 세로 모드
+            default:          3 // 아이패드 가로 모드
+            }
             let groupSize = NSCollectionLayoutSize(
                 widthDimension: .fractionalWidth(1.0), // 임시 값
                 heightDimension: .absolute(100) // 임시 값
@@ -167,10 +174,12 @@ final class VideoListViewController: StoryboardViewController {
                 repeatingSubitem: item,
                 count: columnCount
             )
-            group.interItemSpacing = .flexible(8) // 임시 값
+            group.interItemSpacing = .fixed(8) // 임시 값
+            group.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 8, bottom: 0, trailing: 8)
 
             let section = NSCollectionLayoutSection(group: group)
             section.interGroupSpacing = 8 // 임시 값
+            section.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 0)
 
             if case .playback(_) = self?.videos {
                 let headerSize = NSCollectionLayoutSize(
@@ -263,6 +272,8 @@ extension VideoListViewController {
 
             if case let .playlist(_, _, isBookmark) = self?.videos {
                 cell.isBookMark = isBookmark
+            } else {
+                cell.isBookMark = false
             }
         }
     }

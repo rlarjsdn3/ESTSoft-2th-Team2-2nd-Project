@@ -20,7 +20,8 @@ class MediumVideoCell: UICollectionViewCell, NibLodable, UIContextMenuInteractio
                 )
     }
     
-
+    @IBOutlet weak var containerView: UIView!
+    
     /// 썸네일 이미지를 표시하는 뷰
     @IBOutlet private weak var thumbnailImageView: UIImageView!
 
@@ -48,13 +49,15 @@ class MediumVideoCell: UICollectionViewCell, NibLodable, UIContextMenuInteractio
     /// 북마크 여부
     var isBookMark: Bool = false {
         didSet {
-            actionButton
-                .setImage(
-                    isBookMark
-                    ? UIImage(systemName: "bookmark.fill")
-                    : UIImage(systemName: "trash"),
-                    for: .normal
-                )
+            let config = UIImage.SymbolConfiguration(pointSize: 12)
+            let image = if isBookMark {
+                UIImage(systemName: "bookmark.fill")?
+                    .withConfiguration(config)
+            } else {
+                UIImage(systemName: "trash")?
+                    .withConfiguration(config)
+            }
+            actionButton.setImage(image, for: .normal)
             actionButton.tintColor = isBookMark ? .label: .systemRed
         }
     }
@@ -92,11 +95,13 @@ class MediumVideoCell: UICollectionViewCell, NibLodable, UIContextMenuInteractio
             print("전체 삭제")
         }
 
-
+        containerView.backgroundColor = .systemBackground
+        containerView.layer.cornerRadius = 12
+        containerView.layer.masksToBounds = true
     }
 
     func configureMenu(deleteAction: @escaping () -> Void) {
-        let destruct = UIAction(title: "전체 삭제", attributes: .destructive) { _ in
+        let destruct = UIAction(title: "전체 삭제", image: UIImage(systemName: "trash"), attributes: .destructive) { _ in
             deleteAction()
         }
         let interaction = UIContextMenuInteraction(delegate: self)
@@ -112,7 +117,7 @@ extension MediumVideoCell {
     func configure(_ history: MediumVideoViewModel) {
         currentThumbnailURL = history.thumbnailUrl
         configureThumbnail(from: history.thumbnailUrl)
-        tagsLabel.text = history.tags
+        tagsLabel.text = history.tags.split(by: ",").prefix(2).joined(separator: ", ")
         userNameLabel.text = history.userName
         durationLabel.text = formatDuration(history.duration)
         let numberFormatter = NumberFormatter()
