@@ -47,15 +47,15 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 tapBarItems[0].selectedImage = UIImage(systemName: "house.fill")
                 tapBarItems[0].title = "Home"
                 
-                // Library 탭 설정
-                tapBarItems[1].image = UIImage(systemName: "folder")
-                tapBarItems[1].selectedImage = UIImage(systemName: "folder.fill")
-                tapBarItems[1].title = "Library"
-
                 // Interest 탭 설정
-                tapBarItems[2].image = UIImage(systemName: "tag")
-                tapBarItems[2].selectedImage = UIImage(systemName: "tag.fill")
-                tapBarItems[2].title = "Interest"
+                tapBarItems[1].image = UIImage(systemName: "tag")
+                tapBarItems[1].selectedImage = UIImage(systemName: "tag.fill")
+                tapBarItems[1].title = "Interest"
+                
+                // Library 탭 설정
+                tapBarItems[2].image = UIImage(systemName: "folder")
+                tapBarItems[2].selectedImage = UIImage(systemName: "folder.fill")
+                tapBarItems[2].title = "Library"
 
                 // Setting 탭 설정
                 tapBarItems[3].image = UIImage(systemName: "gearshape")
