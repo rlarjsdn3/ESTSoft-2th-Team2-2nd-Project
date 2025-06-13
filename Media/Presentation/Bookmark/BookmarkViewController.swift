@@ -33,7 +33,7 @@ final class BookmarkViewController: StoryboardViewController {
         setupFetchedResultsController()
         setupDataSource()
 
-        collectionView.collectionViewLayout = createCompositionalLayout()
+//        collectionView.collectionViewLayout = createCompositionalLayout()
     }
 
     override func prepare(
@@ -68,16 +68,18 @@ final class BookmarkViewController: StoryboardViewController {
             isLeadingAligned: true
         )
         collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 20, right: 0)
+        collectionView.collectionViewLayout = createCompositionalLayout()
     }
 
     private func createCompositionalLayout() -> UICollectionViewCompositionalLayout {
-        let sectionProvider: UICollectionViewCompositionalLayoutSectionProvider = { [weak self] sectionIndex, environment in
-            guard let self = self,
-                  let sectionIdentifier = self.dataSource?.snapshot().sectionIdentifiers[safe: sectionIndex]
-            else {
-                return nil
-            }
-            return sectionIdentifier.type.buildLayout(for: environment)
+        let sectionProvider: UICollectionViewCompositionalLayoutSectionProvider = { sectionIndex, environment in
+//            guard let self = self,
+//                  let sectionIdentifier = self.dataSource?.snapshot().sectionIdentifiers[safe: sectionIndex]
+//            else {
+//                return nil
+//            }
+            guard let sectionType = Bookmark.SectionType(rawValue: sectionIndex) else { return nil }
+            return sectionType.buildLayout(for: environment)
         }
 
         return UICollectionViewCompositionalLayout(sectionProvider: sectionProvider)
@@ -192,8 +194,8 @@ extension BookmarkViewController {
     private func applySnapshot() {
         var snapshot = NSDiffableDataSourceSnapshot<Bookmark.Section, Bookmark.Item>()
 
-        if let history = playbackFetchedResultsController?.fetchedObjects, !history.isEmpty {
-            let items = history.map { Bookmark.Item.playback($0) }.prefix(10)
+        if let history = playbackFetchedResultsController?.fetchedObjects/*, !history.isEmpty*/ {
+            let items = history.map { Bookmark.Item.playback($0) }
             let section = Bookmark.Section(type: .playback)
             snapshot.appendSections([section])
             snapshot.appendItems(Array(items), toSection: section)
@@ -266,6 +268,7 @@ extension BookmarkViewController: NSFetchedResultsControllerDelegate {
         for type: NSFetchedResultsChangeType,
         newIndexPath: IndexPath?
     ) {
+        print("BookmarkViewController", #function)
         guard let dataSource = dataSource else { return }
         var currentSnapshot = dataSource.snapshot()
         
@@ -275,17 +278,23 @@ extension BookmarkViewController: NSFetchedResultsControllerDelegate {
             if let newPlaylist = anObject as? PlaylistEntity {
                 currentSnapshot.insertItems([.playlist(newPlaylist)], beforeItem: .addPlaylist)
             }
-            
+
+            if let newPlaylistVideo = anObject as? PlaylistVideoEntity,
+               let playlist = newPlaylistVideo.playlist  {
+                let playlistSection = Bookmark.Section(type: .playlist)
+                if currentSnapshot.sectionIdentifiers.contains(playlistSection) {
+                    currentSnapshot.reloadSections([playlistSection])
+                }
+            }
+
             // 새로운 재생 기록이 추가되었다면 맨 앞에 추가하기
             if let newPlayback = anObject as? PlaybackHistoryEntity {
-                let playbackSection = currentSnapshot.sectionIdentifiers.first(where: { $0.type == .playback })
-                ?? Bookmark.Section(type: .playback)
-                let playlistSection = currentSnapshot.sectionIdentifiers.first(where: { $0.type == .playlist })
-                ?? Bookmark.Section(type: .playlist)
+                let playbackSection = Bookmark.Section(type: .playback)
+                let playlistSection =  Bookmark.Section(type: .playlist)
                 // 재생 기록 섹션이 없다면 재생 목록 섹션 뒤에 추가하기
-                if !currentSnapshot.sectionIdentifiers.contains(playbackSection) {
-                    currentSnapshot.insertSections([playbackSection], beforeSection: playlistSection)
-                }
+//                if !currentSnapshot.sectionIdentifiers.contains(playbackSection) {
+//                    currentSnapshot.insertSections([playbackSection], beforeSection: playlistSection)
+//                }
                 
                 // 재생 기록 섹션에 항목(cell)이 있다면 맨 앞에 삽입하기
                 if let firstItem = currentSnapshot.itemIdentifiers(inSection: playbackSection).first {
@@ -300,21 +309,17 @@ extension BookmarkViewController: NSFetchedResultsControllerDelegate {
             if let oldPlaylist = anObject as? PlaylistEntity {
                 currentSnapshot.deleteItems([.playlist(oldPlaylist)])
             }
-        case .update:
-            // 재생 목록 (이름 등)이 변경되었다면 해당 항목(cell) 재구성하기
-            if let updatedPlaylist = anObject as? PlaylistEntity {
-                let itemToReconfigure = Bookmark.Item.playlist(updatedPlaylist)
-                if currentSnapshot.itemIdentifiers.contains(itemToReconfigure) {
-                    currentSnapshot.reconfigureItems([itemToReconfigure])
-                }
+
+            // 재생 기록이 삭제되었다면 삭제하기
+            if let oldPlayback = anObject as? PlaybackHistoryEntity {
+                currentSnapshot.deleteItems([.playback(oldPlayback)])
             }
-            
-            // 재생 목록 속 비디오가 변경되었다면 해당 항목(cell) 재구성하기
-            if let updatedPlaylistVideo = anObject as? PlaylistVideoEntity,
-               let playlist = updatedPlaylistVideo.playlist {
-                let item = Bookmark.Item.playlist(playlist)
-                if currentSnapshot.itemIdentifiers.contains(item) {
-                    currentSnapshot.reconfigureItems([item])
+        case .update:
+            // 재생 목록 (이름 등)이 변경되었다면 해당 섹션 리로드하기
+            if let updatedPlaylist = anObject as? PlaylistEntity {
+                let section = Bookmark.Section(type: .playlist)
+                if currentSnapshot.sectionIdentifiers.contains(section) {
+                    currentSnapshot.reloadSections([section])
                 }
             }
         default:

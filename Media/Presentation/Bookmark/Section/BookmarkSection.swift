@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import CoreData
 
 enum Bookmark {
     
@@ -57,7 +58,6 @@ enum Bookmark {
         }
     }
 }
-
 
 extension Bookmark.SectionType {
 
