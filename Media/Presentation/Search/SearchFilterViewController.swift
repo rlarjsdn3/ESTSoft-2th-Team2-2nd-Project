@@ -78,6 +78,43 @@ class SearchFilterViewController: StoryboardViewController {
         filterVideoDurationCollectionView.backgroundColor = .clear
     }
 
+    // 오토 스크롤
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        if let selCat = selectedCategories,
+           let catIdx = categories.firstIndex(of: selCat) {
+            let ip = IndexPath(item: catIdx, section: 0)
+            filterCategoryCollectionView.selectItem(
+                at: ip, animated: false, scrollPosition: []
+            )
+            filterCategoryCollectionView.scrollToItem(
+                at: ip, at: .centeredHorizontally, animated: true
+            )
+        }
+
+        if let selOrd = selectedOrder,
+           let ordIdx = orders.firstIndex(of: selOrd) {
+            let ip = IndexPath(item: ordIdx, section: 0)
+            filterOrderCollectionView.selectItem(
+                at: ip, animated: false, scrollPosition: []
+            )
+            filterOrderCollectionView.scrollToItem(
+                at: ip, at: .centeredHorizontally, animated: true
+            )
+        }
+
+        if let selDur = selectedDuration,
+           let durIdx = durations.firstIndex(of: selDur) {
+            let ip = IndexPath(item: durIdx, section: 0)
+            filterVideoDurationCollectionView.selectItem(
+                at: ip, animated: false, scrollPosition: []
+            )
+            filterVideoDurationCollectionView.scrollToItem(
+                at: ip, at: .centeredHorizontally, animated: true
+            )
+        }
+    }
+
 
     @IBAction func applyButtonTapped(_ sender: UIButton) {
         if selectedCategories != nil {
@@ -168,14 +205,8 @@ extension SearchFilterViewController: UICollectionViewDataSource {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FilterCategoryCollectionViewCell.id, for: indexPath) as! FilterCategoryCollectionViewCell
 
             let target = categories[indexPath.item]
-            cell.categoryLabel.text = target.rawValue
             cell.defaultCellConfigure()
-
-            if let sel = selectedCategories {
-                if target == sel {
-                    collectionView.selectItem(at: indexPath, animated: true, scrollPosition: .centeredHorizontally)
-                }
-            }
+            cell.categoryLabel.text = target.rawValue
 
             return cell
         case filterOrderCollectionView:
@@ -185,12 +216,6 @@ extension SearchFilterViewController: UICollectionViewDataSource {
             cell.defaultCellConfigure()
             cell.orderLabel.text = target.rawValue
 
-            if let sel = selectedOrder {
-                if target == sel {
-                    collectionView.selectItem(at: indexPath, animated: true, scrollPosition: .centeredHorizontally)
-                }
-            }
-
             return cell
         case filterVideoDurationCollectionView:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FilterVideoDurationCollectionViewCell.id, for: indexPath) as! FilterVideoDurationCollectionViewCell
@@ -198,12 +223,6 @@ extension SearchFilterViewController: UICollectionViewDataSource {
             let target = durations[indexPath.item]
             cell.defaultCellConfigure()
             cell.durationLabel.text = target.description
-
-            if let sel = selectedDuration {
-                if target == sel {
-                    collectionView.selectItem(at: indexPath, animated: true, scrollPosition: .centeredHorizontally)
-                }
-            }
 
             return cell
         default:
@@ -265,29 +284,10 @@ extension SearchFilterViewController: UICollectionViewDelegate {
         default:
             break
         }
-
-        //collectionView.reloadData()
     }
-
-
-//    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
-//        switch collectionView {
-//        case filterCategoryCollectionView:
-//            let category = categories[indexPath.item]
-//            selectedCategories.remove(category)
-//        case filterOrderCollectionView:
-//            let order = orders[indexPath.item]
-//            selectedOrder.remove(order)
-//        case filterVideoDurationCollectionView:
-//            let duration = durations[indexPath.item]
-//            selectedDuration.remove(duration)
-//        default:
-//            break
-//        }
-//    }
 }
 
- // MARK: - Detent
+// MARK: - Detent
 extension SearchFilterViewController: UISheetPresentationControllerDelegate {
     func sheetPresentationControllerDidChangeSelectedDetentIdentifier(
         _ sheetPresentationController: UISheetPresentationController

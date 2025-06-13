@@ -232,7 +232,7 @@ final class SearchResultViewController: StoryboardViewController {
                     if self.hits.isEmpty {
                         self.noVideoFoundImageView.isHidden = false
                     } else {
-                        self.videoCollectionView.backgroundView = nil
+                        self.noVideoFoundImageView.isHidden = true
                     }
 
                     self.videoCollectionView.isHidden = false
