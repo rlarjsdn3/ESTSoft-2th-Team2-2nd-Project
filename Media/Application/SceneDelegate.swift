@@ -20,46 +20,24 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
      - 각 탭(Home, Library, Interest, Setting)의 일반 상태와 선택된 상태 이미지 설정
      */
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-        if let tapBarController = self.window?.rootViewController as? UITabBarController {
-            // 탭바 외관 설정
-            let appearance = UITabBarAppearance()
-            appearance.configureWithOpaqueBackground()
-            appearance.backgroundColor = UIColor.backgroundColor
-            
-            tapBarController.tabBar.standardAppearance = appearance
-            tapBarController.tabBar.scrollEdgeAppearance = appearance
-            
-            // 선택된 탭 색상
-            tapBarController.tabBar.tintColor = UIColor.primaryColor
-            // 선택되지 않은 탭 색상
-            tapBarController.tabBar.unselectedItemTintColor = UIColor.secondaryLabel
-            
-            // 각 탭의 일반 상태와 선택된 상태 이미지 설정
-            if let tapBarItems = tapBarController.tabBar.items {
-                // Home 탭 설정
-                tapBarItems[0].image = UIImage(systemName: "house")
-                tapBarItems[0].selectedImage = UIImage(systemName: "house.fill")
-                tapBarItems[0].title = "Home"
-                
-                // Library 탭 설정
-                tapBarItems[1].image = UIImage(systemName: "folder")
-                tapBarItems[1].selectedImage = UIImage(systemName: "folder.fill")
-                tapBarItems[1].title = "Library"
+        guard let windowScene = (scene as? UIWindowScene) else { return }
 
-                // Interest 탭 설정
-                tapBarItems[2].image = UIImage(systemName: "tag")
-                tapBarItems[2].selectedImage = UIImage(systemName: "tag.fill")
-                tapBarItems[2].title = "Interest"
-
-                // Setting 탭 설정
-                tapBarItems[3].image = UIImage(systemName: "gearshape")
-                tapBarItems[3].selectedImage = UIImage(systemName: "gearshape.fill")
-                tapBarItems[3].title = "Setting"
-            }
+        let window = UIWindow(windowScene: windowScene)
+        let mainStoryboard = UIStoryboard(name: "Main", bundle: nil)
+        let onboardingStoryboard = UIStoryboard(name: "OnBoardingOnBoardingViewController", bundle: nil)
+        
+        if UserDefaults.standard.seenOnboarding {
+            // 앱 실행시 온보딩이 완료된 경우 바로 메인화면으로 이동
+            let mainVC = mainStoryboard.instantiateViewController(withIdentifier: "MainVC")
+            window.rootViewController = mainVC
+        } else {
+            // 앱 실행시 온보딩이 아직 진행이 안됐으면 온보딩 화면으로 이동
+            let onboardingVC = onboardingStoryboard.instantiateViewController(withIdentifier: "OnboardingVC")
+            let nav = UINavigationController(rootViewController: onboardingVC)
+            window.rootViewController = nav
         }
-        
-        guard let _ = (scene as? UIWindowScene) else { return }
-        
+        self.window = window
+        window.makeKeyAndVisible()
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
