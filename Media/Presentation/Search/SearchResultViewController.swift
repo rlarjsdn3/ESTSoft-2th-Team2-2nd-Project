@@ -5,15 +5,17 @@
 //  Created by 백현진 on 6/9/25.
 //
 
+import AVKit
 import UIKit
 
-final class SearchResultViewController: StoryboardViewController {
+final class SearchResultViewController: StoryboardViewController, VideoPlayable {
     @IBOutlet weak var navigationBar: NavigationBar!
     @IBOutlet weak var videoCollectionView: UICollectionView!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var noVideoFoundImageView: UIImageView!
 
     private lazy var refreshControl = UIRefreshControl()
+
     var keyword: String?
 
     private let dataService: DataTransferService = DefaultDataTransferService()
@@ -39,6 +41,10 @@ final class SearchResultViewController: StoryboardViewController {
         }
     }()
 
+    var observation: NSKeyValueObservation?
+
+    private let videoDataService = VideoDataService.shared
+
     //페이지네이션 프로퍼티
     private var hits: [PixabayResponse.Hit] = []
     private var currentPage = 1
@@ -53,13 +59,13 @@ final class SearchResultViewController: StoryboardViewController {
     //필터 갯수 표현 라벨
     private lazy var filterLabel: UILabel = {
         let	label = UILabel()
-    	label.translatesAutoresizingMaskIntoConstraints = false
-    	label.backgroundColor = .systemRed
-    	label.textColor = .white
-    	label.font = .systemFont(ofSize: 10, weight: .bold)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.backgroundColor = .systemRed
+        label.textColor = .white
+        label.font = .systemFont(ofSize: 10, weight: .bold)
         label.textAlignment = .center
-    	label.layer.masksToBounds = true
-    	label.isHidden = true
+        label.layer.masksToBounds = true
+        label.isHidden = true
         return label
     }()
 
@@ -281,6 +287,23 @@ final class SearchResultViewController: StoryboardViewController {
             }
         }
     }
+
+    // MARK: – 새 재생목록 Alert
+    private func showAddPlaylistAlert(for video: PixabayResponse.Hit) {
+        showTextFieldAlert(
+            "새로운 재생목록 추가",
+            message: "새 재생목록 이름을 입력하세요."
+        ) { [weak self] _, newName in
+            guard let self = self else { return }
+            switch self.videoDataService.createPlaylist(named: newName, with: video) {
+            case .success:
+                Toast.makeToast("'\(newName)' 생성 및 추가 완료", systemName: "list.clipboard")
+                    .present()
+            case .failure(let err):
+                Toast.makeToast(err.localizedDescription).present()
+            }
+        } onCancel: { _ in }
+    }
 }
 
 extension SearchResultViewController: UICollectionViewDataSource {
@@ -333,6 +356,58 @@ extension SearchResultViewController: UICollectionViewDataSource {
         )
 
         cell.configure(with: viewModel)
+
+        // 썸네일 터치시 영상 재생
+        cell.onThumbnailTap = { [weak self] in
+            guard let self = self,
+                  let url = video.videos.medium.url else { return }
+
+            // 시청기록 저장
+            self.videoDataService.addToWatchHistory(video)
+            self.playVideo(from: url)
+        }
+
+        // Ellipsis 버튼 실행
+        cell.configureMenu(
+            bookmarkAction: { [weak self] in
+                guard let self = self else { return }
+
+                // 북마크 추가 결과 처리
+                switch self.videoDataService.addToBookmark(video) {
+                case .success:
+                    Toast.makeToast("북마크에 추가되었습니다", systemName: "bookmark")
+                        .present()
+                case .failure(let err):
+                    Toast.makeToast(err.localizedDescription, systemName: "bookmark.fill")
+                        .present()
+                }
+            },
+            playlistAction: { [weak self] in
+                guard let self = self else { return }
+
+                // 1) 존재하는 커스텀 재생목록 목록 불러오기
+                let lists = self.videoDataService.playlists()
+
+                // 2) 액션시트로 사용자에게 선택지 제시
+                let alert = UIAlertController(title: "재생목록 선택", message: nil, preferredStyle: .actionSheet)
+                lists.forEach { pl in
+                    alert.addAction(.init(title: pl.name, style: .default) { _ in
+                        // 선택된 목록에 비디오 추가
+                        self.videoDataService.add(video, toPlaylistNamed: pl.name)
+                        Toast.makeToast("\"\(pl.name)\"에 추가되었습니다", systemName: "list.clipboard")
+                            .present()
+                    })
+                }
+                // 새 재생목록 만들기
+                alert.addAction(.init(title: "새 재생목록 만들기", style: .default) { _ in
+                    self.showAddPlaylistAlert(for: video)
+                })
+                alert.addAction(UIAlertAction(title: "취소", style: .cancel, handler: nil))
+                self.present(alert, animated: true)
+
+            }
+        )
+
         return cell
     }
 
@@ -342,7 +417,6 @@ extension SearchResultViewController: UICollectionViewDataSource {
 
         // 요청 할 페이지가 남아있어야 페이지네이션 진행
         guard currentPage < totalPages else { return }
-
 
         guard hits.count > 5 else { return }
 
