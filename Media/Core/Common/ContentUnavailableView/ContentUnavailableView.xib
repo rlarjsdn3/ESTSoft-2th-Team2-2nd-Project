@@ -19,7 +19,7 @@
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="q05-0Y-AYY">
-                    <rect key="frame" x="96.666666666666686" y="168" width="200" height="200"/>
+                    <rect key="frame" x="96.666666666666686" y="118" width="200" height="200"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="200" id="edO-vb-aOZ"/>
                         <constraint firstAttribute="width" constant="200" id="h94-CJ-XWH"/>
@@ -29,7 +29,7 @@
             <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
             <color key="backgroundColor" systemColor="systemBackgroundColor"/>
             <constraints>
-                <constraint firstItem="q05-0Y-AYY" firstAttribute="centerY" secondItem="iN0-l3-epB" secondAttribute="centerY" id="2x2-Vi-umi"/>
+                <constraint firstItem="q05-0Y-AYY" firstAttribute="centerY" secondItem="iN0-l3-epB" secondAttribute="centerY" constant="-50" id="2x2-Vi-umi"/>
                 <constraint firstItem="q05-0Y-AYY" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="z2w-fO-Awt"/>
             </constraints>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>

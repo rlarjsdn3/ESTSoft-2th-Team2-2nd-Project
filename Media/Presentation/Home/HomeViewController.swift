@@ -45,7 +45,7 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
 
         currentPage = 1
         hasMoreData = true
-        fetchVideo(page: 1)
+        fetchVideo(page: 1, isRepresh: true)
         videoCollectionView.setContentOffset(.zero, animated: true)
     }
 
@@ -125,7 +125,7 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
         videoCollectionView.dataSource = self
         videoCollectionView.register(UINib(nibName: "VideoCell", bundle: nil), forCellWithReuseIdentifier: "VideoCell")
 
-        videoCollectionView.contentInset = UIEdgeInsets(top: 10, left: 0, bottom: 80, right: 0)
+        videoCollectionView.contentInset = UIEdgeInsets(top: 10, left: 0, bottom: 90, right: 0)
 
         //Pull to Refresh 기능
         let  refreshControl = UIRefreshControl()
@@ -221,6 +221,7 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
             }
         }
 
+    // 카테고리 필터 함수
     private func handleVideoResponse(_ result: Result<PixabayResponse, Error>, page: Int) {
         switch result {
         case .success(let response):
@@ -259,6 +260,7 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
         isFetching = false
     }
 
+    // 개인화된 맞춤 비디오 함수
     func fetchRecentSearchQueries(limit: Int = 5) -> [String] {
         let context = CoreDataService.shared.viewContext
         let fetchRequest: NSFetchRequest<SearchRecordEntity> = SearchRecordEntity.fetchRequest()
@@ -295,7 +297,7 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
 
 
     // 선택된 카테고리에 따라 Pixabay API에서 비디오 데이터 요청
-    func fetchVideo(page: Int = 1) {
+    func fetchVideo(page: Int = 1, isRepresh: Bool = false) {
         guard !isFetching else { return }
         isFetching = true
 
@@ -373,12 +375,18 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
         // 완료 후 갱신
         dispatchGroup.notify(queue: .main) { [weak self] in
             guard let self = self else { return }
-            self.videos = combinedVideos.shuffled()
+            if isRepresh {
+                self.videos = combinedVideos.shuffled()
+            } else {
+                self.videos.append(contentsOf: combinedVideos.shuffled())
+            }
             self.currentPage = page
             self.hasMoreData = combinedVideos.count >= 15
             self.isFetching = false
             self.videoCollectionView.reloadData()
-            self.videoCollectionView.refreshControl?.endRefreshing()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                self.videoCollectionView.refreshControl?.endRefreshing()
+            }
         }
     }
 
@@ -574,8 +582,8 @@ extension HomeViewController: UICollectionViewDelegate {
             categoryCollectionView.reloadData()
             // 맨 위로 스크롤
             videoCollectionView.setContentOffset(.zero, animated: true)
-            // 선택한 카테고리에 맞춰 비디오 재요청
-            fetchVideo()
+            // 선택한 카테고리에 맞춰 비디오 재요청(초기화)
+            fetchVideo(page: 1, isRepresh: true)
         }
     }
 
@@ -694,5 +702,10 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout,
                         minimumLineSpacingForSectionAt section: Int) -> CGFloat {
         return 8
+    }
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+
+        categoryCollectionView.reloadData()
     }
 }

@@ -31,12 +31,20 @@ final class CategoryCell: UICollectionViewCell {
         if selected {
             titleButton.backgroundColor = .tagSelectedColor
             titleButton.setTitleColor(.backgroundColor, for: .normal)
-            titleButton.layer.borderColor = UIColor.tagBorderColor.cgColor
+            titleButton.layer.borderColor = UIColor.tagBorderColor.resolvedColor(with: traitCollection).cgColor
         } else {
             titleButton.backgroundColor = .tagUnselectedColor
             titleButton.setTitleColor(.mainLabelColor, for: .normal)
-            titleButton.layer.borderColor = UIColor.tagBorderColor.cgColor
+            titleButton.layer.borderColor = UIColor.tagBorderColor.resolvedColor(with: traitCollection).cgColor
         }
         titleButton.layer.borderWidth = 2.0
+
     }
+
+//    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+//        titleButton.layer.borderColor = (previousTraitCollection?.userInterfaceStyle == .dark)
+//        ? UIColor.black.cgColor
+//        : UIColor.white.cgColor
+//
+//    }
 }

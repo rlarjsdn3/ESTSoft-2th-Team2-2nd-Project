@@ -181,4 +181,8 @@ extension NavigationBar {
         leftButton.alpha = 1
         leftButton.isUserInteractionEnabled = true
     }
+    
+    func setTitle(_ text: String?) {
+        titleLabel.text = text
+    }
 }

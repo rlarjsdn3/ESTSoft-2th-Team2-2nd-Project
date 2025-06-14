@@ -48,21 +48,23 @@ final class VideoCell: UICollectionViewCell, NibLodable {
         viewCountLabel.backgroundColor = .backgroundColor
 
         durationLabel.textColor = .white
-        durationLabel.backgroundColor = .black.withAlphaComponent(0.6)
-        durationLabel.layer.cornerRadius = 2
+        durationLabel.backgroundColor = .tagSelectedColor
+        durationLabel.layer.cornerRadius = 3
         durationLabel.clipsToBounds = true
 
         likeCountLabel.textColor = .subLabelColor
         likeCountLabel.backgroundColor = .backgroundColor
 
         tagLabel.textColor = .white
-        tagLabel.backgroundColor = .black.withAlphaComponent(0.6)
-        tagLabel.layer.cornerRadius = 2
+        tagLabel.backgroundColor = .tagSelectedColor
+        tagLabel.layer.cornerRadius = 3
         tagLabel.clipsToBounds = true
 
         thumbnailImage.isUserInteractionEnabled = true
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(thumbnailTapped))
         thumbnailImage.addGestureRecognizer(tapGesture)
+        
+        ellipsisButton.showsMenuAsPrimaryAction = true
     }
 
     @objc private func thumbnailTapped() {
@@ -99,6 +101,19 @@ final class VideoCell: UICollectionViewCell, NibLodable {
         ellipsisButton.menu = menu
         ellipsisButton.showsMenuAsPrimaryAction = true
     }
+    
+    /// 점 세 개 버튼(ellipsisButton)에 삭제 메뉴를 구성합니다.
+    /// - Parameter onDeleteAction: 사용자가 "Delete Playback History" 항목을 선택했을 때 실행될 클로저입니다.
+    func configureMenu(onDeleteAction: @escaping UIActionHandler) {
+        let deleteAction = UIAction(
+            title: "Delete Playback History",
+            image: UIImage(systemName: "trash"),
+            attributes: .destructive,
+            handler: onDeleteAction
+        )
+        
+        ellipsisButton.menu = UIMenu(title: "", children: [deleteAction])
+    }
 
     // 뷰 모델을 받아 셀의 UI를 업데이트하는 함수
     // Parameter viewModel: VideoCellViewModel 타입의 데이터
@@ -130,6 +145,11 @@ final class VideoCell: UICollectionViewCell, NibLodable {
                 }
             }
         }
+    }
+
+    func setThumbnailImageCornerRadius(_ radius: CGFloat) {
+        thumbnailImage.layer.cornerRadius = radius
+        thumbnailImage.layer.masksToBounds = true
     }
 }
 
