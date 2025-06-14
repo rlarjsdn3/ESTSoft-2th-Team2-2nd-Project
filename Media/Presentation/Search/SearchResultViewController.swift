@@ -83,6 +83,7 @@ final class SearchResultViewController: StoryboardViewController, VideoPlayable 
         view.layer.shadowRadius = 4
         view.clipsToBounds = true
         view.layer.cornerRadius = 16
+        view.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
 
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
