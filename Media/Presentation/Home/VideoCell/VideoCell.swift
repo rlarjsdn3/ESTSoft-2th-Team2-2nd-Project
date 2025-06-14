@@ -63,6 +63,8 @@ final class VideoCell: UICollectionViewCell, NibLodable {
         thumbnailImage.isUserInteractionEnabled = true
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(thumbnailTapped))
         thumbnailImage.addGestureRecognizer(tapGesture)
+        
+        ellipsisButton.showsMenuAsPrimaryAction = true
     }
 
     @objc private func thumbnailTapped() {
@@ -98,6 +100,19 @@ final class VideoCell: UICollectionViewCell, NibLodable {
         let menu = UIMenu(title: "", children: [bookmark, playlist])
         ellipsisButton.menu = menu
         ellipsisButton.showsMenuAsPrimaryAction = true
+    }
+    
+    /// 점 세 개 버튼(ellipsisButton)에 삭제 메뉴를 구성합니다.
+    /// - Parameter onDeleteAction: 사용자가 "Delete Playback History" 항목을 선택했을 때 실행될 클로저입니다.
+    func configureMenu(onDeleteAction: @escaping UIActionHandler) {
+        let deleteAction = UIAction(
+            title: "Delete Playback History",
+            image: UIImage(systemName: "trash"),
+            attributes: .destructive,
+            handler: onDeleteAction
+        )
+        
+        ellipsisButton.menu = UIMenu(title: "", children: [deleteAction])
     }
 
     // 뷰 모델을 받아 셀의 UI를 업데이트하는 함수

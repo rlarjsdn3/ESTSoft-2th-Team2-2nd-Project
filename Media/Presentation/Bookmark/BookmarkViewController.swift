@@ -9,13 +9,10 @@ import UIKit
 import CoreData
 import Combine
 
-/// <#Description#>
 final class BookmarkViewController: StoryboardViewController, VideoPlayable {
 
     private typealias BookmarkDiffableDataSource = UICollectionViewDiffableDataSource<Bookmark.Section, Bookmark.Item>
 
-//    private var userNameObservation: NSKeyValueObservation? = nil
-    private var cancellation: Set<AnyCancellable> = []
     var observation: NSKeyValueObservation? = nil
 
     private let userDefaultsService = UserDefaultsService.shared
@@ -163,11 +160,14 @@ extension BookmarkViewController {
                     tags: playback.tags
 
                 )
+                cell.configure(with: viewModel)
+                cell.configureMenu(onDeleteAction: { _ in
+                    self.coreDataService.delete(playback)
+                })
                 cell.onThumbnailTap = { [weak self] in
                     guard let url = playback.video?.medium.url else { return }
                     self?.playVideo(from: url)
                 }
-                cell.configure(with: viewModel)
             }
         }
     }
@@ -213,9 +213,9 @@ extension BookmarkViewController {
             switch section.type {
             case .playback:
                 supplementaryView.delegate = self
-                supplementaryView.configure(title: "재생 기록", hasEvent: true)
+                supplementaryView.configure(title: "Playback History", hasEvent: true)
             case .playlist:
-                supplementaryView.configure(title: "재생 목록")
+                supplementaryView.configure(title: "Playlist")
             }
         }
 
@@ -314,7 +314,7 @@ extension BookmarkViewController: NSFetchedResultsControllerDelegate {
         switch type {
         case .insert, .delete, .update:
             let playlistSection = Bookmark.Section(type: .playlist)
-            if anObject is PlaylistVideoEntity,
+            if anObject is PlaylistVideoEntity || anObject is PlaylistEntity,
                snapshot.sectionIdentifiers.contains(playlistSection) {
                 snapshot.reloadSections([playlistSection])
             }
@@ -437,21 +437,21 @@ extension BookmarkViewController {
     private func renamePlaylistAction(for indexPath: IndexPath) -> UIAction {
 
         return UIAction(
-            title: "재생 목록 이름 변경",
+            title: "Rename Playlist",
             image: UIImage(systemName: "square.and.pencil")
         ) { _ in
             guard let entity = self.playListEntityFromDatasource(for: indexPath) else { return }
 
             self.showTextFieldAlert(
-                "재생 목록 이름 변경",
-                message: "새로운 이름을 입력해 주세요.",
+                "Rename Playlist",
+                message: "Please enter a new name.",
                 defaultText: entity.name,
-                placeholder: "새 이름",
+                placeholder: "New name",
                 onConfirm: { (_, newName) in
                     if entity.name != newName, !PlaylistEntity.isExist(newName) {
                         self.coreDataService.update(entity, by: \.name, to: newName)
                     } else {
-                        Toast.makeToast("이미 존재하는 재생 목록 이름입니다.").present()
+                        Toast.makeToast("A playlist with this name already exists.").present()
                     }
                 },
                 onCancel: { _ in }
@@ -461,20 +461,19 @@ extension BookmarkViewController {
 
     private func deletePlaylistAction(for indexPath: IndexPath) -> UIAction {
         return UIAction(
-            title: "재생 목록 삭제",
+            title: "Delete Playlist",
             image: UIImage(systemName: "trash"),
             attributes: .destructive
         ) { _ in
             guard let entity = self.playListEntityFromDatasource(for: indexPath) else { return }
 
             self.showDeleteAlert(
-                "재생 목록 삭제",
-                message: "정말 이 재생목록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
+                "Delete Playlist",
+                message: "Are you sure you want to delete this playlist? This action cannot be undone.",
                 onConfirm: { _ in
                     self.coreDataService.delete(entity)
                 },
-                onCancel: { _ in
-                }
+                onCancel: { _ in }
             )
         }
     }
