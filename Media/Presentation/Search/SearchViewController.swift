@@ -7,7 +7,7 @@
 
 import UIKit
 
-final class SearchViewController: StoryboardViewController, NavigationBarDelegate {
+final class SearchViewController: StoryboardViewController {
     @IBOutlet weak var searchTableView: UITableView!
     @IBOutlet weak var navigationBar: NavigationBar!
     @IBOutlet weak var placeholderImageView: UIImageView!
@@ -52,7 +52,7 @@ final class SearchViewController: StoryboardViewController, NavigationBarDelegat
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        let tap = UITapGestureRecognizer( 
+        let tap = UITapGestureRecognizer(
             target: self,
             action: #selector(dismissKeyboard)
         )
@@ -143,17 +143,8 @@ final class SearchViewController: StoryboardViewController, NavigationBarDelegat
         searchTableView.reloadData()
     }
 
-    //navigationBarItem Tap Event
-    func navigationBarDidTapLeft(_ navBar: NavigationBar) {
-        navigationController?.popViewController(animated: true)
-    }
-
-    func navigationBarDidTapRight(_ navBar: NavigationBar) {
-        showSheet()
-    }
-
     // 서치 필터 뷰 present
-    func showSheet() {
+    private func showSheet() {
         let storyboard = UIStoryboard(name: "SearchFilterViewController", bundle: nil)
         let vc = storyboard.instantiateViewController(
             identifier: "SearchFilterViewController"
@@ -186,30 +177,30 @@ final class SearchViewController: StoryboardViewController, NavigationBarDelegat
 
     // 실시간 필터 색 반영하기 위한 userDefault 리로드
     func reloadSavedFilters() {
-            // 1) 카테고리
+        // 1) 카테고리
         if let rawCat: String = userDefaults[keyPath: \.filterCategories],
-               let cat = Category(rawValue: rawCat) {
-                selectedCategories = cat
-            } else {
-                selectedCategories = nil
-            }
-
-            // 2) 정렬
-        if let rawOrd: String = userDefaults[keyPath: \.filterOrders],
-               let ord = Order(rawValue: rawOrd) {
-                selectedOrder = ord
-            } else {
-                selectedOrder = nil
-            }
-
-            // 3) 길이
-        if let rawDur: String = userDefaults[keyPath: \.filterDurations],
-               let dur = Duration.allCases.first(where: { $0.description == rawDur }) {
-                selectedDuration = dur
-            } else {
-                selectedDuration = nil
-            }
+           let cat = Category(rawValue: rawCat) {
+            selectedCategories = cat
+        } else {
+            selectedCategories = nil
         }
+
+        // 2) 정렬
+        if let rawOrd: String = userDefaults[keyPath: \.filterOrders],
+           let ord = Order(rawValue: rawOrd) {
+            selectedOrder = ord
+        } else {
+            selectedOrder = nil
+        }
+
+        // 3) 길이
+        if let rawDur: String = userDefaults[keyPath: \.filterDurations],
+           let dur = Duration.allCases.first(where: { $0.description == rawDur }) {
+            selectedDuration = dur
+        } else {
+            selectedDuration = nil
+        }
+    }
 }
 
 extension SearchViewController: UITableViewDataSource {
@@ -309,5 +300,15 @@ extension SearchViewController: UISearchBarDelegate {
             searchResultVC.keyword = keyword
             navigationController?.pushViewController(searchResultVC, animated: true)
         }
+    }
+}
+
+extension SearchViewController: NavigationBarDelegate {
+    func navigationBarDidTapLeft(_ navBar: NavigationBar) {
+        navigationController?.popViewController(animated: true)
+    }
+
+    func navigationBarDidTapRight(_ navBar: NavigationBar) {
+        showSheet()
     }
 }
