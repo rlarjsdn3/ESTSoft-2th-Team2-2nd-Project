@@ -7,11 +7,15 @@
 
 import UIKit
 import CoreData
+import Combine
 
+/// <#Description#>
 final class BookmarkViewController: StoryboardViewController, VideoPlayable {
 
     private typealias BookmarkDiffableDataSource = UICollectionViewDiffableDataSource<Bookmark.Section, Bookmark.Item>
 
+//    private var userNameObservation: NSKeyValueObservation? = nil
+    private var cancellation: Set<AnyCancellable> = []
     var observation: NSKeyValueObservation? = nil
 
     private let userDefaultsService = UserDefaultsService.shared
@@ -26,7 +30,6 @@ final class BookmarkViewController: StoryboardViewController, VideoPlayable {
     private var playlistFetchedResultsController: NSFetchedResultsController<PlaylistEntity>? = nil
     private var playlistVideoFetchedResultsController: NSFetchedResultsController<PlaylistVideoEntity>? = nil
 
-
     // MARK: - Lifecycles
 
     override func viewDidLoad() {
@@ -34,6 +37,7 @@ final class BookmarkViewController: StoryboardViewController, VideoPlayable {
 
         setupFetchedResultsController()
         setupDataSource()
+        registerUserDefaultsDidChangeNotification()
     }
 
     override func prepare(
@@ -62,13 +66,39 @@ final class BookmarkViewController: StoryboardViewController, VideoPlayable {
     override func setupAttributes() {
         super.setupAttributes()
 
-        let username = userDefaultsService.userName
+        setupNaivgationBar()
+        collectionView.apply {
+            $0.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 20, right: 0)
+            $0.collectionViewLayout = createCompositionalLayout()
+        }
+    }
+    
+    private func setupNaivgationBar() {
+        guard let userName = userDefaultsService.userName else {
+            navigationBar.configure(
+                title: "Library",
+                isLeadingAligned: true
+            )
+            return
+        }
+
         navigationBar.configure(
-            title: (username != nil) ? "\(username!)'s Library" : "Library",
+            title: userName.isEmpty ? "Library" : "\(userName)'s Library",
             isLeadingAligned: true
         )
-        collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 20, right: 0)
-        collectionView.collectionViewLayout = createCompositionalLayout()
+    }
+    
+    private func registerUserDefaultsDidChangeNotification() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleUserDefaultsDidChangeNotification),
+            name: UserDefaults.didChangeNotification,
+            object: nil
+        )
+    }
+    
+    @objc func handleUserDefaultsDidChangeNotification(_ notification: NotificationCenter) {
+        setupNaivgationBar()
     }
 
     private func createCompositionalLayout() -> UICollectionViewCompositionalLayout {
@@ -157,7 +187,7 @@ extension BookmarkViewController {
                         userName: playlist.name,
                         total: totalVideos
                     )
-                    // 대표 이미지가 없다면 이미지를 빼고 재생 목록 셀 구성
+                // 대표 이미지가 없다면 이미지를 빼고 재생 목록 셀 구성
                 } else {
                     viewModel = PlayListViewModel(
                         userName: playlist.name,
