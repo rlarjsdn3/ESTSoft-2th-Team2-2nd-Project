@@ -102,7 +102,7 @@ extension SmallVideoCell {
     }
 
     private func configureThumbnail(from url: URL?) {
-        thumbnailImageView.backgroundColor = .systemGray6
+        thumbnailImageView.backgroundColor = .systemGray4
 
         let session = URLSession.shared
         Task {

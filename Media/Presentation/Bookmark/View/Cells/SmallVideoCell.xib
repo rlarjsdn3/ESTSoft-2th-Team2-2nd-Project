@@ -6,6 +6,7 @@
         <capability name="Image references" minToolsVersion="12.0"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -51,15 +52,15 @@
                         </constraints>
                     </view>
                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Sbo-rt-kHI">
-                        <rect key="frame" x="52" y="23.333333333333332" width="40" height="40.333333333333329"/>
-                        <color key="backgroundColor" name="TagUnselected"/>
-                        <color key="tintColor" name="MainLabel"/>
+                        <rect key="frame" x="52" y="23.333333333333339" width="40" height="40.666666666666657"/>
+                        <color key="backgroundColor" systemColor="systemGray5Color"/>
+                        <color key="tintColor" name="TagSelected"/>
                         <constraints>
                             <constraint firstAttribute="height" constant="40" id="h4c-1I-bUh"/>
                             <constraint firstAttribute="width" secondItem="Sbo-rt-kHI" secondAttribute="height" multiplier="1:1" id="zzF-M5-xip"/>
                         </constraints>
                         <imageReference key="image" image="plus" catalog="system" symbolScale="large" variableValue="0.0"/>
-                        <preferredSymbolConfiguration key="preferredSymbolConfiguration" configurationType="pointSize" pointSize="15" scale="large" weight="thin"/>
+                        <preferredSymbolConfiguration key="preferredSymbolConfiguration" configurationType="pointSize" pointSize="15" scale="large" weight="light"/>
                     </imageView>
                     <stackView contentMode="center" alignment="center" spacing="2" translatesAutoresizingMaskIntoConstraints="NO" id="ce1-ek-6ZX">
                         <rect key="frame" x="112" y="67" width="24" height="12"/>
@@ -125,14 +126,14 @@
     <resources>
         <image name="play.rectangle.on.rectangle" catalog="system" width="128" height="98"/>
         <image name="plus" catalog="system" width="128" height="113"/>
-        <namedColor name="MainLabel">
-            <color red="0.23137254901960785" green="0.23137254901960785" blue="0.23137254901960785" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-        </namedColor>
         <namedColor name="TagSelected">
             <color red="0.29803921568627451" green="0.36078431372549019" blue="0.36078431372549019" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="TagUnselected">
             <color red="0.95294117647058818" green="0.93725490196078431" blue="0.92549019607843142" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
+        <systemColor name="systemGray5Color">
+            <color red="0.8980392157" green="0.8980392157" blue="0.91764705879999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
     </resources>
 </document>
