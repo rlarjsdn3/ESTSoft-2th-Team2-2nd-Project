@@ -56,7 +56,7 @@ final class VideoDataService {
         }
 
         let newPlaylist = PlaylistEntity(context: context)
-        newPlaylist.name       = CoreDataService.StaticString.bookmarkedPlaylistName
+        newPlaylist.name = CoreDataService.StaticString.bookmarkedPlaylistName
         newPlaylist.createdAt  = Date()
         newPlaylist.isBookmark = true
         try? context.save()

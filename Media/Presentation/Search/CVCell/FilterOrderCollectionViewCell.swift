@@ -28,15 +28,15 @@ class FilterOrderCollectionViewCell: UICollectionViewCell {
     }
 
 
-    override var isSelected: Bool {
-        didSet {
-            if isSelected {
-                orderContentView.backgroundColor = UIColor.tagSelected
-                orderLabel.textColor = .white
-            } else {
-                orderContentView.backgroundColor = UIColor.tagUnselected
-                orderLabel.textColor = .black
-            }
+    override func layoutSubviews() {
+        super.layoutSubviews()
+
+        if isSelected {
+            orderContentView.backgroundColor = UIColor.tagSelected
+            orderLabel.textColor = .white
+        } else {
+            orderContentView.backgroundColor = UIColor.tagUnselected
+            orderLabel.textColor = .label
         }
     }
 }
