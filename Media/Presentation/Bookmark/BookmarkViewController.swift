@@ -312,11 +312,9 @@ extension BookmarkViewController: NSFetchedResultsControllerDelegate {
         var snapshot = dataSource.snapshot()
 
         switch type {
-        case .insert, .delete, .update:
-            let playlistSection = Bookmark.Section(type: .playlist)
-            if anObject is PlaylistVideoEntity || anObject is PlaylistEntity,
-               snapshot.sectionIdentifiers.contains(playlistSection) {
-                snapshot.reloadSections([playlistSection])
+        case .update:
+            if let playlist = anObject as? PlaylistEntity {
+                snapshot.reloadItems([Bookmark.Item.playlist(playlist)])
             }
 
         default:
