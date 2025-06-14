@@ -48,16 +48,16 @@ final class VideoCell: UICollectionViewCell, NibLodable {
         viewCountLabel.backgroundColor = .backgroundColor
 
         durationLabel.textColor = .white
-        durationLabel.backgroundColor = .black.withAlphaComponent(0.6)
-        durationLabel.layer.cornerRadius = 2
+        durationLabel.backgroundColor = .tagSelectedColor
+        durationLabel.layer.cornerRadius = 3
         durationLabel.clipsToBounds = true
 
         likeCountLabel.textColor = .subLabelColor
         likeCountLabel.backgroundColor = .backgroundColor
 
         tagLabel.textColor = .white
-        tagLabel.backgroundColor = .black.withAlphaComponent(0.6)
-        tagLabel.layer.cornerRadius = 2
+        tagLabel.backgroundColor = .tagSelectedColor
+        tagLabel.layer.cornerRadius = 3
         tagLabel.clipsToBounds = true
 
         thumbnailImage.isUserInteractionEnabled = true
@@ -145,6 +145,11 @@ final class VideoCell: UICollectionViewCell, NibLodable {
                 }
             }
         }
+    }
+
+    func setThumbnailImageCornerRadius(_ radius: CGFloat) {
+        thumbnailImage.layer.cornerRadius = radius
+        thumbnailImage.layer.masksToBounds = true
     }
 }
 
