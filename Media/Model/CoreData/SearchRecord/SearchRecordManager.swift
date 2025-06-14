@@ -36,7 +36,7 @@ final class SearchRecordManager: SearchRecordManaging {
 
         // 같은 쿼리 있는지 비교
         let request: NSFetchRequest<SearchRecordEntity> = SearchRecordEntity.fetchRequest()
-        request.predicate = NSPredicate(format: "query == %@", query)
+        request.predicate = NSPredicate(format: "query = [c] %@", query)
         request.fetchLimit = 1
 
         // 존재하면 timestamp만, 존재하지 않으면 새로 추가
