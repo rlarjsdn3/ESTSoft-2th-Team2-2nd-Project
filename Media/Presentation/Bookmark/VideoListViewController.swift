@@ -449,12 +449,11 @@ extension VideoListViewController: UICollectionViewDelegate {
 
         if case let .playback(entity) = item,
            let videoUrl = entity.video?.medium.url {
-            playVideo(from: videoUrl)
+            playVideo(with: entity)
         }
 
-        if case let .playlist(entity) = item,
-           let videoUrl = entity.video?.medium.url{
-            playVideo(from: videoUrl)
+        if case let .playlist(entity) = item {
+            playVideo(with: entity)
         }
     }
 
