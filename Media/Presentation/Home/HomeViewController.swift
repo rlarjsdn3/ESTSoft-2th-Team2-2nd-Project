@@ -14,7 +14,7 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
     @IBOutlet weak var navigationBar: NavigationBar!
 
     @IBOutlet weak var categoryCollectionView: UICollectionView!
-
+    
     // 초기값설정
     var selectedCategoryIndex: Int = 0
 
@@ -140,7 +140,8 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        navigationController?.setNavigationBarHidden(false, animated: animated)
+        navigationController?.navigationBar.isHidden = true
+//        navigationController?.setNavigationBarHidden(false, animated: animated)
 
     }
     //UIView controller Extention
