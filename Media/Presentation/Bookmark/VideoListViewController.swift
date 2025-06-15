@@ -16,14 +16,15 @@ enum VideoListType {
     case playlist(title: String, entities: [PlaylistVideoEntity], isBookmark: Bool)
 }
 
-final class VideoListViewController: StoryboardViewController, VideoPlayable {
+final class VideoListViewController: StoryboardViewController {
 
     typealias PlaylistDiffableDataSource = UICollectionViewDiffableDataSource<VideoList.Section, VideoList.Item>
 
     var videos: VideoListType?
     var observation: NSKeyValueObservation?
+
     private let coreDataService = CoreDataService.shared
-    private let videoCacher = DefaultVideoCacher()
+    private let videoPlayerService = DefaultVideoPlayerService()
 
     private var dataSource: PlaylistDiffableDataSource? = nil
 
@@ -447,7 +448,7 @@ extension VideoListViewController: UICollectionViewDelegate {
     ) {
         guard let item = dataSource?.itemIdentifier(for: indexPath) else { return }
 
-        let onError: VideoPlayerErrorHandler = { error in
+        let onError: (VideoPlayerError?) -> Void = { error in
             guard let error = error else { return }
 
             switch error {
@@ -464,9 +465,9 @@ extension VideoListViewController: UICollectionViewDelegate {
 
         switch item {
         case .playback(let entity):
-            playVideo(with: entity, onError: onError)
+            videoPlayerService.playVideo(self, with: entity, onError: onError)
         case .playlist(let entity):
-            playVideo(with: entity, onError: onError)
+            videoPlayerService.playVideo(self, with: entity, onError: onError)
         }
     }
 

@@ -8,14 +8,8 @@
 import UIKit
 import AVKit
 
-enum VideoPlayerError: Error {
-    ///
-    case notConnectedToInternet
-    ///
-    case generic(Error)
-}
-
 /// 비디오를 재생할 수 있는 기능을 정의하는 프로토콜입니다.
+@available(*, deprecated, message: "VidePlayerService 인스턴스를 생성해 비디오를 불러오세요.")
 protocol VideoPlayable: AnyObject {
 
     /// AVPlayerItem의 상태를 감시하기 위한 KVO 옵저버입니다.

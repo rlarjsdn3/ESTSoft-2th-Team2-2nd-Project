@@ -9,7 +9,7 @@ import UIKit
 import CoreData
 import Combine
 
-final class BookmarkViewController: StoryboardViewController, VideoPlayable {
+final class BookmarkViewController: StoryboardViewController {
 
     private typealias BookmarkDiffableDataSource = UICollectionViewDiffableDataSource<Bookmark.Section, Bookmark.Item>
 
@@ -17,6 +17,7 @@ final class BookmarkViewController: StoryboardViewController, VideoPlayable {
 
     private let userDefaultsService = UserDefaultsService.shared
     private let coreDataService = CoreDataService.shared
+    private let videoPlayerService = DefaultVideoPlayerService()
 
     private var dataSource: BookmarkDiffableDataSource? = nil
 
@@ -165,13 +166,14 @@ extension BookmarkViewController {
                     self?.coreDataService.delete(playback)
                 })
                 cell.setThumbnailImageCornerRadius(8)
-                cell.onThumbnailTap = { [weak self] in
-                    self?.playVideo(with: playback) { error in
+                cell.onThumbnailTap = {
+                    guard let self = self else { return }
+                    self.videoPlayerService.playVideo(self, with: playback) { error in
                         guard let error = error else { return }
 
                         switch error {
                         case .notConnectedToInternet:
-                            self?.showAlert(
+                            self.showAlert(
                                 title: "No Internet Connection",
                                 message: "Please check your internet connection.",
                                 onPrimary: { _ in }
