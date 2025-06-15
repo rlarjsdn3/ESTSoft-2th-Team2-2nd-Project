@@ -67,6 +67,7 @@
                 </constraints>
             </tableViewCellContentView>
             <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
+            <color key="backgroundColor" name="TagUnselected"/>
             <connections>
                 <outlet property="iconImageView" destination="ZR5-bI-I7Q" id="MR0-oM-apr"/>
                 <outlet property="subtitleLabel" destination="koh-ON-JoK" id="Sut-8M-mev"/>

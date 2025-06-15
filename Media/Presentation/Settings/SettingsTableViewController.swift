@@ -134,9 +134,7 @@ class SettingsTableViewController: UITableViewController, EditProfileDelegate, M
         case .modeFeedback: return ModeFeedbackRow.allCases.count
         }
     }
-    
-    // MARK: - Table View Delegate
-    
+        
     /// 셀 구성
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let section = Section(rawValue: indexPath.section) else {
@@ -173,6 +171,8 @@ class SettingsTableViewController: UITableViewController, EditProfileDelegate, M
         // 나머지 셀은 storyboard에 정의된 셀 사용
         return super.tableView(tableView, cellForRowAt: indexPath)
     }
+
+    // MARK: - Table View Delegate
     
     /// 셀 선택 시 동작 정의
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {

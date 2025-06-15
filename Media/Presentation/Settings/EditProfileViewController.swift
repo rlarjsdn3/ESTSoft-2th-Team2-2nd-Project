@@ -47,6 +47,7 @@ class EditProfileViewController: UIViewController, NavigationBarDelegate {
         super.viewDidLoad()
         
         navigationBar.delegate = self
+        textField.delegate = self
         
         textField.text = currentText
         
@@ -95,5 +96,13 @@ class EditProfileViewController: UIViewController, NavigationBarDelegate {
         }
         
         dismiss(animated: true)
+    }
+}
+
+extension EditProfileViewController: UITextFieldDelegate {
+    // 리턴 키를 눌렀을 때 키보드가 내려가게 함
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
     }
 }
