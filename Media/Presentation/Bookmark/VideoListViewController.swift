@@ -68,12 +68,13 @@ final class VideoListViewController: StoryboardViewController, VideoPlayable {
             $0.delegate = self
             $0.placeholder = "Enter a search term."
         }
+        searchContainer.layer.zPosition = 99
         
         collectionView.apply {
             $0.keyboardDismissMode = .onDrag
             $0.collectionViewLayout = createCompositionalLayout()
         }
-        
+    
         contentUnavailableView.alpha = 0.0
         closeButtonTrailingConstraint.constant = -50
     }
@@ -428,6 +429,18 @@ extension VideoListViewController: NSFetchedResultsControllerDelegate {
 
 extension VideoListViewController: UICollectionViewDelegate {
 
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let contentOffset = scrollView.contentOffset
+        let offsetY = contentOffset.y + scrollView.contentInset.top
+        
+        if offsetY < 0 {
+            searchContainer.transform = CGAffineTransform(
+                translationX: 0,
+                y: abs(offsetY)
+            )
+        }
+    }
+    
     func collectionView(
         _ collectionView: UICollectionView,
         didSelectItemAt indexPath: IndexPath
