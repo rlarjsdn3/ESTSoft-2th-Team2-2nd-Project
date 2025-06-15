@@ -147,23 +147,7 @@ extension BookmarkViewController {
     }
 
     private func createPlaybackCellRagistration() -> UICollectionView.CellRegistration<VideoCell, Bookmark.Item> {
-        let onError: VideoPlayerErrorHandler = { error in
-            guard let error = error else { return }
-
-            switch error {
-            case .notConnectedToInternet:
-                self.showAlert(
-                    "No Internet Connection",
-                    message: "Please check your internet connection.",
-                    onConfirm: { _ in },
-                    onCancel: { _ in },
-                )
-            default:
-                break
-            }
-        }
-
-        return UICollectionView.CellRegistration<VideoCell, Bookmark.Item>(cellNib: VideoCell.nib) { cell, indexPath, item in
+        UICollectionView.CellRegistration<VideoCell, Bookmark.Item>(cellNib: VideoCell.nib) { [weak self] cell, indexPath, item in
             if case .playback(let playback) = item {
                 guard let thumbnailUrl = playback.video?.medium.thumbnail else { return }
                 let viewModel = VideoCellViewModel(
@@ -178,11 +162,24 @@ extension BookmarkViewController {
                 )
                 cell.configure(with: viewModel)
                 cell.configureMenu(onDeleteAction: { _ in
-                    self.coreDataService.delete(playback)
+                    self?.coreDataService.delete(playback)
                 })
                 cell.setThumbnailImageCornerRadius(8)
                 cell.onThumbnailTap = { [weak self] in
-                    self?.playVideo(with: playback, onError: onError)
+                    self?.playVideo(with: playback) { error in
+                        guard let error = error else { return }
+
+                        switch error {
+                        case .notConnectedToInternet:
+                            self?.showAlert(
+                                title: "No Internet Connection",
+                                message: "Please check your internet connection.",
+                                onPrimary: { _ in }
+                            )
+                        default:
+                            break
+                        }
+                    }
                 }
             }
         }

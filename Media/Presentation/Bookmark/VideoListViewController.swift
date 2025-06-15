@@ -453,10 +453,9 @@ extension VideoListViewController: UICollectionViewDelegate {
             switch error {
             case .notConnectedToInternet:
                 self.showAlert(
-                    "No Internet Connection",
+                    title: "No Internet Connection",
                     message: "Please check your internet connection.",
-                    onConfirm: { _ in },
-                    onCancel: { _ in },
+                    onPrimary: { _ in }
                 )
             default:
                 break
