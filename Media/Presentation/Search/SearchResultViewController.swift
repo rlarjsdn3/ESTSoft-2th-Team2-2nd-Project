@@ -148,6 +148,14 @@ final class SearchResultViewController: StoryboardViewController, VideoPlayable 
         filterLabel.layer.cornerRadius = filterLabel.frame.size.height / 2
     }
 
+    // 화면 회전
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+        coordinator.animate(alongsideTransition: nil) { _ in
+            self.videoCollectionView.reloadData()
+        }
+    }
+
     // 키보드 내리기
     @objc private func dismissKeyboard() {
         view.endEditing(true)
@@ -308,6 +316,11 @@ final class SearchResultViewController: StoryboardViewController, VideoPlayable 
     }
 
     @objc private func didPullToRefresh() {
+        if isLoading {
+            refreshControl.endRefreshing()
+            return
+        }
+
         refreshControl.beginRefreshing()
         fetchVideos(page: 1, category: selectedCategories, order: selectedOrder, duration: selectedDuration)
     }
@@ -331,6 +344,7 @@ final class SearchResultViewController: StoryboardViewController, VideoPlayable 
         if page == 1 {
             hits.removeAll()
         }
+
         currentPage = page
 
         let endpoint = APIEndpoints.pixabay(
@@ -348,7 +362,6 @@ final class SearchResultViewController: StoryboardViewController, VideoPlayable 
             switch result {
             case .success(let response):
                 self.totalHits = response.totalHits
-
                 self.hits.append(contentsOf: response.hits)
 
                 if let dur = duration {
@@ -360,13 +373,7 @@ final class SearchResultViewController: StoryboardViewController, VideoPlayable 
                 DispatchQueue.main.async {
                     self.activityIndicator.stopAnimating()
                     self.endRefreshing()
-
-                    if self.hits.isEmpty {
-                        self.noVideoFoundImageView.isHidden = false
-                    } else {
-                        self.noVideoFoundImageView.isHidden = true
-                    }
-
+                    self.noVideoFoundImageView.isHidden = !self.hits.isEmpty
                     self.videoCollectionView.isHidden = false
 
                     UIView.transition(with: self.videoCollectionView, duration: 0.3) {
@@ -525,6 +532,15 @@ extension SearchResultViewController: UICollectionViewDataSource {
                     self.showAddPlaylistAlert(for: video)
                 })
                 alert.addAction(UIAlertAction(title: "취소", style: .cancel, handler: nil))
+
+                cell.layoutIfNeeded()
+
+                if let pop = alert.popoverPresentationController {
+                    pop.sourceView = cell.ellipsisButton
+                    pop.sourceRect = cell.ellipsisButton.bounds
+                    pop.permittedArrowDirections = [.any]
+                }
+
                 self.present(alert, animated: true)
 
             }
@@ -556,33 +572,46 @@ extension SearchResultViewController: UICollectionViewDataSource {
 extension SearchResultViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout,
                         sizeForItemAt indexPath: IndexPath) -> CGSize {
+        // ipad대응
+        let isPad = UIDevice.current.userInterfaceIdiom == .pad
+        let interfaceOrientation: UIInterfaceOrientation
+        interfaceOrientation = collectionView.window?.windowScene?.interfaceOrientation ?? .portrait
+        let isLandscape = interfaceOrientation.isLandscape
 
-        let width = videoCollectionView.bounds.width
-        let height = width * 9 / 16 + 80
-        return CGSize(width: width, height: height)
+
+        //iphone: 항상 1개
+        //ipad: 세로 모드 2개, 가로모드 3개
+        let itemsPerRow: CGFloat = {
+            if isPad {
+                return isLandscape ? 3 : 2
+            } else {
+                return 1
+            }
+        }()
+
+        let spacing: CGFloat = 8
+        let sideInset: CGFloat = 8
+        let totalSpacing = spacing * (itemsPerRow - 1) + sideInset * 2
+
+        let availableWidth = collectionView.bounds.width - totalSpacing
+        let cellWidth = availableWidth / itemsPerRow
+        let cellHeight = cellWidth * 9 / 16 + 80
+
+        return CGSize(width: cellWidth, height: cellHeight)
     }
 
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout,
+    func collectionView(_ collectionView: UICollectionView,
+                        layout collectionViewLayout: UICollectionViewLayout,
                         insetForSectionAt section: Int) -> UIEdgeInsets {
-        return .zero
+        return .init(top: 8, left: 8, bottom: 8, right: 8)
     }
-
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout,
+    func collectionView(_ collectionView: UICollectionView,
+                        layout collectionViewLayout: UICollectionViewLayout,
                         minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
-        return 0
-    }
-
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout,
-                        minimumLineSpacingForSectionAt section: Int) -> CGFloat {
         return 8
     }
 
 }
-
-extension SearchResultViewController: UICollectionViewDelegate {
-
-}
-
 
 extension SearchResultViewController: UISearchBarDelegate {
 
@@ -658,5 +687,9 @@ extension SearchResultViewController: UITableViewDelegate {
 
         searchBarSearchButtonClicked(navigationBar.searchBar)
     }
+
+}
+
+extension SearchResultViewController: UIPopoverPresentationControllerDelegate {
 
 }
