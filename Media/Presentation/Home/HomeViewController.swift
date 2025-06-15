@@ -82,6 +82,11 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
         refreshControl.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
         videoCollectionView.refreshControl = refreshControl
 
+        // 레이아웃 고정
+        if let layout = videoCollectionView.collectionViewLayout as? UICollectionViewFlowLayout {
+            layout.estimatedItemSize = .zero
+        }
+
         fetchVideo()
 
     }
@@ -147,7 +152,7 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
         if selectedCategoryIndex == 0 {
             return nil
         }
-        return selectedCategories[selectedCategoryIndex - 1].lowercased()
+        return selectedCategories[selectedCategoryIndex - 1]
     }
 
     private var currentPage: Int = 1
@@ -452,7 +457,7 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
     }
 
     // 재생목록
-    func addToPlaylist(_ video: PixabayResponse.Hit) {
+    func addToPlaylist(_ video: PixabayResponse.Hit, at indexPath: IndexPath) {
         let context = CoreDataService.shared.persistentContainer.viewContext
 
         let fetchRequest: NSFetchRequest<PlaylistEntity> = PlaylistEntity.fetchRequest()
@@ -476,27 +481,22 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
 
             }
             alertController.addAction(createNewAction)
-
+            
             // 취소 버튼 추가
             let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
             alertController.addAction(cancelAction)
 
             // iPad 대응: Popover 설정
             if let popover = alertController.popoverPresentationController {
-                popover.sourceView = self.view
-                popover.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY, width: 0, height: 0)
-                popover.permittedArrowDirections = []
+                guard let cell = videoCollectionView.cellForItem(at: indexPath) as? VideoCell,
+                      let ellipsisButton = cell.ellipsisButton else { return }
+
+                popover.sourceView = ellipsisButton
+                popover.sourceRect = ellipsisButton.bounds
+                popover.permittedArrowDirections = [.up, .down]
             }
 
-            videoCollectionView.collectionViewLayout.invalidateLayout()
-                    videoCollectionView.layoutIfNeeded()
-
-
-            self.present(alertController, animated: true) {
-                // Alert가 안전하게 뜬 후에만 layout 갱신
-                self.videoCollectionView.collectionViewLayout.invalidateLayout()
-                self.videoCollectionView.layoutIfNeeded()
-            }
+            self.present(alertController, animated: true)
 
         } catch {
             print(error)
@@ -581,26 +581,11 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
     }
 
     // MARK: - 아이패드 대응
-    // 레이아웃 갱신
-    private var isTransitioning = false
-    private var preTransitionSize: CGSize?
 
-    override func viewWillTransition(to size: CGSize, with coordinator: any UIViewControllerTransitionCoordinator) {
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
 
-        // 전환 시작
-        isTransitioning = true
-        preTransitionSize = size
-
-        coordinator.animate(alongsideTransition: { _ in
-            self.videoCollectionView.collectionViewLayout.invalidateLayout()
-        }) { _ in
-            // 다시 복구
-            self.isTransitioning = false
-            self.preTransitionSize = nil
-
-            // 갱신
-            self.videoCollectionView.collectionViewLayout.invalidateLayout()
+        coordinator.animate(alongsideTransition: nil) { _ in
             self.videoCollectionView.reloadData()
         }
     }
@@ -643,7 +628,7 @@ extension HomeViewController: UICollectionViewDelegate {
             let playlistAction = UIAction(
                 title: "Add to Playlist", image: UIImage(systemName: "text.badge.plus")
             ) { _ in
-                self.addToPlaylist(item)
+                self.addToPlaylist(item, at: indexPath)
             }
 
             return UIMenu(title: "", children: [bookmarkAction, playlistAction])
@@ -693,7 +678,7 @@ extension HomeViewController: UICollectionViewDataSource {
                     self?.addToBookmark(video)
                 },
                 playlistAction: { [weak self] in
-                    self?.addToPlaylist(video)
+                    self?.addToPlaylist(video, at: indexPath)
                 }
             )
             return cell
@@ -713,14 +698,10 @@ extension HomeViewController: UICollectionViewDataSource {
 
 extension HomeViewController: UICollectionViewDelegateFlowLayout {
 
-
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout,
                         sizeForItemAt indexPath: IndexPath) -> CGSize {
-        // 아이패드 대응
         if collectionView == videoCollectionView {
             let size = collectionView.bounds.size
-
-
             let isPad = UIDevice.current.userInterfaceIdiom == .pad
             let isPortrait = size.height > size.width
             let columns: CGFloat = isPad ? (isPortrait ? 2 : 3) : 1

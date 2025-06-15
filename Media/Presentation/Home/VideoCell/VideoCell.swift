@@ -157,5 +157,9 @@ final class VideoCell: UICollectionViewCell, NibLodable {
         thumbnailImage.layer.cornerRadius = radius
         thumbnailImage.layer.masksToBounds = true
     }
+    override func apply(_ layoutAttributes: UICollectionViewLayoutAttributes) {
+        super.apply(layoutAttributes)
+        print("📐 VideoCell.apply() - \(layoutAttributes.frame)")
+    }
 }
 
