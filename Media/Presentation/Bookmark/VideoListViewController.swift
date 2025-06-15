@@ -68,7 +68,12 @@ final class VideoListViewController: StoryboardViewController, VideoPlayable {
             $0.delegate = self
             $0.placeholder = "Enter a search term."
         }
-        collectionView.collectionViewLayout = createCompositionalLayout()
+        
+        collectionView.apply {
+            $0.keyboardDismissMode = .onDrag
+            $0.collectionViewLayout = createCompositionalLayout()
+        }
+        
         contentUnavailableView.alpha = 0.0
         closeButtonTrailingConstraint.constant = -50
     }
