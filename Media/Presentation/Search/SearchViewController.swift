@@ -51,12 +51,25 @@ final class SearchViewController: StoryboardViewController, NavigationBarDelegat
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        let tap = UITapGestureRecognizer( 
+            target: self,
+            action: #selector(dismissKeyboard)
+        )
+        tap.cancelsTouchesInView = false
+        view.addGestureRecognizer(tap)
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
         loadRecentSearches()
     }
 
     override func setupHierachy() {
         configureSearchTableView()
         configureSearchBar()
+        navigationBar.searchBar.becomeFirstResponder()
 
         NSLayoutConstraint.activate([
             filterLabel.trailingAnchor.constraint(equalTo: navigationBar.rightButton.trailingAnchor, constant: 5),
@@ -72,9 +85,15 @@ final class SearchViewController: StoryboardViewController, NavigationBarDelegat
         changeStateOfFilterButton()
     }
 
+
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        filterLabel.layer.cornerRadius = filterLabel.frame.size.height / 2
+        filterLabel.layer.cornerRadius =
+        filterLabel.frame.size.height / 2
+    }
+
+    @objc private func dismissKeyboard() {
+        view.endEditing(true)
     }
 
     //검색 기록 테이블뷰 등록
@@ -111,6 +130,7 @@ final class SearchViewController: StoryboardViewController, NavigationBarDelegat
             filterLabel.text = "\(count)"
         } else {
             filterLabel.isHidden = true
+            navigationBar.rightButton.tintColor = .label
         }
     }
 

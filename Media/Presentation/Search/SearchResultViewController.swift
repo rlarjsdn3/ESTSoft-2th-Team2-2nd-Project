@@ -18,6 +18,9 @@ final class SearchResultViewController: StoryboardViewController, VideoPlayable 
 
     var keyword: String?
 
+    private var records: [SearchRecordEntity] = []
+    var recordManager = SearchRecordManager()
+
     private let dataService: DataTransferService = DefaultDataTransferService()
     private let userDefaults = UserDefaultsService.shared
 
@@ -45,7 +48,7 @@ final class SearchResultViewController: StoryboardViewController, VideoPlayable 
 
     private let videoDataService = VideoDataService.shared
 
-    //페이지네이션 프로퍼티
+    // 페이지네이션 프로퍼티
     private var hits: [PixabayResponse.Hit] = []
     private var currentPage = 1
     private let perPage = 20 // 한 페이지당 영상 개수
@@ -56,7 +59,7 @@ final class SearchResultViewController: StoryboardViewController, VideoPlayable 
         return Int(ceil(pages))
     }
 
-    //필터 갯수 표현 라벨
+    /// 필터 갯수 표현 라벨입니다.
     private lazy var filterLabel: UILabel = {
         let	label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -67,6 +70,42 @@ final class SearchResultViewController: StoryboardViewController, VideoPlayable 
         label.layer.masksToBounds = true
         label.isHidden = true
         return label
+    }()
+
+    private var recentSearchHeightConstraint: NSLayoutConstraint!
+
+    /// 서치 결과 뷰에서 서치를 시작할 때 나오는 생략된 서치 뷰
+    private lazy var recentSearchContainerView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .clear
+        view.layer.shadowColor = UIColor.tagSelected.cgColor
+        view.layer.shadowOpacity = 0.1
+        view.layer.shadowRadius = 4
+        view.clipsToBounds = true
+        view.layer.cornerRadius = 16
+        view.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
+
+        let tableView = UITableView()
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        tableView.register(
+                UINib(nibName: SearchTableViewCell.id, bundle: nil),
+                forCellReuseIdentifier: SearchTableViewCell.id)
+        tableView.delegate = self
+        tableView.dataSource = self
+        tableView.separatorStyle = .none
+        tableView.isScrollEnabled = false
+        view.addSubview(tableView)
+
+        NSLayoutConstraint.activate([
+            tableView.topAnchor.constraint(equalTo: view.topAnchor),
+            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ])
+
+        view.isHidden = true
+
+        return view
     }()
 
     deinit {
@@ -81,6 +120,13 @@ final class SearchResultViewController: StoryboardViewController, VideoPlayable 
         activityIndicator.hidesWhenStopped = true
         activityIndicator.startAnimating()
         fetchVideos(page: 1, category: selectedCategories, order: selectedOrder, duration: selectedDuration)
+
+        let tap = UITapGestureRecognizer(
+            target: self,
+            action: #selector(dismissKeyboard)
+        )
+        tap.cancelsTouchesInView = false
+        view.addGestureRecognizer(tap)
     }
 
     override func setupHierachy() {
@@ -94,6 +140,8 @@ final class SearchResultViewController: StoryboardViewController, VideoPlayable 
             filterLabel.widthAnchor.constraint(greaterThanOrEqualToConstant: 15),
             filterLabel.heightAnchor.constraint(equalToConstant: 15)
         ])
+
+        setupRecentSearchView()
     }
 
     override func setupAttributes() {
@@ -107,6 +155,28 @@ final class SearchResultViewController: StoryboardViewController, VideoPlayable 
         filterLabel.layer.cornerRadius = filterLabel.frame.size.height / 2
     }
 
+    // 키보드 내리기
+    @objc private func dismissKeyboard() {
+        view.endEditing(true)
+        hideRecentSearches()
+    }
+
+    // 서치 컨테이너 뷰
+    private func setupRecentSearchView() {
+        // 검색바 바로 아래에 붙이기
+        guard let nb = navigationBar.superview else { return }
+        recentSearchContainerView.translatesAutoresizingMaskIntoConstraints = false
+        nb.addSubview(recentSearchContainerView)
+
+        recentSearchHeightConstraint = recentSearchContainerView.heightAnchor.constraint(equalToConstant: 0)
+
+        NSLayoutConstraint.activate([
+            recentSearchContainerView.topAnchor.constraint(equalTo: navigationBar.bottomAnchor, constant: 4),
+            recentSearchContainerView.leadingAnchor.constraint(equalTo: nb.leadingAnchor),
+            recentSearchContainerView.trailingAnchor.constraint(equalTo: nb.trailingAnchor),
+            recentSearchHeightConstraint //동적 높이 조절 constraint
+        ])
+    }
 
     // 네비게이션 바 기본 설정
     private func configureSearchBar() {
@@ -123,6 +193,28 @@ final class SearchResultViewController: StoryboardViewController, VideoPlayable 
         )
         navigationBar.rightButton.addSubview(filterLabel)
         navigationBar.searchBar.text = keyword
+    }
+
+    // 최근 서치 기록 띄어줌
+    private func showRecentSearches() {
+        loadRecentSearches()
+        recentSearchContainerView.isHidden = false
+    }
+
+    // 서치 기록 5개 가져오기
+    private func loadRecentSearches() {
+        records = (try? recordManager.fetchRecent(limit: 5)) ?? []
+
+        let cellHeight: CGFloat = 40
+        let count = CGFloat(records.count)
+
+        recentSearchHeightConstraint.constant = count * cellHeight
+        (recentSearchContainerView.subviews.compactMap { $0 as? UITableView }).first?.reloadData()
+    }
+
+    // 최근 서치 기록 없애기
+    private func hideRecentSearches() {
+            recentSearchContainerView.isHidden = true
     }
 
     // 재훈님 collectionView 등록
@@ -470,6 +562,17 @@ extension SearchResultViewController: UISearchBarDelegate {
         // 키보드 내리기
         searchBar.resignFirstResponder()
 
+        // 서치 뷰 내리기
+        hideRecentSearches()
+
+        //검색 기록 저장
+        do {
+            try recordManager.save(query: keyword)
+        } catch {
+            print(error)
+        }
+        loadRecentSearches()
+
         self.keyword = keyword
         self.activityIndicator.startAnimating()
         self.videoCollectionView.isHidden = true
@@ -480,6 +583,14 @@ extension SearchResultViewController: UISearchBarDelegate {
             order: selectedOrder,
             duration: selectedDuration
         )
+    }
+
+    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
+        showRecentSearches()
+    }
+
+    func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
+        hideRecentSearches()
     }
 }
 
@@ -492,4 +603,30 @@ extension SearchResultViewController: NavigationBarDelegate {
     func navigationBarDidTapRight(_ navBar: NavigationBar) {
         showSheet()
     }
+}
+
+extension SearchResultViewController: UITableViewDataSource {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return records.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: SearchTableViewCell.id, for: indexPath) as! SearchTableViewCell
+        let target = records[indexPath.row]
+        cell.searchLabel.text = target.query
+
+        return cell
+    }
+}
+
+extension SearchResultViewController: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let target = records[indexPath.row].query
+        navigationBar.searchBar.text = target
+        hideRecentSearches()
+        navigationBar.searchBar.resignFirstResponder()
+
+        searchBarSearchButtonClicked(navigationBar.searchBar)
+    }
+
 }

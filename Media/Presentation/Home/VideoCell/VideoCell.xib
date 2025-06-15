@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="23727" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23506"/>
         <capability name="Image references" minToolsVersion="12.0"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="collection view cell content view" minToolsVersion="11.0"/>
@@ -111,7 +111,7 @@
                                 </subviews>
                             </stackView>
                         </subviews>
-                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <color key="backgroundColor" name="Background"/>
                         <constraints>
                             <constraint firstAttribute="height" constant="72.5" id="2Kc-Id-RX7"/>
                             <constraint firstItem="NSF-rt-wH9" firstAttribute="leading" secondItem="rum-U0-kE6" secondAttribute="trailing" constant="8" id="5t1-PZ-bBh"/>
@@ -122,17 +122,26 @@
                             <constraint firstItem="NSF-rt-wH9" firstAttribute="centerY" secondItem="Vhj-7R-C3L" secondAttribute="centerY" id="xxK-9h-E1L"/>
                         </constraints>
                     </view>
-                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="XPG-8s-UiA">
-                        <rect key="frame" x="312.33333333333331" y="207.33333333333334" width="28.666666666666686" height="13.333333333333343"/>
-                        <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.05399659863945578" colorSpace="custom" customColorSpace="sRGB"/>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="XPG-8s-UiA">
+                        <rect key="frame" x="296" y="200.66666666666666" width="45" height="20"/>
+                        <color key="backgroundColor" name="TagSelected"/>
                         <color key="tintColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="20" id="Y3s-jl-Omt"/>
+                            <constraint firstAttribute="width" constant="45" id="yvG-6r-1Vh"/>
+                        </constraints>
                         <fontDescription key="fontDescription" type="system" pointSize="11"/>
                         <color key="textColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <nil key="highlightedColor"/>
                     </label>
-                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WqS-NL-D4v">
-                        <rect key="frame" x="8" y="205" width="33" height="15.666666666666657"/>
-                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WqS-NL-D4v" customClass="PaddingLabel" customModule="Media" customModuleProvider="target">
+                        <rect key="frame" x="8" y="200.66666666666666" width="45" height="20"/>
+                        <color key="backgroundColor" name="TagSelected"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="20" id="6LD-5O-ML6"/>
+                            <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="45" id="DDV-Op-9eF"/>
+                        </constraints>
+                        <fontDescription key="fontDescription" type="system" pointSize="11"/>
                         <color key="textColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <nil key="highlightedColor"/>
                     </label>
@@ -171,8 +180,14 @@
         <image name="ellipsis" catalog="system" width="128" height="37"/>
         <image name="hand.thumbsup" catalog="system" width="123" height="128"/>
         <image name="play.rectangle" catalog="system" width="128" height="93"/>
+        <namedColor name="Background">
+            <color red="0.98039215686274506" green="0.98039215686274506" blue="0.98039215686274506" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
         <namedColor name="SubLabel">
             <color red="0.5490196078431373" green="0.5490196078431373" blue="0.5490196078431373" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="TagSelected">
+            <color red="0.29803921568627451" green="0.36078431372549019" blue="0.36078431372549019" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
     </resources>
 </document>
