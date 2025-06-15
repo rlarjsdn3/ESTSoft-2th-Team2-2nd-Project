@@ -50,6 +50,7 @@ extension PixabayResponse.Hit {
         entity.userId = Int64(self.userId)
         entity.user = self.user
         entity.userImageUrl = self.userImageUrl
+        entity.progress = 0.1
         return entity
     }
 }

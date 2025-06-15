@@ -7,9 +7,7 @@ import CoreData
 
 final class HomeViewController: StoryboardViewController, NavigationBarDelegate {
     private var selectedVideoURL: URL?
-
     private var observation: NSKeyValueObservation?
-
 
     @IBOutlet weak var navigationBar: NavigationBar!
 
@@ -636,7 +634,7 @@ extension HomeViewController: UICollectionViewDataSource {
 
             cell.configure(with: viewModel)
 
-            // 썸네일 터치시 영상 재생
+            // MARK: - 썸네일 터치시 영상 재생
             cell.onThumbnailTap = { [weak self] in
                 guard let self = self, let videoURL = video.videos.medium.url else { return }
                 // 시청기록 저장
