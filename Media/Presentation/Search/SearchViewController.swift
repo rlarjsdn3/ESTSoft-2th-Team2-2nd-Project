@@ -2,7 +2,7 @@
 //  SearchViewController.swift
 //  Media
 //
-//  Created by Jaehun Kim on 6/8/25.
+//  Created by 백현진 on 6/8/25.
 //
 
 import UIKit
@@ -28,7 +28,7 @@ final class SearchViewController: StoryboardViewController {
         return raw.flatMap { Order(rawValue: $0) }
     }()
 
-    private lazy var selectedDuration: Duration? = {
+    private var selectedDuration: Duration? = {
         let raw: String? = UserDefaultsService.shared[keyPath: \.filterDurations]
 
         return raw.flatMap { descript in
@@ -51,13 +51,6 @@ final class SearchViewController: StoryboardViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        let tap = UITapGestureRecognizer(
-            target: self,
-            action: #selector(dismissKeyboard)
-        )
-        tap.cancelsTouchesInView = false
-        view.addGestureRecognizer(tap)
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -119,6 +112,16 @@ final class SearchViewController: StoryboardViewController {
             isSearchMode: true
         )
         navigationBar.rightButton.addSubview(filterLabel)
+    }
+
+    // 키보드 dismiss
+    private func setKeyBoardDismissGesture() {
+        let tap = UITapGestureRecognizer(
+            target: self,
+            action: #selector(dismissKeyboard)
+        )
+        tap.cancelsTouchesInView = false
+        view.addGestureRecognizer(tap)
     }
 
     // 필터가 하나라도 켜져 있으면 filterButton색, filterLabel 활성화

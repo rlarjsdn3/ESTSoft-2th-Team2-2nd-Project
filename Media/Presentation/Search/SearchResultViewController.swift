@@ -36,7 +36,7 @@ final class SearchResultViewController: StoryboardViewController, VideoPlayable 
         return raw.flatMap { Order(rawValue: $0) }
     }()
 
-    private lazy var selectedDuration: Duration? = {
+    private var selectedDuration: Duration? = {
         let raw: String? = UserDefaultsService.shared[keyPath: \.filterDurations]
 
         return raw.flatMap { descript in
@@ -88,8 +88,8 @@ final class SearchResultViewController: StoryboardViewController, VideoPlayable 
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.register(
-                UINib(nibName: SearchTableViewCell.id, bundle: nil),
-                forCellReuseIdentifier: SearchTableViewCell.id)
+            UINib(nibName: SearchTableViewCell.id, bundle: nil),
+            forCellReuseIdentifier: SearchTableViewCell.id)
         tableView.delegate = self
         tableView.dataSource = self
         tableView.separatorStyle = .none
@@ -115,24 +115,17 @@ final class SearchResultViewController: StoryboardViewController, VideoPlayable 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        //print(selectedCategories, selectedOrder, selectedDuration)
-        videoCollectionView.isHidden = true
-        activityIndicator.hidesWhenStopped = true
-        activityIndicator.startAnimating()
         fetchVideos(page: 1, category: selectedCategories, order: selectedOrder, duration: selectedDuration)
-
-        let tap = UITapGestureRecognizer(
-            target: self,
-            action: #selector(dismissKeyboard)
-        )
-        tap.cancelsTouchesInView = false
-        view.addGestureRecognizer(tap)
+        setKeyBoardDismissGesture()
     }
 
     override func setupHierachy() {
         configureSearchBar()
         configureCollectionView()
         configureRefreshControl()
+        videoCollectionView.isHidden = true
+        activityIndicator.hidesWhenStopped = true
+        activityIndicator.startAnimating()
 
         NSLayoutConstraint.activate([
             filterLabel.trailingAnchor.constraint(equalTo: navigationBar.rightButton.trailingAnchor, constant: 5),
@@ -195,6 +188,17 @@ final class SearchResultViewController: StoryboardViewController, VideoPlayable 
         navigationBar.searchBar.text = keyword
     }
 
+
+    // 키보드 dismiss
+    private func setKeyBoardDismissGesture() {
+        let tap = UITapGestureRecognizer(
+            target: self,
+            action: #selector(dismissKeyboard)
+        )
+        tap.cancelsTouchesInView = false
+        view.addGestureRecognizer(tap)
+    }
+
     // 최근 서치 기록 띄어줌
     private func showRecentSearches() {
         loadRecentSearches()
@@ -214,7 +218,7 @@ final class SearchResultViewController: StoryboardViewController, VideoPlayable 
 
     // 최근 서치 기록 없애기
     private func hideRecentSearches() {
-            recentSearchContainerView.isHidden = true
+        recentSearchContainerView.isHidden = true
     }
 
     // 재훈님 collectionView 등록
@@ -263,6 +267,7 @@ final class SearchResultViewController: StoryboardViewController, VideoPlayable 
             filterLabel.text = "\(count)"
         } else {
             filterLabel.isHidden = true
+            navigationBar.rightButton.tintColor = .label
         }
     }
 
@@ -363,7 +368,10 @@ final class SearchResultViewController: StoryboardViewController, VideoPlayable 
                     }
 
                     self.videoCollectionView.isHidden = false
-                    self.videoCollectionView.reloadData()
+
+                    UIView.transition(with: self.videoCollectionView, duration: 0.3) {
+                        self.videoCollectionView.reloadData()
+                    }
                 }
 
             case .failure(let error):
@@ -451,12 +459,34 @@ extension SearchResultViewController: UICollectionViewDataSource {
 
         // 썸네일 터치시 영상 재생
         cell.onThumbnailTap = { [weak self] in
-            guard let self = self,
-                  let url = video.videos.medium.url else { return }
+            guard let self = self else { return }
 
-            // 시청기록 저장
+            let rawPref: String = UserDefaultsService.shared[keyPath: \.videoQuality]
+            let pref: VideoQuality = VideoQuality(rawValue: rawPref) ?? .medium
+
+            let v = video.videos
+            let candidates: [URL?] = {
+                switch pref {
+                case .large:
+                    return [v.large.url, v.medium.url, v.small.url, v.tiny.url]
+                case .medium:
+                    return [v.medium.url, v.small.url, v.tiny.url, v.large.url]
+                case .small:
+                    return [v.small.url, v.tiny.url, v.medium.url, v.large.url]
+                case .tiny:
+                    return [v.tiny.url, v.small.url, v.medium.url, v.large.url]
+                }
+            }()
+
+            // nil이 아닌 첫 번째 URL 선택
+            guard let videoURL = candidates.compactMap({ $0 }).first else {
+                Toast.makeToast("재생 가능한 영상 URL이 없습니다").present()
+                return
+            }
+
+            print("VideoURL: \(videoURL) --------- --------- --------- ---")
             self.videoDataService.addToWatchHistory(video)
-            self.playVideo(from: url)
+            self.playVideo(from: videoURL)
         }
 
         // Ellipsis 버튼 실행
@@ -609,7 +639,7 @@ extension SearchResultViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return records.count
     }
-    
+
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: SearchTableViewCell.id, for: indexPath) as! SearchTableViewCell
         let target = records[indexPath.row]
