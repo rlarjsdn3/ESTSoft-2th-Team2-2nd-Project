@@ -147,7 +147,23 @@ extension BookmarkViewController {
     }
 
     private func createPlaybackCellRagistration() -> UICollectionView.CellRegistration<VideoCell, Bookmark.Item> {
-        UICollectionView.CellRegistration<VideoCell, Bookmark.Item>(cellNib: VideoCell.nib) { cell, indexPath, item in
+        let onError: VideoPlayerErrorHandler = { error in
+            guard let error = error else { return }
+
+            switch error {
+            case .notConnectedToInternet:
+                self.showAlert(
+                    "No Internet Connection",
+                    message: "Please check your internet connection.",
+                    onConfirm: { _ in },
+                    onCancel: { _ in },
+                )
+            default:
+                break
+            }
+        }
+
+        return UICollectionView.CellRegistration<VideoCell, Bookmark.Item>(cellNib: VideoCell.nib) { cell, indexPath, item in
             if case .playback(let playback) = item {
                 guard let thumbnailUrl = playback.video?.medium.thumbnail else { return }
                 let viewModel = VideoCellViewModel(
@@ -166,7 +182,7 @@ extension BookmarkViewController {
                 })
                 cell.setThumbnailImageCornerRadius(8)
                 cell.onThumbnailTap = { [weak self] in
-                    self?.playVideo(with: playback)
+                    self?.playVideo(with: playback, onError: onError)
                 }
             }
         }

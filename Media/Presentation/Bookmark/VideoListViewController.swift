@@ -447,13 +447,27 @@ extension VideoListViewController: UICollectionViewDelegate {
     ) {
         guard let item = dataSource?.itemIdentifier(for: indexPath) else { return }
 
-        if case let .playback(entity) = item,
-           let videoUrl = entity.video?.medium.url {
-            playVideo(with: entity)
+        let onError: VideoPlayerErrorHandler = { error in
+            guard let error = error else { return }
+
+            switch error {
+            case .notConnectedToInternet:
+                self.showAlert(
+                    "No Internet Connection",
+                    message: "Please check your internet connection.",
+                    onConfirm: { _ in },
+                    onCancel: { _ in },
+                )
+            default:
+                break
+            }
         }
 
-        if case let .playlist(entity) = item {
-            playVideo(with: entity)
+        switch item {
+        case .playback(let entity):
+            playVideo(with: entity, onError: onError)
+        case .playlist(let entity):
+            playVideo(with: entity, onError: onError)
         }
     }
 
