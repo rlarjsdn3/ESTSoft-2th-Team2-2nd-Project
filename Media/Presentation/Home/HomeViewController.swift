@@ -115,38 +115,7 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
     // UIView controller Extention
     // 비디오 재생
     func playVideo(with url: URL) {
-
-        // #1. PlayerItem 생성
-        let item = AVPlayerItem(url: url)
-
-        // #2. Player 생성
-        player = AVPlayer(playerItem: item)
-
-
-
-        // #3. PlayerVC 생성
-        let vc = AVPlayerViewController()
-
-        // #4. 연결
-        vc.player = player
-
-
-        observation?.invalidate()
-
-        observation = item.observe(\.status) { [weak self] playerItem, _ in
-            if playerItem.status == .readyToPlay {
-                self?.startObservingTime(with: url)
-                self?.player?.play()
-            } else if playerItem.status == .failed {
-                print("❌ PlayerItem failed to load\(playerItem.error.debugDescription)")
-            }
-        }
-
-        // #5. 표시
-        present(vc, animated: true) {
-
-        }
-
+        presentPiPVideoPlayer(from: self, with: url)
     }
 
     // MARK: - 카테고리

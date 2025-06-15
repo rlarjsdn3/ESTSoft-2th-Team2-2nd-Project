@@ -368,8 +368,13 @@ extension BookmarkViewController: UICollectionViewDelegate {
         guard let item = dataSource?.itemIdentifier(for: indexPath) else { return }
 
         switch item {
-        case .playback:
-            break
+        case .playback(let playbackEntity):
+            // CoreData에 저장된 영상 재생 기록(playbackEntity)에서 영상 URL 추출
+            // medium 화질의 URL이 존재할 경우 PiP 지원 플레이어를 통해 재생
+            guard let url = playbackEntity.video?.medium.url else { return }
+            
+            // 현재 ViewController 기준으로 PiP 가능한 영상 플레이어를 모달로 띄움
+            presentPiPVideoPlayer(from: self, with: url)
         case .playlist:
             performSegue(
                 withIdentifier: "navigateToPlaylistVideos",
