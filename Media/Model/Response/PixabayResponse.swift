@@ -84,6 +84,8 @@ extension PixabayResponse {
 
 extension PixabayResponse.Hit {
 
+    static let defaultPlayTime: Double = 0.5
+
     /// 영상의 다양한 해상도별 버전을 나타내는 모델입니다.
     struct VideoVariants: Decodable {
         /// 대형(보통 3840x2160) 해상도
@@ -110,7 +112,22 @@ extension PixabayResponse.Hit.VideoVariants {
         /// 파일 크기 (바이트 단위)
         let size: Int
         /// 영상 썸네일 이미지 URL
-        let thumbnail: URL?
+        let thumbnailAbsoluteString: String
+        /// 업로드 영상의 썸네일 URL 문자열을 기반으로 생성된 URL입니다.
+        ///
+        /// `thumbnailAbsoulteString`이 유효한 URL 문자열일 경우 해당 URL을 반환하며,
+        /// 그렇지 않으면 `nil`을 반환합니다.
+        var thumbnail: URL? {
+        	URL(string: thumbnailAbsoluteString)
+        }
+
+        enum CodingKeys: String, CodingKey {
+            case url
+            case width
+            case height
+            case size
+            case thumbnailAbsoluteString = "thumbnail"
+        }
 
         /// 비디오 URL에서 마지막 경로 구성 요소를 추출하여 파일 이름을 반환합니다.
         ///

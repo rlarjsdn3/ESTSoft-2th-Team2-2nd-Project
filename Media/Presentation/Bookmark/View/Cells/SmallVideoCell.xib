@@ -52,17 +52,17 @@
                         </constraints>
                     </view>
                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Sbo-rt-kHI">
-                        <rect key="frame" x="52" y="23.333333333333332" width="40" height="40.333333333333329"/>
-                        <color key="backgroundColor" systemColor="systemGray6Color"/>
-                        <color key="tintColor" systemColor="labelColor"/>
+                        <rect key="frame" x="52" y="23.333333333333339" width="40" height="40.666666666666657"/>
+                        <color key="backgroundColor" systemColor="systemGray5Color"/>
+                        <color key="tintColor" name="TagSelected"/>
                         <constraints>
                             <constraint firstAttribute="height" constant="40" id="h4c-1I-bUh"/>
                             <constraint firstAttribute="width" secondItem="Sbo-rt-kHI" secondAttribute="height" multiplier="1:1" id="zzF-M5-xip"/>
                         </constraints>
                         <imageReference key="image" image="plus" catalog="system" symbolScale="large" variableValue="0.0"/>
-                        <preferredSymbolConfiguration key="preferredSymbolConfiguration" configurationType="pointSize" pointSize="15" scale="large" weight="thin"/>
+                        <preferredSymbolConfiguration key="preferredSymbolConfiguration" configurationType="pointSize" pointSize="15" scale="large" weight="light"/>
                     </imageView>
-                    <stackView opaque="NO" contentMode="center" alignment="center" spacing="2" translatesAutoresizingMaskIntoConstraints="NO" id="ce1-ek-6ZX">
+                    <stackView contentMode="center" alignment="center" spacing="2" translatesAutoresizingMaskIntoConstraints="NO" id="ce1-ek-6ZX">
                         <rect key="frame" x="112" y="67" width="24" height="12"/>
                         <subviews>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="9EW-uE-cme">
@@ -78,7 +78,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                         </subviews>
-                        <color key="backgroundColor" red="0.29803921568627451" green="0.36078431372549019" blue="0.36078431372549019" alpha="0.80000000000000004" colorSpace="custom" customColorSpace="sRGB"/>
+                        <color key="backgroundColor" name="TagSelected"/>
                         <constraints>
                             <constraint firstAttribute="width" secondItem="ce1-ek-6ZX" secondAttribute="height" multiplier="2:1" id="8je-rr-0Vp"/>
                         </constraints>
@@ -132,11 +132,8 @@
         <namedColor name="TagUnselected">
             <color red="0.95294117647058818" green="0.93725490196078431" blue="0.92549019607843142" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
-        <systemColor name="labelColor">
-            <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-        </systemColor>
-        <systemColor name="systemGray6Color">
-            <color red="0.94901960780000005" green="0.94901960780000005" blue="0.96862745100000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        <systemColor name="systemGray5Color">
+            <color red="0.8980392157" green="0.8980392157" blue="0.91764705879999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

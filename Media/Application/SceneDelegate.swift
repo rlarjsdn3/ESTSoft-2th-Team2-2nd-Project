@@ -20,12 +20,35 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
      - 각 탭(Home, Library, Interest, Setting)의 일반 상태와 선택된 상태 이미지 설정
      */
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-        guard let windowScene = scene as? UIWindowScene else { return }
-        applyUserInterfaceStyle(from: windowScene)
+
+        guard let windowScene = (scene as? UIWindowScene) else { return }
         
-        if let tapBarController = self.window?.rootViewController as? UITabBarController {
-            TabBarConfigurator.configure(tabBarController: tapBarController)
+        let window = UIWindow(windowScene: windowScene)
+        let isDark = UserDefaults.standard.bool(forKey: "isDarkMode")
+        window.overrideUserInterfaceStyle = isDark ? .dark : .light
+        
+        let mainStoryboard = UIStoryboard(name: "Main", bundle: nil)
+        let onboardingStoryboard = UIStoryboard(name: "OnBoardingOnBoardingViewController", bundle: nil)
+        
+        if UserDefaults.standard.seenOnboarding {
+            // 앱 실행시 온보딩이 완료된 경우 바로 메인화면으로 이동
+            let mainVC = mainStoryboard.instantiateViewController(withIdentifier: "MainVC")
+            window.rootViewController = mainVC
+        } else {
+            // 앱 실행시 온보딩이 아직 진행이 안됐으면 온보딩 화면으로 이동
+            let onboardingVC = onboardingStoryboard.instantiateViewController(withIdentifier: "OnboardingVC")
+            let nav = UINavigationController(rootViewController: onboardingVC)
+            window.rootViewController = nav
         }
+        
+        self.window = window
+        window.makeKeyAndVisible()
+    }
+
+    func sceneDidDisconnect(_ scene: UIScene) {
+    }
+
+    func sceneDidBecomeActive(_ scene: UIScene) {
     }
     
     /// 사용자 설정에 따라 라이트 / 다크 모드를 적용

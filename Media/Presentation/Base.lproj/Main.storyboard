@@ -6,10 +6,10 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--Tab Bar Controller-->
+        <!--Main Tab Bar Controller-->
         <scene sceneID="dkN-1Q-pvX">
             <objects>
-                <tabBarController storyboardIdentifier="MainVC" automaticallyAdjustsScrollViewInsets="NO" id="dku-41-Td6" sceneMemberID="viewController">
+                <tabBarController storyboardIdentifier="MainVC" automaticallyAdjustsScrollViewInsets="NO" id="dku-41-Td6" customClass="MainTabBarController" customModule="Media" customModuleProvider="target" sceneMemberID="viewController">
                     <toolbarItems/>
                     <tabBar key="tabBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="fT4-g9-Eka">
                         <rect key="frame" x="0.0" y="0.0" width="1000" height="1000"/>
@@ -40,11 +40,10 @@
         <!--Item-->
         <scene sceneID="TW6-H7-lIn">
             <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="mav-Kk-pyA" sceneMemberID="viewController">
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" navigationBarHidden="YES" id="mav-Kk-pyA" sceneMemberID="viewController">
                     <tabBarItem key="tabBarItem" title="Item" id="vYp-i5-kfE"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="pn9-tY-Cds">
-                        <rect key="frame" x="0.0" y="59" width="393" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <nil name="viewControllers"/>

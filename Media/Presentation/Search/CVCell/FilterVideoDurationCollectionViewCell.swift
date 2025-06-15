@@ -28,15 +28,15 @@ class FilterVideoDurationCollectionViewCell: UICollectionViewCell {
     }
 
 
-    override var isSelected: Bool {
-        didSet {
-            if isSelected {
-                durationContentView.backgroundColor = UIColor.tagSelected
-                durationLabel.textColor = .white
-            } else {
-                durationContentView.backgroundColor = UIColor.tagUnselected
-                durationLabel.textColor = .black
-            }
+    override func layoutSubviews() {
+        super.layoutSubviews()
+
+        if isSelected {
+            durationContentView.backgroundColor = UIColor.tagSelected
+            durationLabel.textColor = .white
+        } else {
+            durationContentView.backgroundColor = UIColor.tagUnselected
+            durationLabel.textColor = .label
         }
     }
 }

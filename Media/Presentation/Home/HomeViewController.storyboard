@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23727" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="Y6W-OH-hqX">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="Y6W-OH-hqX">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23506"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -17,11 +17,11 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="nMB-R3-bAS">
-                                <rect key="frame" x="0.0" y="163" width="393" height="40"/>
+                                <rect key="frame" x="0.0" y="114" width="393" height="40"/>
                                 <color key="backgroundColor" name="Background"/>
                                 <color key="tintColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="40" id="eB3-vg-toi"/>
+                                    <constraint firstAttribute="height" constant="40" id="k6h-IS-Ylw"/>
                                 </constraints>
                                 <collectionViewFlowLayout key="collectionViewLayout" scrollDirection="horizontal" automaticEstimatedItemSize="YES" minimumLineSpacing="10" minimumInteritemSpacing="10" id="6H1-Sf-446">
                                     <size key="itemSize" width="86" height="40"/>
@@ -32,7 +32,7 @@
                                 <cells/>
                             </collectionView>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" contentInsetAdjustmentBehavior="never" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="29M-e4-Jdi">
-                                <rect key="frame" x="0.0" y="208" width="393" height="644"/>
+                                <rect key="frame" x="0.0" y="159" width="393" height="693"/>
                                 <color key="backgroundColor" name="Background"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" automaticEstimatedItemSize="YES" minimumLineSpacing="10" minimumInteritemSpacing="10" id="A6l-sB-z61">
                                     <size key="itemSize" width="128" height="128"/>
@@ -43,33 +43,29 @@
                                 <cells/>
                             </collectionView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="GBB-wv-WeZ" customClass="NavigationBar" customModule="Media" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="118" width="393" height="40"/>
+                                <rect key="frame" x="0.0" y="59" width="393" height="50"/>
                                 <color key="backgroundColor" name="Background"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="40" id="Jy6-n9-CFn"/>
+                                    <constraint firstAttribute="height" constant="50" id="bNG-ZJ-f2e"/>
                                 </constraints>
                             </view>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="vDu-zF-Fre"/>
                         <color key="backgroundColor" name="Background"/>
                         <constraints>
-                            <constraint firstItem="GBB-wv-WeZ" firstAttribute="top" secondItem="vDu-zF-Fre" secondAttribute="top" id="2nz-sf-hEj"/>
-                            <constraint firstAttribute="bottom" secondItem="29M-e4-Jdi" secondAttribute="bottom" id="7K3-Yg-GtQ"/>
-                            <constraint firstItem="nMB-R3-bAS" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="Uar-fX-TIV"/>
-                            <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="GBB-wv-WeZ" secondAttribute="trailing" id="XDu-DK-5OT"/>
-                            <constraint firstItem="nMB-R3-bAS" firstAttribute="top" secondItem="GBB-wv-WeZ" secondAttribute="bottom" constant="5" id="ah5-0a-Jsa"/>
-                            <constraint firstItem="29M-e4-Jdi" firstAttribute="leading" secondItem="5EZ-qb-Rvc" secondAttribute="leading" id="bGN-2l-Hsf"/>
-                            <constraint firstItem="GBB-wv-WeZ" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="bGm-sA-LMu"/>
-                            <constraint firstItem="29M-e4-Jdi" firstAttribute="top" secondItem="nMB-R3-bAS" secondAttribute="bottom" constant="5" id="eUY-cQ-ZPn"/>
-                            <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="nMB-R3-bAS" secondAttribute="trailing" id="sXA-Cm-G7u"/>
-                            <constraint firstItem="29M-e4-Jdi" firstAttribute="trailing" secondItem="5EZ-qb-Rvc" secondAttribute="trailing" id="ziu-VP-SOk"/>
+                            <constraint firstItem="29M-e4-Jdi" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="2FF-G1-O36"/>
+                            <constraint firstItem="nMB-R3-bAS" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="APH-CI-9Jv"/>
+                            <constraint firstItem="GBB-wv-WeZ" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="Kf1-of-Ce1"/>
+                            <constraint firstItem="nMB-R3-bAS" firstAttribute="top" secondItem="GBB-wv-WeZ" secondAttribute="bottom" constant="5" id="UdD-C8-Us2"/>
+                            <constraint firstAttribute="bottom" secondItem="29M-e4-Jdi" secondAttribute="bottom" id="b7j-Lf-eYK"/>
+                            <constraint firstItem="GBB-wv-WeZ" firstAttribute="top" secondItem="vDu-zF-Fre" secondAttribute="top" id="cTc-az-vVz"/>
+                            <constraint firstItem="GBB-wv-WeZ" firstAttribute="trailing" secondItem="vDu-zF-Fre" secondAttribute="trailing" id="eKE-wK-L6Y"/>
+                            <constraint firstItem="nMB-R3-bAS" firstAttribute="trailing" secondItem="vDu-zF-Fre" secondAttribute="trailing" id="lUr-pq-AfN"/>
+                            <constraint firstItem="29M-e4-Jdi" firstAttribute="trailing" secondItem="vDu-zF-Fre" secondAttribute="trailing" id="nX7-xz-72U"/>
+                            <constraint firstItem="29M-e4-Jdi" firstAttribute="top" secondItem="nMB-R3-bAS" secondAttribute="bottom" constant="5" id="o6E-W4-Cvy"/>
                         </constraints>
                     </view>
                     <toolbarItems/>
-                    <navigationItem key="navigationItem" id="Br4-r3-Mpw">
-                        <nil key="title"/>
-                    </navigationItem>
-                    <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
                     <connections>
                         <outlet property="categoryCollectionView" destination="nMB-R3-bAS" id="n6s-WR-XaZ"/>
                         <outlet property="navigationBar" destination="GBB-wv-WeZ" id="MT2-dN-dFl"/>

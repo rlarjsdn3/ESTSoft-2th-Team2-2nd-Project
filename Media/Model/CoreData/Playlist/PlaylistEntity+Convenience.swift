@@ -10,10 +10,11 @@ import CoreData
 
 extension PlaylistEntity {
     
-    /// <#Description#>
+    /// 이름과 북마크 여부를 지정하여 새로운 엔터티를 생성합니다.
     /// - Parameters:
-    ///   - name: <#name description#>
-    ///   - context: <#context description#>
+    ///   - name: 생성할 엔터티의 이름입니다.
+    ///   - isBookmark: 북마크 여부를 나타내는 플래그입니다. 기본값은 `false`입니다.
+    ///   - context: 엔터티를 삽입할 `NSManagedObjectContext`입니다.
     convenience init(
         name: String,
         isBookmark: Bool = false,

@@ -20,10 +20,14 @@ class MediumVideoCell: UICollectionViewCell, NibLodable, UIContextMenuInteractio
                 )
     }
     
+    @IBOutlet private weak var containerView: UIView!
 
+    @IBOutlet private weak var thumbnailImageContainerView: UIView!
+    
     /// 썸네일 이미지를 표시하는 뷰
     @IBOutlet private weak var thumbnailImageView: UIImageView!
 
+    @IBOutlet private weak var timeProgressView: UIProgressView!
     /// 태그 정보를 표시하는 타이틀 라벨
     @IBOutlet private weak var tagsLabel: UILabel!
 
@@ -48,14 +52,22 @@ class MediumVideoCell: UICollectionViewCell, NibLodable, UIContextMenuInteractio
     /// 북마크 여부
     var isBookMark: Bool = false {
         didSet {
-            actionButton
-                .setImage(
-                    isBookMark
-                    ? UIImage(systemName: "bookmark.fill")
-                    : UIImage(systemName: "trash.fill"),
-                    for: .normal
-                )
+            let config = UIImage.SymbolConfiguration(pointSize: 12)
+            let image = if isBookMark {
+                UIImage(systemName: "bookmark.fill")?
+                    .withConfiguration(config)
+            } else {
+                UIImage(systemName: "trash")?
+                    .withConfiguration(config)
+            }
+            actionButton.setImage(image, for: .normal)
             actionButton.tintColor = isBookMark ? .label: .systemRed
+        }
+    }
+
+    var isProgressHidden: Bool = false {
+        didSet {
+            timeProgressView.isHidden = isProgressHidden
         }
     }
 
@@ -85,18 +97,15 @@ class MediumVideoCell: UICollectionViewCell, NibLodable, UIContextMenuInteractio
     }
 
     private func setViews() {
-        thumbnailImageView.layer.cornerRadius = 8
+        thumbnailImageContainerView.layer.cornerRadius = 8
         paddingLabel.layer.cornerRadius = 3
-
-        let destruct = UIAction(title: "전체 삭제", attributes: .destructive) { _ in
-            print("전체 삭제")
-        }
-
-
+        containerView.backgroundColor = .systemBackground
+        containerView.layer.cornerRadius = 12
+        containerView.layer.masksToBounds = true
     }
 
     func configureMenu(deleteAction: @escaping () -> Void) {
-        let destruct = UIAction(title: "전체 삭제", attributes: .destructive) { _ in
+        let destruct = UIAction(title: "전체 삭제", image: UIImage(systemName: "trash"), attributes: .destructive) { _ in
             deleteAction()
         }
         let interaction = UIContextMenuInteraction(delegate: self)
@@ -113,13 +122,18 @@ extension MediumVideoCell {
     func configure(_ history: MediumVideoViewModel) {
         currentThumbnailURL = history.thumbnailUrl
         configureThumbnail(from: history.thumbnailUrl)
-        tagsLabel.text = history.tags
+        tagsLabel.text = history.tags.split(by: ",").prefix(2).joined(separator: ", ")
         userNameLabel.text = history.userName
         durationLabel.text = formatDuration(history.duration)
         let numberFormatter = NumberFormatter()
         numberFormatter.numberStyle = .decimal
         let result = numberFormatter.string(for: history.viewCount)
         viewsCountLabel.text = result
+        guard let progress = history.progress else {
+            timeProgressView.isHidden = true
+            return
+        }
+        timeProgressView.setProgress(progress, animated: false)
     }
     
     private func formatDuration(_ seconds: Int) -> String {
@@ -148,9 +162,25 @@ extension MediumVideoCell {
 }
 
 struct MediumVideoViewModel {
-    var tags: String
-    var userName: String
-    var viewCount: Int
-    var duration: Int
-    var thumbnailUrl: URL?
+    let tags: String
+    let userName: String
+    let viewCount: Int
+    let duration: Int
+    let thumbnailUrl: URL?
+    let playTime: Double?
+    
+    var progress: Float? {
+        guard let playTime = playTime else { return nil }
+        return Float(playTime / Double(duration))
+
+    }
+
+    init(tags: String, userName: String, viewCount: Int, duration: Int, thumbnailUrl: URL?, playTime: Double? = nil) {
+        self.tags = tags
+        self.userName = userName
+        self.viewCount = viewCount
+        self.duration = duration
+        self.thumbnailUrl = thumbnailUrl
+        self.playTime = playTime
+    }
 }

@@ -38,7 +38,7 @@
                                             <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="9BH-Kg-GDp">
                                                 <rect key="frame" x="26.333333333333343" y="0.0" width="292.66666666666663" height="34"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                                <textInputTraits key="textInputTraits" autocorrectionType="no" returnKeyType="done" smartDashesType="no" smartInsertDeleteType="no" smartQuotesType="no"/>
+                                                <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no" returnKeyType="done" smartDashesType="no" smartInsertDeleteType="no" smartQuotesType="no"/>
                                             </textField>
                                         </subviews>
                                     </stackView>
@@ -83,12 +83,28 @@
                                     <outlet property="delegate" destination="Y6W-OH-hqX" id="1Mk-i9-2D3"/>
                                 </connections>
                             </collectionView>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="OWg-aO-lHw" customClass="ContentUnavailableView" customModule="Media" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="159" width="393" height="693"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="string" keyPath="imageName" value="no_bookmark"/>
+                                    <userDefinedRuntimeAttribute type="string" keyPath="title" value="ddd"/>
+                                    <userDefinedRuntimeAttribute type="string" keyPath="subtitle" value="dd"/>
+                                    <userDefinedRuntimeAttribute type="color" keyPath="backgroundColor">
+                                        <color key="value" name="AccentColor"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
+                            </view>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="vDu-zF-Fre"/>
                         <color key="backgroundColor" name="Background"/>
                         <constraints>
                             <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="8B9-Ko-MSM" secondAttribute="trailing" id="2Cp-QO-vrg"/>
+                            <constraint firstItem="OWg-aO-lHw" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="B2l-xp-rJV"/>
+                            <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="OWg-aO-lHw" secondAttribute="trailing" id="LSV-SL-65C"/>
+                            <constraint firstAttribute="bottom" secondItem="OWg-aO-lHw" secondAttribute="bottom" id="Mdd-MT-asD"/>
                             <constraint firstItem="Fbz-n0-wHq" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="Q8C-sf-SYI"/>
+                            <constraint firstItem="OWg-aO-lHw" firstAttribute="top" secondItem="8B9-Ko-MSM" secondAttribute="bottom" id="RKm-DQ-Von"/>
                             <constraint firstItem="8B9-Ko-MSM" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="Sbp-l4-YNc"/>
                             <constraint firstItem="kIT-TR-7aL" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="Uf7-JE-Bre"/>
                             <constraint firstItem="8B9-Ko-MSM" firstAttribute="top" secondItem="kIT-TR-7aL" secondAttribute="bottom" id="cx7-Zx-P7O"/>
@@ -103,6 +119,7 @@
                         <outlet property="closeButton" destination="xh1-5y-74R" id="hie-cL-607"/>
                         <outlet property="closeButtonTrailingConstraint" destination="nLB-Z6-iWe" id="tkz-5F-5yx"/>
                         <outlet property="collectionView" destination="Fbz-n0-wHq" id="G6z-j0-1b8"/>
+                        <outlet property="contentUnavailableView" destination="OWg-aO-lHw" id="mcb-YD-oVe"/>
                         <outlet property="navigationBar" destination="kIT-TR-7aL" id="JIu-en-QW3"/>
                         <outlet property="searchBar" destination="9BH-Kg-GDp" id="po0-gZ-rVo"/>
                         <outlet property="searchContainer" destination="8B9-Ko-MSM" id="4aU-Ue-aBF"/>
@@ -117,6 +134,9 @@
     <resources>
         <image name="magnifyingglass" catalog="system" width="128" height="117"/>
         <image name="xmark.app.fill" catalog="system" width="128" height="114"/>
+        <namedColor name="AccentColor">
+            <color red="0.0" green="0.46000000000000002" blue="0.89000000000000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
         <namedColor name="Background">
             <color red="0.98039215686274506" green="0.98039215686274506" blue="0.98039215686274506" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
@@ -127,10 +147,10 @@
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="opaqueSeparatorColor">
-            <color red="0.77647058823529413" green="0.77647058823529413" blue="0.78431372549019607" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.77647058820000003" green="0.77647058820000003" blue="0.7843137255" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="secondaryLabelColor">
-            <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
