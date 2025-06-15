@@ -4,7 +4,6 @@ import AVKit
 import AVFoundation
 import CoreData
 
-
 final class HomeViewController: StoryboardViewController, NavigationBarDelegate {
     private var selectedVideoURL: URL?
     private var observation: NSKeyValueObservation?
@@ -442,11 +441,6 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
         }
     }
 
-    func addHistoryVideo(_ video: PixabayResponse.Hit) {
-        historyList.removeAll(where: { $0.id == video.id })
-        historyList.append(video)
-    }
-
     // MARK: - Record PlayTime
     private var timeObserver: Any?
     private var player: AVPlayer?
@@ -454,7 +448,7 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
     private var historyList: [PixabayResponse.Hit] = []
     private var selectedVideo: PixabayResponse.Hit?
 
-    func startObservingTime(with url: URL) {
+    private func startObservingTime(with url: URL) {
 
         let interval = CMTime(seconds: 1, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
 
@@ -470,8 +464,8 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
         }
     }
 
-    func savePlaybackHistoryToCoredata(video: PixabayResponse.Hit) {
-        
+    private func savePlaybackHistoryToCoredata(video: PixabayResponse.Hit) {
+
         let context = CoreDataService.shared.persistentContainer.viewContext
 
         let fetchRequest: NSFetchRequest<PlaybackHistoryEntity> = PlaybackHistoryEntity.fetchRequest()
@@ -484,9 +478,11 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
 
             // 기존 기록이 있으면 삭제
             for record in existing {
-                //  context.delete(record)
+                // 중복 시 playTime 더 긴 것 채택
+                if let playtime = self.playTime, playtime < record.playTime {
+                    self.playTime = record.playTime
+                }
                 CoreDataService.shared.delete(record)
-
             }
             // 새로운 시청기록 생성
             let historyEntity = video.mapToPlaybackHistoryEntity(insertInto: context)
@@ -497,6 +493,11 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
         } catch {
             print("⚠️ Failed to save playback: \(error)")
         }
+    }
+
+    private func addHistoryVideo(_ video: PixabayResponse.Hit) {
+        historyList.removeAll(where: { $0.id == video.id })
+        historyList.append(video)
     }
 
     // 북마크
