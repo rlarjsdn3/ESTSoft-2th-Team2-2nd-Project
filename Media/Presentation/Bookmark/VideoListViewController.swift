@@ -27,8 +27,7 @@ final class VideoListViewController: StoryboardViewController, VideoPlayable {
 
     private var dataSource: PlaylistDiffableDataSource? = nil
 
-    @IBOutlet weak var noBookmarkView: ContentUnavailableView!
-    @IBOutlet weak var noVideosFoundView: ContentUnavailableView!
+    @IBOutlet weak var contentUnavailableView: ContentUnavailableView!
     
     @IBOutlet weak var closeButton: UIButton!
     @IBOutlet weak var navigationBar: NavigationBar!
@@ -65,13 +64,18 @@ final class VideoListViewController: StoryboardViewController, VideoPlayable {
 
         setupNavigationBar()
         
-        noBookmarkView.alpha = 0.0
-        noVideosFoundView.alpha = 0.0
         searchBar.apply {
             $0.delegate = self
             $0.placeholder = "Enter a search term."
         }
-        collectionView.collectionViewLayout = createCompositionalLayout()
+        searchContainer.layer.zPosition = 99
+        
+        collectionView.apply {
+            $0.keyboardDismissMode = .onDrag
+            $0.collectionViewLayout = createCompositionalLayout()
+        }
+    
+        contentUnavailableView.alpha = 0.0
         closeButtonTrailingConstraint.constant = -50
     }
 
@@ -389,18 +393,22 @@ extension VideoListViewController {
     }
 
     private func showContentUnavailableViewIfNeeded<T, U>(_ entities: [T], _ filtered: [U]) {
-        UIView.animate(withDuration: 0.25, delay: 0.25) {
+        UIView.animate(withDuration: 0.25, delay: 0.25) { [self] in
             // 재생 목록이 비어있으면
             if entities.isEmpty {
-                self.noBookmarkView.alpha = 1.0
-                self.noVideosFoundView.alpha = 0.0
+                contentUnavailableView.alpha = 1.0
+                contentUnavailableView.imageResource = switch entities {
+                case _ where [T].self == [PlaybackHistoryEntity].self: .noHistory
+                case _ where [T].self == [PlaylistVideoEntity].self:   .noBookmark
+                default: .noVideos
+                }
             // 검색 결과가 비어있으면
             } else if filtered.isEmpty {
-                self.noBookmarkView.alpha = 0.0
-                self.noVideosFoundView.alpha = 1.0
+                contentUnavailableView.alpha = 1.0
+                contentUnavailableView.imageResource = .noVideos
+            // 정상적으로 셀이 출력되면
             } else {
-                self.noBookmarkView.alpha = 0.0
-                self.noVideosFoundView.alpha = 0.0
+                contentUnavailableView.alpha = 0.0
             }
         }
     }
@@ -421,6 +429,18 @@ extension VideoListViewController: NSFetchedResultsControllerDelegate {
 
 extension VideoListViewController: UICollectionViewDelegate {
 
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let contentOffset = scrollView.contentOffset
+        let offsetY = contentOffset.y + scrollView.contentInset.top
+        
+        if offsetY < 0 {
+            searchContainer.transform = CGAffineTransform(
+                translationX: 0,
+                y: abs(offsetY)
+            )
+        }
+    }
+    
     func collectionView(
         _ collectionView: UICollectionView,
         didSelectItemAt indexPath: IndexPath
@@ -523,9 +543,9 @@ extension VideoListViewController: MediumVideoButtonDelegate {
 
         switch item {
         case .playlist(let playlistVideoEntity):
-            CoreDataService.shared.delete(playlistVideoEntity)
+            coreDataService.delete(playlistVideoEntity)
         case .playback(let playbackHistoryEntity):
-            CoreDataService.shared.delete(playbackHistoryEntity)
+            coreDataService.delete(playbackHistoryEntity)
         }
     }
 }
