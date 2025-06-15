@@ -170,9 +170,8 @@ struct MediumVideoViewModel {
     let playTime: Double?
     
     var progress: Float? {
-        guard let playTime = playTime else { return nil }
+        guard let playTime = playTime, playTime > 0 else { return nil }
         return Float(playTime / Double(duration))
-
     }
 
     init(tags: String, userName: String, viewCount: Int, duration: Int, thumbnailUrl: URL?, playTime: Double? = nil) {

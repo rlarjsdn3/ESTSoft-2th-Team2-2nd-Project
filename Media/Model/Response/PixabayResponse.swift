@@ -84,8 +84,7 @@ extension PixabayResponse {
 
 extension PixabayResponse.Hit {
 
-    static let defaultPlayTime: Double = 1.0
-    static let failedPlayTime: Double = 0.0
+    static let defaultPlayTime: Double = 0.0
 
     /// 영상의 다양한 해상도별 버전을 나타내는 모델입니다.
     struct VideoVariants: Decodable {

@@ -187,7 +187,6 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
                 self?.startObservingTime(with: url)
                 self?.player?.play()
             } else if playerItem.status == .failed {
-                self?.playTime = PixabayResponse.Hit.failedPlayTime
                 print("❌ PlayerItem failed to load\(playerItem.error.debugDescription)")
             }
         }
@@ -470,8 +469,7 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
             let current = currentTime.seconds //
             let durationInt = Int(duration)
             let progress = Float(current / Double(durationInt))
-            playTime = current < PixabayResponse.Hit.defaultPlayTime
-                        ? PixabayResponse.Hit.defaultPlayTime : current
+            playTime = current
         }
     }
 
@@ -491,7 +489,7 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
             for record in existing {
                 // 중복 시 playTime 더 긴 것 채택
                 if let playtime = self.playTime, playtime < record.playTime {
-                    playTime = record.playTime
+                    self.playTime = record.playTime
                 }
                 CoreDataService.shared.delete(record)
             }
