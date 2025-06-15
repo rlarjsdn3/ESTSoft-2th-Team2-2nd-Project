@@ -90,12 +90,12 @@ final class VideoCell: UICollectionViewCell, NibLodable {
     // Ellipsis 버튼 함수
     func configureMenu(bookmarkAction: @escaping () -> Void, playlistAction: @escaping () -> Void) {
 
-        let bookmark = UIAction(title: "Bookmark", image: UIImage(systemName: "bookmark")) { _ in
+        let bookmark = UIAction(title: "Add to Bookmark", image: UIImage(systemName: "bookmark")) { _ in
             bookmarkAction()
 
         }
 
-        let playlist = UIAction(title: "Playlists", image: UIImage(systemName: "list.bullet")) { _ in
+        let playlist = UIAction(title: "Add to Playlists", image: UIImage(systemName: "list.bullet")) { _ in
             playlistAction()
 
         }
