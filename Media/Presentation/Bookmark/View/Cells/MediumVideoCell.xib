@@ -44,7 +44,7 @@
                                                         <color key="textColor" name="Background"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
-                                                    <progressView opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" verticalHuggingPriority="750" progressViewStyle="bar" progress="0.10000000000000001" translatesAutoresizingMaskIntoConstraints="NO" id="ZXa-Zd-WcI">
+                                                    <progressView opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" verticalHuggingPriority="750" progressViewStyle="bar" progress="0.01" translatesAutoresizingMaskIntoConstraints="NO" id="ZXa-Zd-WcI">
                                                         <rect key="frame" x="0.0" y="106" width="187" height="3"/>
                                                         <constraints>
                                                             <constraint firstAttribute="height" constant="2" id="Gby-rh-qji"/>

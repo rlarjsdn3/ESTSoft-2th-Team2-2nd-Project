@@ -246,7 +246,7 @@ extension VideoListViewController {
                     viewCount: Int(entity.views),
                     duration: Int(entity.duration),
                     thumbnailUrl: entity.video?.medium.thumbnail,
-                    progress: entity.progress
+                    playTime: entity.playTime
                 )
                 // 바깥 클로저가 [weak self]로 약하게 `self`를 캡처하므로, 안쪽 클로저에서 [weak self]를 써줄 필요가 없음
                 cell.configureMenu {

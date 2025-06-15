@@ -133,7 +133,7 @@ extension MediumVideoCell {
             timeProgressView.isHidden = true
             return
         }
-        timeProgressView.progress = progress
+        timeProgressView.setProgress(progress, animated: false)
     }
     
     private func formatDuration(_ seconds: Int) -> String {
@@ -167,5 +167,20 @@ struct MediumVideoViewModel {
     let viewCount: Int
     let duration: Int
     let thumbnailUrl: URL?
-    var progress: Float? = nil
+    let playTime: Double?
+    
+    var progress: Float? {
+        guard let playTime = playTime else { return nil }
+        return Float(playTime / Double(duration))
+
+    }
+
+    init(tags: String, userName: String, viewCount: Int, duration: Int, thumbnailUrl: URL?, playTime: Double? = nil) {
+        self.tags = tags
+        self.userName = userName
+        self.viewCount = viewCount
+        self.duration = duration
+        self.thumbnailUrl = thumbnailUrl
+        self.playTime = playTime
+    }
 }

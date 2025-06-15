@@ -6,7 +6,7 @@
         <attribute name="id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="likes" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="pageUrl" attributeType="URI"/>
-        <attribute name="progress" attributeType="Float" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="playTime" attributeType="Double" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="tags" optional="YES" attributeType="String"/>
         <attribute name="user" attributeType="String"/>
         <attribute name="userId" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
