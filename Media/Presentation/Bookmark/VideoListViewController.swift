@@ -17,14 +17,16 @@ enum VideoListType {
     case playlist(title: String, entities: [PlaylistVideoEntity], isBookmark: Bool)
 }
 
-final class VideoListViewController: StoryboardViewController, VideoPlayable {
-    var player: AVPlayer?
+
+final class VideoListViewController: StoryboardViewController {
+
     typealias PlaylistDiffableDataSource = UICollectionViewDiffableDataSource<VideoList.Section, VideoList.Item>
 
+    private var player: AVPlayer?
     var videos: VideoListType?
-    var observation: NSKeyValueObservation?
+
     private let coreDataService = CoreDataService.shared
-    private let videoCacher = DefaultVideoCacher()
+    private let videoPlayerService = DefaultVideoPlayerService()
 
     private var dataSource: PlaylistDiffableDataSource? = nil
 
@@ -449,13 +451,26 @@ extension VideoListViewController: UICollectionViewDelegate {
     ) {
         guard let item = dataSource?.itemIdentifier(for: indexPath) else { return }
 
-        if case let .playback(entity) = item,
-           let videoUrl = entity.video?.medium.url {
-            playVideo(with: entity)
+        let onError: (VideoPlayerError?) -> Void = { error in
+            guard let error = error else { return }
+
+            switch error {
+            case .notConnectedToInternet:
+                self.showAlert(
+                    title: "No Internet Connection",
+                    message: "Please check your internet connection.",
+                    onPrimary: { _ in }
+                )
+            default:
+                break
+            }
         }
 
-        if case let .playlist(entity) = item {
-            playVideo(with: entity)
+        switch item {
+        case .playback(let entity):
+            videoPlayerService.playVideo(self, with: entity, onError: onError)
+        case .playlist(let entity):
+            videoPlayerService.playVideo(self, with: entity, onError: onError)
         }
     }
 
