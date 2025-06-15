@@ -36,6 +36,7 @@ final class VideoCell: UICollectionViewCell, NibLodable {
         super.awakeFromNib()
 
         thumbnailImage.contentMode = .scaleAspectFill
+        thumbnailImage.layer.cornerRadius = 8
         thumbnailImage.clipsToBounds = true
 
         profileImage.contentMode = .scaleAspectFill
@@ -82,17 +83,20 @@ final class VideoCell: UICollectionViewCell, NibLodable {
 
         thumbnailImage.image = nil
         profileImage.image = nil
+
+        titleLabel.text = nil
+        viewCountLabel.text = nil
     }
 
     // Ellipsis 버튼 함수
     func configureMenu(bookmarkAction: @escaping () -> Void, playlistAction: @escaping () -> Void) {
 
-        let bookmark = UIAction(title: "북마크") { _ in
+        let bookmark = UIAction(title: "Bookmark") { _ in
             bookmarkAction()
 
         }
 
-        let playlist = UIAction(title: "재생목록") { _ in
+        let playlist = UIAction(title: "Playlists") { _ in
             playlistAction()
 
         }
@@ -134,6 +138,9 @@ final class VideoCell: UICollectionViewCell, NibLodable {
         } else {
             profileImage.image = nil
         }
+
+        self.setNeedsLayout()
+        self.layoutIfNeeded()
     }
 
     private func loadImage(from url: URL, into imageView: UIImageView) {
