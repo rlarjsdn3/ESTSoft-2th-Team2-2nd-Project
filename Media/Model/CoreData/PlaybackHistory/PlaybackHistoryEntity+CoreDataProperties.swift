@@ -26,6 +26,7 @@ extension PlaybackHistoryEntity {
     @NSManaged public var tags: String
     @NSManaged public var duration: Int64
     @NSManaged public var likes: Int64
+    @NSManaged public var playTime: Double
     @NSManaged public var video: VideoVariantsEntity?
 
 }

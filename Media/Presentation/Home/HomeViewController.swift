@@ -4,12 +4,9 @@ import AVKit
 import AVFoundation
 import CoreData
 
-
 final class HomeViewController: StoryboardViewController, NavigationBarDelegate {
     private var selectedVideoURL: URL?
-
     private var observation: NSKeyValueObservation?
-
 
     @IBOutlet weak var navigationBar: NavigationBar!
 
@@ -23,56 +20,9 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
     //    var selectedCategories: [Category] = []
     var selectedCategories: [String] = ["People", "Nature", "Science", "Buildings", "Business"]
 
-    // 카테고리 배열 순서
-    var displayedCategories: [String] {
-
-        return ["All"] + selectedCategories
-    }
-
-    // 필터링 소문자로 비교
-    var selectedCategoryName: String? {
-        if selectedCategoryIndex == 0 {
-            return nil
-        }
-        return selectedCategories[selectedCategoryIndex - 1].lowercased()
-    }
-
     @IBOutlet weak var videoCollectionView: UICollectionView!
 
-    //Parameter : Pull to Refresh 기능
-    @objc private func handleRefresh() {
-        guard videoCollectionView.refreshControl?.isRefreshing == true else { return }
-
-        currentPage = 1
-        hasMoreData = true
-        fetchVideo(page: 1, isRepresh: true)
-        videoCollectionView.setContentOffset(.zero, animated: true)
-    }
-
-    // 아래 스크롤할때 페이지요청함수
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        guard scrollView == videoCollectionView else { return }
-
-        let offsetY = scrollView.contentOffset.y
-        let contentHeight = scrollView.contentSize.height
-        let height = scrollView.frame.height
-
-        // 현재위치 기준 페이지 요청( 상수변경으로 조절가능 )
-        if offsetY > contentHeight - height - 200 {
-            guard hasMoreData, !isFetching else { return }
-            fetchVideo(page: currentPage + 1)
-        }
-    }
-
     let service = DefaultDataTransferService()
-
-    // Pixabay API에서 받아온 비디오 데이터 배열
-    private var videos: [PixabayResponse.Hit] = []
-
-    // 랜덤 선택된 카테고리 비디오 영상 불러오기
-
-
-
 
     // 네비게이션 서치뷰로
     func navigationBarDidTapRight(_ navigationBar: NavigationBar) {
@@ -93,8 +43,6 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
             rightIcon: UIImage(systemName: "magnifyingglass"),
             isSearchMode: false
         )
-
-
 
         //        NotificationCenter.default.addObserver(forName: .didSelectedCategories, object: nil, queue: .main) { [weak self]_ in
         //            self?.selectedCategories = TagsDataManager.shared.fetchSeletedCategories()
@@ -132,26 +80,39 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
         refreshControl.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
         videoCollectionView.refreshControl = refreshControl
 
+        // 레이아웃 고정
+        if let layout = videoCollectionView.collectionViewLayout as? UICollectionViewFlowLayout {
+            layout.estimatedItemSize = .zero
+        }
+
         fetchVideo()
 
     }
 
-
-
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        navigationController?.setNavigationBarHidden(false, animated: animated)
+        navigationController?.navigationBar.isHidden = true
+        //        navigationController?.setNavigationBarHidden(false, animated: animated)
+
+        if let observer = timeObserver {
+            player?.removeTimeObserver(observer)
+            timeObserver = nil
+        }
+
+        if let video = selectedVideo {
+            savePlaybackHistoryToCoredata(video: video)
+        }
 
     }
-    //UIView controller Extention
 
-    // "mm:ss" 형식으로 문자열 변환
-    func formatDuration(seconds: Int) -> String {
-        let minutes = seconds / 60
-        let remainingSeconds = seconds % 60
-        return String(format: "%02d:%02d", minutes, remainingSeconds)
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        print("viewWillDisappear")
     }
 
+
+    // MARK: - 비디오 재생
+    // UIView controller Extention
     // 비디오 재생
     func playVideo(with url: URL) {
 
@@ -159,7 +120,9 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
         let item = AVPlayerItem(url: url)
 
         // #2. Player 생성
-        let player = AVPlayer(playerItem: item)
+        player = AVPlayer(playerItem: item)
+
+
 
         // #3. PlayerVC 생성
         let vc = AVPlayerViewController()
@@ -167,25 +130,41 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
         // #4. 연결
         vc.player = player
 
-        // #5. 표시
-        present(vc, animated: true) {
 
-        }
         observation?.invalidate()
 
-
-
-        observation = item.observe(\.status) { playerItem, _ in
-
-
+        observation = item.observe(\.status) { [weak self] playerItem, _ in
             if playerItem.status == .readyToPlay {
-
-
-                player.play()
+                self?.startObservingTime(with: url)
+                self?.player?.play()
             } else if playerItem.status == .failed {
                 print("❌ PlayerItem failed to load\(playerItem.error.debugDescription)")
             }
         }
+
+        // #5. 표시
+        present(vc, animated: true) {
+
+        }
+
+    }
+
+    // MARK: - 카테고리
+    // Pixabay API에서 받아온 비디오 데이터 배열
+    private var videos: [PixabayResponse.Hit] = []
+
+    // 카테고리 배열 순서
+    var displayedCategories: [String] {
+
+        return ["All"] + selectedCategories
+    }
+
+    // 필터링 소문자로 비교
+    var selectedCategoryName: String? {
+        if selectedCategoryIndex == 0 {
+            return nil
+        }
+        return selectedCategories[selectedCategoryIndex - 1]
     }
 
     private var currentPage: Int = 1
@@ -193,7 +172,6 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
     private var isFetching: Bool = false
 
     private var hasMoreData: Bool = true
-
 
     private func callPixabayAPI(
         query: String?,
@@ -260,6 +238,30 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
         isFetching = false
     }
 
+    // Pull to Refresh 기능
+    @objc private func handleRefresh() {
+        guard videoCollectionView.refreshControl?.isRefreshing == true else { return }
+
+        currentPage = 1
+        hasMoreData = true
+        fetchVideo(page: 1, isRepresh: true)
+    }
+
+    // 아래 스크롤할때 페이지요청함수
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        guard scrollView == videoCollectionView else { return }
+
+        let offsetY = scrollView.contentOffset.y
+        let contentHeight = scrollView.contentSize.height
+        let height = scrollView.frame.height
+
+        // 현재위치 기준 페이지 요청( 상수변경으로 조절가능 )
+        if offsetY > contentHeight - height - 200 {
+            guard hasMoreData, !isFetching else { return }
+            fetchVideo(page: currentPage + 1)
+        }
+    }
+
     // 개인화된 맞춤 비디오 함수
     func fetchRecentSearchQueries(limit: Int = 5) -> [String] {
         let context = CoreDataService.shared.viewContext
@@ -294,7 +296,6 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
             return []
         }
     }
-
 
     // 선택된 카테고리에 따라 Pixabay API에서 비디오 데이터 요청
     func fetchVideo(page: Int = 1, isRepresh: Bool = false) {
@@ -383,13 +384,21 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
             self.currentPage = page
             self.hasMoreData = combinedVideos.count >= 15
             self.isFetching = false
-            self.videoCollectionView.reloadData()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+
+            UIView.transition(
+                with: self.videoCollectionView,
+                duration: 0.3,
+                options: .transitionCrossDissolve,
+                animations: {
+                    self.videoCollectionView.reloadData()
+                })
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
                 self.videoCollectionView.refreshControl?.endRefreshing()
             }
         }
-    }
 
+    }
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
@@ -423,7 +432,6 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
                 //  context.delete(record)
                 CoreDataService.shared.delete(record)
             }
-
             // 새로운 시청기록 생성
             let historyEntity = video.mapToPlaybackHistoryEntity(insertInto: context)
             historyEntity.createdAt = Date()
@@ -431,6 +439,65 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
         } catch {
             print(error)
         }
+    }
+
+    // MARK: - Record PlayTime
+    private var timeObserver: Any?
+    private var player: AVPlayer?
+    private var playTime: Double?
+    private var historyList: [PixabayResponse.Hit] = []
+    private var selectedVideo: PixabayResponse.Hit?
+
+    private func startObservingTime(with url: URL) {
+
+        let interval = CMTime(seconds: 1, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
+
+        timeObserver = player?.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak self] currentTime in
+            guard let self = self,
+                  let duration = player?.currentItem?.duration.seconds,
+                  duration.isFinite else { return }
+
+            let current = currentTime.seconds //
+            let durationInt = Int(duration)
+            let progress = Float(current / Double(durationInt))
+            playTime = current
+        }
+    }
+
+    private func savePlaybackHistoryToCoredata(video: PixabayResponse.Hit) {
+
+        let context = CoreDataService.shared.persistentContainer.viewContext
+
+        let fetchRequest: NSFetchRequest<PlaybackHistoryEntity> = PlaybackHistoryEntity.fetchRequest()
+        print(type(of: video.id))
+        fetchRequest.predicate = NSPredicate(format: "id == %d", video.id)
+
+
+        do {
+            let existing = try context.fetch(fetchRequest)
+
+            // 기존 기록이 있으면 삭제
+            for record in existing {
+                // 중복 시 playTime 더 긴 것 채택
+                if let playtime = self.playTime, playtime < record.playTime {
+                    self.playTime = record.playTime
+                }
+                CoreDataService.shared.delete(record)
+            }
+            // 새로운 시청기록 생성
+            let historyEntity = video.mapToPlaybackHistoryEntity(insertInto: context)
+            historyEntity.createdAt = Date()
+            historyEntity.playTime = playTime ?? PixabayResponse.Hit.defaultPlayTime
+            print("historyEntity.playTime\(historyEntity.playTime)")
+            try context.save()
+        } catch {
+            print("⚠️ Failed to save playback: \(error)")
+        }
+    }
+
+    private func addHistoryVideo(_ video: PixabayResponse.Hit) {
+        historyList.removeAll(where: { $0.id == video.id })
+        historyList.append(video)
     }
 
     // 북마크
@@ -445,7 +512,7 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
         do {
             let existing = try context.fetch(videoCheckRequest)
             if !existing.isEmpty {
-                Toast.makeToast("이미 북마크에 있습니다", systemName: "bookmark.fill").present()
+                Toast.makeToast("Already in bookmarks", systemName: "bookmark.fill").present()
                 return
             }
 
@@ -453,13 +520,14 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
             playlistVideo.playlist = bookmarkPlaylist
             try context.save()
 
-            Toast.makeToast("북마크에 추가되었습니다", systemName: "bookmark").present()
+            Toast.makeToast("Added to bookmarks", systemName: "bookmark").present()
         } catch {
             print(error)
         }
     }
+
     // 재생목록
-    func addToPlaylist(_ video: PixabayResponse.Hit) {
+    func addToPlaylist(_ video: PixabayResponse.Hit, at indexPath: IndexPath) {
         let context = CoreDataService.shared.persistentContainer.viewContext
 
         let fetchRequest: NSFetchRequest<PlaylistEntity> = PlaylistEntity.fetchRequest()
@@ -469,7 +537,7 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
             let playlistNames = playlists.map { $0.name ?? ""}
 
             // UIAlertController로 재생목록 선택지
-            let alertController = UIAlertController(title: "재생목록 선택", message: nil, preferredStyle: .actionSheet)
+            let alertController = UIAlertController(title: "Select Playlist", message: nil, preferredStyle: .actionSheet)
             playlistNames.forEach { name in
                 let action = UIAlertAction(title: name, style: .default) { _ in
                     self.addVideoToPlaylist(video, playlistName: name)
@@ -478,17 +546,28 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
             }
 
             // 새 재생목록 생성 옵션 추가
-            let createNewAction = UIAlertAction(title: "새 재생목록 만들기", style: .default) { _ in
+            let createNewAction = UIAlertAction(title: "Create New Playlist", style: .default) { _ in
                 self.showAddPlaylistAlert()
 
             }
             alertController.addAction(createNewAction)
-
+            
             // 취소 버튼 추가
-            let cancelAction = UIAlertAction(title: "취소", style: .cancel)
+            let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
             alertController.addAction(cancelAction)
 
+            // iPad 대응: Popover 설정
+            if let popover = alertController.popoverPresentationController {
+                guard let cell = videoCollectionView.cellForItem(at: indexPath) as? VideoCell,
+                      let ellipsisButton = cell.ellipsisButton else { return }
+
+                popover.sourceView = ellipsisButton
+                popover.sourceRect = ellipsisButton.bounds
+                popover.permittedArrowDirections = [.up, .down]
+            }
+
             self.present(alertController, animated: true)
+
         } catch {
             print(error)
         }
@@ -507,7 +586,7 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
                 let playlistVideo = video.mapToPlaylistVideoEntity(insertInto: context)
                 playlist.addToPlaylistVideos(playlistVideo)
                 try context.save()
-                Toast.makeToast("재생목록에 추가되었습니다", systemName: "list.clipboard").present()
+                Toast.makeToast("Added to '\(playlistName)'", systemName: "list.clipboard").present()
             }
         } catch {
             print(error)
@@ -518,17 +597,17 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
     func showAddPlaylistAlert() {
 
         showTextFieldAlert(
-            "새로운 재생 목록 추가",message: "새로운 재생 목록 이름을 입력하세요.") { (action, newText) in
+            "Add New Playlist",message: "Enter a name for the new playlist.") { (action, newText) in
                 if !PlaylistEntity.isExist(newText) {
                     let newPlaylist = PlaylistEntity(
                         name: newText,
                         insertInto: CoreDataService.shared.viewContext
                     )
                     CoreDataService.shared.insert(newPlaylist)
-                    Toast.makeToast("'\(newPlaylist.name)'생성되었습니다", systemName: "list.clipboard").present()
+                    Toast.makeToast("'\(newPlaylist.name)' has been created", systemName: "list.clipboard").present()
 
                 } else {
-                    Toast.makeToast("이미 존재하는 재생 목록 이름입니다.").present()
+                    Toast.makeToast("A playlist with this name already exists").present()
                 }
             } onCancel: { action in
 
@@ -570,6 +649,23 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
             return newPlaylist
         }
     }
+
+    // MARK: - 아이패드 대응
+
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+
+        coordinator.animate(alongsideTransition: nil) { _ in
+            self.videoCollectionView.reloadData()
+        }
+    }
+    // 다크모드 적용
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+
+        categoryCollectionView.reloadData()
+        videoCollectionView.collectionViewLayout.invalidateLayout()
+    }
 }
 
 
@@ -594,15 +690,15 @@ extension HomeViewController: UICollectionViewDelegate {
 
         return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
             let bookmarkAction = UIAction(
-                title: "북마크에 추가하기", image: UIImage(systemName: "bookmark")
+                title: "Add to Bookmarks", image: UIImage(systemName: "bookmark")
             ) { _ in
                 self.addToBookmark(item)
             }
 
             let playlistAction = UIAction(
-                title: "재생목록에 추가하기", image: UIImage(systemName: "text.badge.plus")
+                title: "Add to Playlist", image: UIImage(systemName: "text.badge.plus")
             ) { _ in
-                self.addToPlaylist(item)
+                self.addToPlaylist(item, at: indexPath)
             }
 
             return UIMenu(title: "", children: [bookmarkAction, playlistAction])
@@ -636,11 +732,14 @@ extension HomeViewController: UICollectionViewDataSource {
 
             cell.configure(with: viewModel)
 
-            // 썸네일 터치시 영상 재생
+            // MARK: - 썸네일 터치시 영상 재생
             cell.onThumbnailTap = { [weak self] in
                 guard let self = self, let videoURL = video.videos.medium.url else { return }
                 // 시청기록 저장
-                self.addToWatchHistory(video)
+                self.selectedVideo = video
+                self.addHistoryVideo(video)
+//                self.addToWatchHistory(video)
+
                 // 영상재생
                 self.playVideo(with: videoURL)
             }
@@ -652,7 +751,7 @@ extension HomeViewController: UICollectionViewDataSource {
                     self?.addToBookmark(video)
                 },
                 playlistAction: { [weak self] in
-                    self?.addToPlaylist(video)
+                    self?.addToPlaylist(video, at: indexPath)
                 }
             )
             return cell
@@ -672,13 +771,19 @@ extension HomeViewController: UICollectionViewDataSource {
 
 extension HomeViewController: UICollectionViewDelegateFlowLayout {
 
-
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout,
                         sizeForItemAt indexPath: IndexPath) -> CGSize {
-
         if collectionView == videoCollectionView {
-            let width = collectionView.bounds.width
+            let size = collectionView.bounds.size
+            let isPad = UIDevice.current.userInterfaceIdiom == .pad
+            let isPortrait = size.height > size.width
+            let columns: CGFloat = isPad ? (isPortrait ? 2 : 3) : 1
+
+            let spacing: CGFloat = 8
+            let totalSpacing = spacing * (columns - 1)
+            let width = (size.width - totalSpacing) / columns
             let height = width * 9 / 16 + 60
+
             return CGSize(width: width, height: height)
         }
 
@@ -702,10 +807,5 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout,
                         minimumLineSpacingForSectionAt section: Int) -> CGFloat {
         return 8
-    }
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-
-        categoryCollectionView.reloadData()
     }
 }

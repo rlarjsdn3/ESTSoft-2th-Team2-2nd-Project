@@ -7,6 +7,7 @@
 
 import UIKit
 import CoreData
+import AVKit
 
 /// 재생 기록 또는 재생 목록에 따라 표시할 비디오 목록의 유형을 나타내는 열거형입니다.
 enum VideoListType {
@@ -16,19 +17,20 @@ enum VideoListType {
     case playlist(title: String, entities: [PlaylistVideoEntity], isBookmark: Bool)
 }
 
-final class VideoListViewController: StoryboardViewController, VideoPlayable {
+
+final class VideoListViewController: StoryboardViewController {
 
     typealias PlaylistDiffableDataSource = UICollectionViewDiffableDataSource<VideoList.Section, VideoList.Item>
 
+    private var player: AVPlayer?
     var videos: VideoListType?
-    var observation: NSKeyValueObservation?
+
     private let coreDataService = CoreDataService.shared
-    private let videoCacher = DefaultVideoCacher()
+    private let videoPlayerService = DefaultVideoPlayerService()
 
     private var dataSource: PlaylistDiffableDataSource? = nil
 
-    @IBOutlet weak var noBookmarkView: ContentUnavailableView!
-    @IBOutlet weak var noVideosFoundView: ContentUnavailableView!
+    @IBOutlet weak var contentUnavailableView: ContentUnavailableView!
     
     @IBOutlet weak var closeButton: UIButton!
     @IBOutlet weak var navigationBar: NavigationBar!
@@ -65,13 +67,18 @@ final class VideoListViewController: StoryboardViewController, VideoPlayable {
 
         setupNavigationBar()
         
-        noBookmarkView.alpha = 0.0
-        noVideosFoundView.alpha = 0.0
         searchBar.apply {
             $0.delegate = self
             $0.placeholder = "Enter a search term."
         }
-        collectionView.collectionViewLayout = createCompositionalLayout()
+        searchContainer.layer.zPosition = 99
+        
+        collectionView.apply {
+            $0.keyboardDismissMode = .onDrag
+            $0.collectionViewLayout = createCompositionalLayout()
+        }
+    
+        contentUnavailableView.alpha = 0.0
         closeButtonTrailingConstraint.constant = -50
     }
 
@@ -244,7 +251,8 @@ extension VideoListViewController {
                     userName: entity.user,
                     viewCount: Int(entity.views),
                     duration: Int(entity.duration),
-                    thumbnailUrl: entity.video?.medium.thumbnail
+                    thumbnailUrl: entity.video?.medium.thumbnail,
+                    playTime: entity.playTime
                 )
                 // 바깥 클로저가 [weak self]로 약하게 `self`를 캡처하므로, 안쪽 클로저에서 [weak self]를 써줄 필요가 없음
                 cell.configureMenu {
@@ -389,18 +397,22 @@ extension VideoListViewController {
     }
 
     private func showContentUnavailableViewIfNeeded<T, U>(_ entities: [T], _ filtered: [U]) {
-        UIView.animate(withDuration: 0.25, delay: 0.25) {
+        UIView.animate(withDuration: 0.25, delay: 0.25) { [self] in
             // 재생 목록이 비어있으면
             if entities.isEmpty {
-                self.noBookmarkView.alpha = 1.0
-                self.noVideosFoundView.alpha = 0.0
+                contentUnavailableView.alpha = 1.0
+                contentUnavailableView.imageResource = switch entities {
+                case _ where [T].self == [PlaybackHistoryEntity].self: .noHistory
+                case _ where [T].self == [PlaylistVideoEntity].self:   .noBookmark
+                default: .noVideos
+                }
             // 검색 결과가 비어있으면
             } else if filtered.isEmpty {
-                self.noBookmarkView.alpha = 0.0
-                self.noVideosFoundView.alpha = 1.0
+                contentUnavailableView.alpha = 1.0
+                contentUnavailableView.imageResource = .noVideos
+            // 정상적으로 셀이 출력되면
             } else {
-                self.noBookmarkView.alpha = 0.0
-                self.noVideosFoundView.alpha = 0.0
+                contentUnavailableView.alpha = 0.0
             }
         }
     }
@@ -421,20 +433,44 @@ extension VideoListViewController: NSFetchedResultsControllerDelegate {
 
 extension VideoListViewController: UICollectionViewDelegate {
 
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let contentOffset = scrollView.contentOffset
+        let offsetY = contentOffset.y + scrollView.contentInset.top
+        
+        if offsetY < 0 {
+            searchContainer.transform = CGAffineTransform(
+                translationX: 0,
+                y: abs(offsetY)
+            )
+        }
+    }
+    
     func collectionView(
         _ collectionView: UICollectionView,
         didSelectItemAt indexPath: IndexPath
     ) {
         guard let item = dataSource?.itemIdentifier(for: indexPath) else { return }
 
-        if case let .playback(entity) = item,
-           let videoUrl = entity.video?.medium.url {
-            playVideo(from: videoUrl)
+        let onError: (VideoPlayerError?) -> Void = { error in
+            guard let error = error else { return }
+
+            switch error {
+            case .notConnectedToInternet:
+                self.showAlert(
+                    title: "No Internet Connection",
+                    message: "Please check your internet connection.",
+                    onPrimary: { _ in }
+                )
+            default:
+                break
+            }
         }
 
-        if case let .playlist(entity) = item,
-           let videoUrl = entity.video?.medium.url{
-            playVideo(from: videoUrl)
+        switch item {
+        case .playback(let entity):
+            videoPlayerService.playVideo(self, with: entity, onError: onError)
+        case .playlist(let entity):
+            videoPlayerService.playVideo(self, with: entity, onError: onError)
         }
     }
 
@@ -523,9 +559,9 @@ extension VideoListViewController: MediumVideoButtonDelegate {
 
         switch item {
         case .playlist(let playlistVideoEntity):
-            CoreDataService.shared.delete(playlistVideoEntity)
+            coreDataService.delete(playlistVideoEntity)
         case .playback(let playbackHistoryEntity):
-            CoreDataService.shared.delete(playbackHistoryEntity)
+            coreDataService.delete(playbackHistoryEntity)
         }
     }
 }
