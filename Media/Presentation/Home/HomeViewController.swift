@@ -467,6 +467,7 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
             print(error)
         }
     }
+
     // 재생목록
     func addToPlaylist(_ video: PixabayResponse.Hit) {
         let context = CoreDataService.shared.persistentContainer.viewContext
