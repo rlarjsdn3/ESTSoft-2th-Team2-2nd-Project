@@ -8,7 +8,8 @@
 import AVKit
 import UIKit
 
-final class SearchResultViewController: StoryboardViewController, VideoPlayable {
+final class SearchResultViewController: StoryboardViewController {
+
     @IBOutlet weak var navigationBar: NavigationBar!
     @IBOutlet weak var videoCollectionView: UICollectionView!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
@@ -22,6 +23,7 @@ final class SearchResultViewController: StoryboardViewController, VideoPlayable 
     var recordManager = SearchRecordManager()
 
     private let dataService: DataTransferService = DefaultDataTransferService()
+    private let videoService: VideoPlayerService = DefaultVideoPlayerService()
     private let userDefaults = UserDefaultsService.shared
 
     private var selectedCategories: Category? = {
@@ -36,7 +38,7 @@ final class SearchResultViewController: StoryboardViewController, VideoPlayable 
         return raw.flatMap { Order(rawValue: $0) }
     }()
 
-    private lazy var selectedDuration: Duration? = {
+    private var selectedDuration: Duration? = {
         let raw: String? = UserDefaultsService.shared[keyPath: \.filterDurations]
 
         return raw.flatMap { descript in
@@ -88,8 +90,8 @@ final class SearchResultViewController: StoryboardViewController, VideoPlayable 
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.register(
-                UINib(nibName: SearchTableViewCell.id, bundle: nil),
-                forCellReuseIdentifier: SearchTableViewCell.id)
+            UINib(nibName: SearchTableViewCell.id, bundle: nil),
+            forCellReuseIdentifier: SearchTableViewCell.id)
         tableView.delegate = self
         tableView.dataSource = self
         tableView.separatorStyle = .none
@@ -115,24 +117,17 @@ final class SearchResultViewController: StoryboardViewController, VideoPlayable 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        //print(selectedCategories, selectedOrder, selectedDuration)
-        videoCollectionView.isHidden = true
-        activityIndicator.hidesWhenStopped = true
-        activityIndicator.startAnimating()
         fetchVideos(page: 1, category: selectedCategories, order: selectedOrder, duration: selectedDuration)
-
-        let tap = UITapGestureRecognizer(
-            target: self,
-            action: #selector(dismissKeyboard)
-        )
-        tap.cancelsTouchesInView = false
-        view.addGestureRecognizer(tap)
+        setKeyBoardDismissGesture()
     }
 
     override func setupHierachy() {
         configureSearchBar()
         configureCollectionView()
         configureRefreshControl()
+        videoCollectionView.isHidden = true
+        activityIndicator.hidesWhenStopped = true
+        activityIndicator.startAnimating()
 
         NSLayoutConstraint.activate([
             filterLabel.trailingAnchor.constraint(equalTo: navigationBar.rightButton.trailingAnchor, constant: 5),
@@ -153,6 +148,14 @@ final class SearchResultViewController: StoryboardViewController, VideoPlayable 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         filterLabel.layer.cornerRadius = filterLabel.frame.size.height / 2
+    }
+
+    // 화면 회전
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+        coordinator.animate(alongsideTransition: nil) { _ in
+            self.videoCollectionView.reloadData()
+        }
     }
 
     // 키보드 내리기
@@ -195,6 +198,17 @@ final class SearchResultViewController: StoryboardViewController, VideoPlayable 
         navigationBar.searchBar.text = keyword
     }
 
+
+    // 키보드 dismiss
+    private func setKeyBoardDismissGesture() {
+        let tap = UITapGestureRecognizer(
+            target: self,
+            action: #selector(dismissKeyboard)
+        )
+        tap.cancelsTouchesInView = false
+        view.addGestureRecognizer(tap)
+    }
+
     // 최근 서치 기록 띄어줌
     private func showRecentSearches() {
         loadRecentSearches()
@@ -214,7 +228,7 @@ final class SearchResultViewController: StoryboardViewController, VideoPlayable 
 
     // 최근 서치 기록 없애기
     private func hideRecentSearches() {
-            recentSearchContainerView.isHidden = true
+        recentSearchContainerView.isHidden = true
     }
 
     // 재훈님 collectionView 등록
@@ -263,6 +277,7 @@ final class SearchResultViewController: StoryboardViewController, VideoPlayable 
             filterLabel.text = "\(count)"
         } else {
             filterLabel.isHidden = true
+            navigationBar.rightButton.tintColor = .label
         }
     }
 
@@ -303,6 +318,11 @@ final class SearchResultViewController: StoryboardViewController, VideoPlayable 
     }
 
     @objc private func didPullToRefresh() {
+        if isLoading {
+            refreshControl.endRefreshing()
+            return
+        }
+
         refreshControl.beginRefreshing()
         fetchVideos(page: 1, category: selectedCategories, order: selectedOrder, duration: selectedDuration)
     }
@@ -324,8 +344,12 @@ final class SearchResultViewController: StoryboardViewController, VideoPlayable 
         isLoading = true
 
         if page == 1 {
-            hits.removeAll()
+            DispatchQueue.main.async {
+                self.hits.removeAll()
+                self.videoCollectionView.reloadData()
+            }
         }
+
         currentPage = page
 
         let endpoint = APIEndpoints.pixabay(
@@ -342,35 +366,42 @@ final class SearchResultViewController: StoryboardViewController, VideoPlayable 
 
             switch result {
             case .success(let response):
-                self.totalHits = response.totalHits
-
-                self.hits.append(contentsOf: response.hits)
-
-                if let dur = duration {
-                    self.hits = self.hits.filter {
-                        Duration(seconds: $0.duration) == dur
-                    }
-                }
-
                 DispatchQueue.main.async {
+                    self.totalHits = response.totalHits
+
+                    // page==1 이면 새 배열로 교체, 아니면 append
+                    if page == 1 {
+                        self.hits = response.hits
+                    } else {
+                        self.hits.append(contentsOf: response.hits)
+                    }
+
+
+                    if let dur = duration {
+                        self.hits = self.hits.filter {
+                            Duration(seconds: $0.duration) == dur
+                        }
+                    }
+
                     self.activityIndicator.stopAnimating()
                     self.endRefreshing()
-
-                    if self.hits.isEmpty {
-                        self.noVideoFoundImageView.isHidden = false
-                    } else {
-                        self.noVideoFoundImageView.isHidden = true
-                    }
-
+                    self.noVideoFoundImageView.isHidden = !self.hits.isEmpty
                     self.videoCollectionView.isHidden = false
-                    self.videoCollectionView.reloadData()
+
+                    UIView.transition(with: self.videoCollectionView, duration: 0.3) {
+                        self.videoCollectionView.reloadData()
+                    } completion: { _ in
+                        if page == 1, self.hits.count > 0 {
+                            self.videoCollectionView.setContentOffset(.zero, animated: false)
+                        }
+                    }
                 }
 
             case .failure(let error):
                 DispatchQueue.main.async {
                     self.activityIndicator.stopAnimating()
                     self.endRefreshing()
-                    self.showAlert("오류", message: "영상을 불러오는 중 문제가 발생했습니다.") { _ in
+                    self.showAlert(title: "오류", message: "영상을 불러오는 중 문제가 발생했습니다.") { _ in
                         print("확인", error)
                     } onCancel: { _ in
                         print("취소", error)
@@ -451,12 +482,20 @@ extension SearchResultViewController: UICollectionViewDataSource {
 
         // 썸네일 터치시 영상 재생
         cell.onThumbnailTap = { [weak self] in
-            guard let self = self,
-                  let url = video.videos.medium.url else { return }
-
-            // 시청기록 저장
+            guard let self = self else { return }
+            self.videoService.playVideo(self, with: video) { error in
+                switch error {
+                case .notConnectedToInternet:
+                    self.showAlert(
+                        title: "No Internet Connection",
+                        message: "Please check your internet connection.",
+                        onPrimary: { _ in }
+                    )
+                default:
+                    break
+                }
+            }
             self.videoDataService.addToWatchHistory(video)
-            self.playVideo(from: url)
         }
 
         // Ellipsis 버튼 실행
@@ -495,6 +534,15 @@ extension SearchResultViewController: UICollectionViewDataSource {
                     self.showAddPlaylistAlert(for: video)
                 })
                 alert.addAction(UIAlertAction(title: "취소", style: .cancel, handler: nil))
+
+                cell.layoutIfNeeded()
+
+                if let pop = alert.popoverPresentationController {
+                    pop.sourceView = cell.ellipsisButton
+                    pop.sourceRect = cell.ellipsisButton.bounds
+                    pop.permittedArrowDirections = [.any]
+                }
+
                 self.present(alert, animated: true)
 
             }
@@ -523,36 +571,56 @@ extension SearchResultViewController: UICollectionViewDataSource {
     }
 }
 
+extension SearchResultViewController: UICollectionViewDelegate {
+}
+
 extension SearchResultViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout,
                         sizeForItemAt indexPath: IndexPath) -> CGSize {
+        // ipad대응
+        let isPad = UIDevice.current.userInterfaceIdiom == .pad
+        let interfaceOrientation: UIInterfaceOrientation
+        interfaceOrientation = collectionView.window?.windowScene?.interfaceOrientation ?? .portrait
+        let isLandscape = interfaceOrientation.isLandscape
 
-        let width = videoCollectionView.bounds.width
-        let height = width * 9 / 16 + 80
-        return CGSize(width: width, height: height)
+        //iphone: 항상 1개
+        //ipad: 세로 모드 2개, 가로모드 3개
+        let itemsPerRow: CGFloat = {
+            if isPad {
+                return isLandscape ? 3 : 2
+            } else {
+                return 1
+            }
+        }()
+
+        let spacing: CGFloat = 8
+        let sideInset: CGFloat = 8
+        let totalSpacing = spacing * (itemsPerRow - 1) + sideInset * 2
+
+        let availableWidth = collectionView.bounds.width - totalSpacing
+        let cellWidth = availableWidth / itemsPerRow
+        let cellHeight = cellWidth * 9 / 16 + 80
+
+        return CGSize(width: cellWidth, height: cellHeight)
     }
 
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout,
+    func collectionView(_ collectionView: UICollectionView,
+                        layout collectionViewLayout: UICollectionViewLayout,
                         insetForSectionAt section: Int) -> UIEdgeInsets {
-        return .zero
+        return .init(top: 8, left: 8, bottom: 8, right: 8)
     }
-
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout,
+    func collectionView(_ collectionView: UICollectionView,
+                        layout collectionViewLayout: UICollectionViewLayout,
                         minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
-        return 0
-    }
-
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout,
-                        minimumLineSpacingForSectionAt section: Int) -> CGFloat {
         return 8
     }
 
+    func collectionView(_ cv: UICollectionView,
+                        layout cvl: UICollectionViewLayout,
+                        minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        return 8
+    }
 }
-
-extension SearchResultViewController: UICollectionViewDelegate {
-
-}
-
 
 extension SearchResultViewController: UISearchBarDelegate {
 
@@ -609,7 +677,7 @@ extension SearchResultViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return records.count
     }
-    
+
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: SearchTableViewCell.id, for: indexPath) as! SearchTableViewCell
         let target = records[indexPath.row]
