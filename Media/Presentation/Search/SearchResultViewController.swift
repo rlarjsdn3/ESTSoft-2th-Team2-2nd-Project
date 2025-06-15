@@ -8,7 +8,8 @@
 import AVKit
 import UIKit
 
-final class SearchResultViewController: StoryboardViewController, VideoPlayable {
+final class SearchResultViewController: StoryboardViewController {
+
     @IBOutlet weak var navigationBar: NavigationBar!
     @IBOutlet weak var videoCollectionView: UICollectionView!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
@@ -22,6 +23,7 @@ final class SearchResultViewController: StoryboardViewController, VideoPlayable 
     var recordManager = SearchRecordManager()
 
     private let dataService: DataTransferService = DefaultDataTransferService()
+    private let videoService: VideoPlayerService = DefaultVideoPlayerService()
     private let userDefaults = UserDefaultsService.shared
 
     private var selectedCategories: Category? = {
@@ -342,7 +344,10 @@ final class SearchResultViewController: StoryboardViewController, VideoPlayable 
         isLoading = true
 
         if page == 1 {
-            hits.removeAll()
+            DispatchQueue.main.async {
+                self.hits.removeAll()
+                self.videoCollectionView.reloadData()
+            }
         }
 
         currentPage = page
@@ -361,16 +366,23 @@ final class SearchResultViewController: StoryboardViewController, VideoPlayable 
 
             switch result {
             case .success(let response):
-                self.totalHits = response.totalHits
-                self.hits.append(contentsOf: response.hits)
-
-                if let dur = duration {
-                    self.hits = self.hits.filter {
-                        Duration(seconds: $0.duration) == dur
-                    }
-                }
-
                 DispatchQueue.main.async {
+                    self.totalHits = response.totalHits
+
+                    // page==1 이면 새 배열로 교체, 아니면 append
+                    if page == 1 {
+                        self.hits = response.hits
+                    } else {
+                        self.hits.append(contentsOf: response.hits)
+                    }
+
+
+                    if let dur = duration {
+                        self.hits = self.hits.filter {
+                            Duration(seconds: $0.duration) == dur
+                        }
+                    }
+
                     self.activityIndicator.stopAnimating()
                     self.endRefreshing()
                     self.noVideoFoundImageView.isHidden = !self.hits.isEmpty
@@ -378,6 +390,10 @@ final class SearchResultViewController: StoryboardViewController, VideoPlayable 
 
                     UIView.transition(with: self.videoCollectionView, duration: 0.3) {
                         self.videoCollectionView.reloadData()
+                    } completion: { _ in
+                        if page == 1, self.hits.count > 0 {
+                            self.videoCollectionView.setContentOffset(.zero, animated: false)
+                        }
                     }
                 }
 
@@ -385,7 +401,7 @@ final class SearchResultViewController: StoryboardViewController, VideoPlayable 
                 DispatchQueue.main.async {
                     self.activityIndicator.stopAnimating()
                     self.endRefreshing()
-                    self.showAlert("오류", message: "영상을 불러오는 중 문제가 발생했습니다.") { _ in
+                    self.showAlert(title: "오류", message: "영상을 불러오는 중 문제가 발생했습니다.") { _ in
                         print("확인", error)
                     } onCancel: { _ in
                         print("취소", error)
@@ -467,33 +483,19 @@ extension SearchResultViewController: UICollectionViewDataSource {
         // 썸네일 터치시 영상 재생
         cell.onThumbnailTap = { [weak self] in
             guard let self = self else { return }
-
-            let rawPref: String = UserDefaultsService.shared[keyPath: \.videoQuality]
-            let pref: VideoQuality = VideoQuality(rawValue: rawPref) ?? .medium
-
-            let v = video.videos
-            let candidates: [URL?] = {
-                switch pref {
-                case .large:
-                    return [v.large.url, v.medium.url, v.small.url, v.tiny.url]
-                case .medium:
-                    return [v.medium.url, v.small.url, v.tiny.url, v.large.url]
-                case .small:
-                    return [v.small.url, v.tiny.url, v.medium.url, v.large.url]
-                case .tiny:
-                    return [v.tiny.url, v.small.url, v.medium.url, v.large.url]
+            self.videoService.playVideo(self, with: video) { error in
+                switch error {
+                case .notConnectedToInternet:
+                    self.showAlert(
+                        title: "No Internet Connection",
+                        message: "Please check your internet connection.",
+                        onPrimary: { _ in }
+                    )
+                default:
+                    break
                 }
-            }()
-
-            // nil이 아닌 첫 번째 URL 선택
-            guard let videoURL = candidates.compactMap({ $0 }).first else {
-                Toast.makeToast("재생 가능한 영상 URL이 없습니다").present()
-                return
             }
-
-            print("VideoURL: \(videoURL) --------- --------- --------- ---")
             self.videoDataService.addToWatchHistory(video)
-            self.playVideo(from: videoURL)
         }
 
         // Ellipsis 버튼 실행
@@ -569,6 +571,9 @@ extension SearchResultViewController: UICollectionViewDataSource {
     }
 }
 
+extension SearchResultViewController: UICollectionViewDelegate {
+}
+
 extension SearchResultViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout,
                         sizeForItemAt indexPath: IndexPath) -> CGSize {
@@ -577,7 +582,6 @@ extension SearchResultViewController: UICollectionViewDelegateFlowLayout {
         let interfaceOrientation: UIInterfaceOrientation
         interfaceOrientation = collectionView.window?.windowScene?.interfaceOrientation ?? .portrait
         let isLandscape = interfaceOrientation.isLandscape
-
 
         //iphone: 항상 1개
         //ipad: 세로 모드 2개, 가로모드 3개
@@ -611,6 +615,11 @@ extension SearchResultViewController: UICollectionViewDelegateFlowLayout {
         return 8
     }
 
+    func collectionView(_ cv: UICollectionView,
+                        layout cvl: UICollectionViewLayout,
+                        minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        return 8
+    }
 }
 
 extension SearchResultViewController: UISearchBarDelegate {
@@ -687,9 +696,5 @@ extension SearchResultViewController: UITableViewDelegate {
 
         searchBarSearchButtonClicked(navigationBar.searchBar)
     }
-
-}
-
-extension SearchResultViewController: UIPopoverPresentationControllerDelegate {
 
 }
