@@ -35,19 +35,19 @@ struct VideoCellViewModel {
         if count >= 10_000 {
             let value = Double(count) / 10_000
             if abs(value.rounded() - value) < 0.1 {
-                return "\(Int(value))만 회"
+                return "\(Int(value))M"
             } else {
-                return String(format: "%.1f만 회", value)
+                return String(format: "%.1fM", value)
             }
         } else if count >= 1_000 {
             let value = Double(count) / 1_000
             if abs(value.rounded() - value) < 0.1 {
-                return "\(Int(value))천 회"
+                return "\(Int(value))K"
             } else {
-                return String(format: "%.1f천 회", value)
+                return String(format: "%.1fK", value)
             }
         } else {
-            return "\(count)회"
+            return "\(count)"
         }
     }
 

@@ -29,13 +29,13 @@ final class VideoCell: UICollectionViewCell, NibLodable {
 
     }
 
-
     var onThumbnailTap: (() -> Void)?
 
     override func awakeFromNib() {
         super.awakeFromNib()
 
         thumbnailImage.contentMode = .scaleAspectFill
+        thumbnailImage.layer.cornerRadius = 8
         thumbnailImage.clipsToBounds = true
 
         profileImage.contentMode = .scaleAspectFill
@@ -82,17 +82,20 @@ final class VideoCell: UICollectionViewCell, NibLodable {
 
         thumbnailImage.image = nil
         profileImage.image = nil
-    }
 
+        titleLabel.text = nil
+        viewCountLabel.text = nil
+    }
+    
     // Ellipsis 버튼 함수
     func configureMenu(bookmarkAction: @escaping () -> Void, playlistAction: @escaping () -> Void) {
 
-        let bookmark = UIAction(title: "북마크") { _ in
+        let bookmark = UIAction(title: "Add to Bookmark", image: UIImage(systemName: "bookmark")) { _ in
             bookmarkAction()
 
         }
 
-        let playlist = UIAction(title: "재생목록") { _ in
+        let playlist = UIAction(title: "Add to Playlists", image: UIImage(systemName: "list.bullet")) { _ in
             playlistAction()
 
         }
@@ -134,6 +137,9 @@ final class VideoCell: UICollectionViewCell, NibLodable {
         } else {
             profileImage.image = nil
         }
+
+        self.setNeedsLayout()
+        self.layoutIfNeeded()
     }
 
     private func loadImage(from url: URL, into imageView: UIImageView) {
@@ -150,6 +156,10 @@ final class VideoCell: UICollectionViewCell, NibLodable {
     func setThumbnailImageCornerRadius(_ radius: CGFloat) {
         thumbnailImage.layer.cornerRadius = radius
         thumbnailImage.layer.masksToBounds = true
+    }
+    override func apply(_ layoutAttributes: UICollectionViewLayoutAttributes) {
+        super.apply(layoutAttributes)
+        print("📐 VideoCell.apply() - \(layoutAttributes.frame)")
     }
 }
 
