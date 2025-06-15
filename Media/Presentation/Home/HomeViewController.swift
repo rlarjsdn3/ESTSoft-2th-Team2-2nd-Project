@@ -12,7 +12,7 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
     @IBOutlet weak var navigationBar: NavigationBar!
 
     @IBOutlet weak var categoryCollectionView: UICollectionView!
-
+    
     // 초기값설정
     var selectedCategoryIndex: Int = 0
 
@@ -44,7 +44,7 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
         currentPage = 1
         hasMoreData = true
         fetchVideo(page: 1, isRepresh: true)
-        videoCollectionView.setContentOffset(.zero, animated: true)
+//        videoCollectionView.setContentOffset(.zero, animated: true)
     }
 
     // 아래 스크롤할때 페이지요청함수
@@ -136,8 +136,8 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        navigationController?.setNavigationBarHidden(false, animated: animated)
-        print("viewWillAppear")
+        navigationController?.navigationBar.isHidden = true
+//        navigationController?.setNavigationBarHidden(false, animated: animated)
 
         if let observer = timeObserver {
             player?.removeTimeObserver(observer)
@@ -394,8 +394,16 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
             self.currentPage = page
             self.hasMoreData = combinedVideos.count >= 15
             self.isFetching = false
-            self.videoCollectionView.reloadData()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            
+            UIView.transition(
+                with: self.videoCollectionView,
+                duration: 0.3,
+                options: .transitionCrossDissolve,
+                animations: {
+                self.videoCollectionView.reloadData()
+            })
+                              
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
                 self.videoCollectionView.refreshControl?.endRefreshing()
             }
         }
@@ -525,6 +533,7 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
             print(error)
         }
     }
+
     // 재생목록
     func addToPlaylist(_ video: PixabayResponse.Hit) {
         let context = CoreDataService.shared.persistentContainer.viewContext

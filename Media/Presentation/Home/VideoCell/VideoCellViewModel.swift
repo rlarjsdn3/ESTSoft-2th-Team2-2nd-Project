@@ -34,14 +34,14 @@ struct VideoCellViewModel {
     private static func formatViewCount(_ count: Int) -> String {
         if count >= 10_000 {
             let value = Double(count) / 10_000
-            if abs(value.rounded() - value) < 0.01 {
+            if abs(value.rounded() - value) < 0.1 {
                 return "\(Int(value))만 회"
             } else {
                 return String(format: "%.1f만 회", value)
             }
         } else if count >= 1_000 {
             let value = Double(count) / 1_000
-            if abs(value.rounded() - value) < 0.01 {
+            if abs(value.rounded() - value) < 0.1 {
                 return "\(Int(value))천 회"
             } else {
                 return String(format: "%.1f천 회", value)
