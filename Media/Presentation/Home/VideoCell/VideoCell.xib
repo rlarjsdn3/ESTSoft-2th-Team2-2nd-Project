@@ -131,7 +131,7 @@
                         </constraints>
                     </view>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="XPG-8s-UiA">
-                        <rect key="frame" x="296" y="200.66666666666666" width="45" height="20"/>
+                        <rect key="frame" x="288" y="200.66666666666666" width="45" height="20"/>
                         <color key="backgroundColor" name="TagSelected"/>
                         <color key="tintColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
@@ -143,7 +143,7 @@
                         <nil key="highlightedColor"/>
                     </label>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WqS-NL-D4v" customClass="PaddingLabel" customModule="Media" customModuleProvider="target">
-                        <rect key="frame" x="8" y="200.66666666666666" width="45" height="20"/>
+                        <rect key="frame" x="16" y="200.66666666666666" width="45" height="20"/>
                         <color key="backgroundColor" name="TagSelected"/>
                         <constraints>
                             <constraint firstAttribute="height" constant="20" id="6LD-5O-ML6"/>
@@ -155,15 +155,15 @@
                     </label>
                 </subviews>
                 <constraints>
-                    <constraint firstAttribute="trailing" secondItem="XPG-8s-UiA" secondAttribute="trailing" constant="8" id="DGa-2e-ZfC"/>
+                    <constraint firstItem="WqS-NL-D4v" firstAttribute="leading" secondItem="1sj-HC-Dlr" secondAttribute="leading" constant="16" id="1dd-e7-Fzc"/>
                     <constraint firstItem="Qus-iH-a3n" firstAttribute="leading" secondItem="1sj-HC-Dlr" secondAttribute="leading" constant="8" id="Dej-5k-vz6"/>
                     <constraint firstItem="Vhj-7R-C3L" firstAttribute="top" secondItem="XPG-8s-UiA" secondAttribute="bottom" constant="8" id="LEl-rJ-Pff"/>
                     <constraint firstAttribute="trailing" secondItem="Vhj-7R-C3L" secondAttribute="trailing" id="VIU-Np-KVP"/>
                     <constraint firstItem="Vhj-7R-C3L" firstAttribute="leading" secondItem="1sj-HC-Dlr" secondAttribute="leading" id="Zab-TW-Zf3"/>
                     <constraint firstItem="Vhj-7R-C3L" firstAttribute="top" secondItem="WqS-NL-D4v" secondAttribute="bottom" constant="8" id="asa-C5-Nxd"/>
                     <constraint firstItem="Vhj-7R-C3L" firstAttribute="top" secondItem="Qus-iH-a3n" secondAttribute="bottom" id="cnp-4V-1d0"/>
+                    <constraint firstAttribute="trailing" secondItem="XPG-8s-UiA" secondAttribute="trailing" constant="16" id="dvB-zV-k5c"/>
                     <constraint firstAttribute="trailing" secondItem="Qus-iH-a3n" secondAttribute="trailing" constant="8" id="iOq-QK-Zgr"/>
-                    <constraint firstItem="WqS-NL-D4v" firstAttribute="leading" secondItem="1sj-HC-Dlr" secondAttribute="leading" constant="8" id="iy7-mL-lg8"/>
                     <constraint firstAttribute="bottom" secondItem="Vhj-7R-C3L" secondAttribute="bottom" id="sV0-fV-kfI"/>
                     <constraint firstItem="Qus-iH-a3n" firstAttribute="top" secondItem="1sj-HC-Dlr" secondAttribute="top" id="ub3-dm-dkg"/>
                 </constraints>

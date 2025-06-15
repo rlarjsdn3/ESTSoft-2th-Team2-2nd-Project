@@ -493,13 +493,9 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
 
 
             self.present(alertController, animated: true) {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    self.videoCollectionView.isScrollEnabled = true
-                    // 필요한 경우 여기서 레이아웃 재갱신도 가능
-                    // self.videoCollectionView.collectionViewLayout.invalidateLayout()
-                    // self.videoCollectionView.layoutIfNeeded()
-
-                }
+                // Alert가 안전하게 뜬 후에만 layout 갱신
+                self.videoCollectionView.collectionViewLayout.invalidateLayout()
+                self.videoCollectionView.layoutIfNeeded()
             }
 
         } catch {
@@ -607,8 +603,6 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
             self.videoCollectionView.collectionViewLayout.invalidateLayout()
             self.videoCollectionView.reloadData()
         }
-
-
     }
     // 다크모드 적용
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
@@ -725,7 +719,7 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout {
         // 아이패드 대응
         if collectionView == videoCollectionView {
             let size = collectionView.bounds.size
-            print("sizeForItemAt called - collectionView.bounds.size: \(size)")
+
 
             let isPad = UIDevice.current.userInterfaceIdiom == .pad
             let isPortrait = size.height > size.width
@@ -735,7 +729,7 @@ extension HomeViewController: UICollectionViewDelegateFlowLayout {
             let totalSpacing = spacing * (columns - 1)
             let width = (size.width - totalSpacing) / columns
             let height = width * 9 / 16 + 60
-            print("Calculated cell size: width = \(width), height = \(height)")
+
             return CGSize(width: width, height: height)
         }
 

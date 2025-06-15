@@ -29,7 +29,6 @@ final class VideoCell: UICollectionViewCell, NibLodable {
 
     }
 
-
     var onThumbnailTap: (() -> Void)?
 
     override func awakeFromNib() {
@@ -87,16 +86,16 @@ final class VideoCell: UICollectionViewCell, NibLodable {
         titleLabel.text = nil
         viewCountLabel.text = nil
     }
-
+    
     // Ellipsis 버튼 함수
     func configureMenu(bookmarkAction: @escaping () -> Void, playlistAction: @escaping () -> Void) {
 
-        let bookmark = UIAction(title: "Bookmark") { _ in
+        let bookmark = UIAction(title: "Bookmark", image: UIImage(systemName: "bookmark")) { _ in
             bookmarkAction()
 
         }
 
-        let playlist = UIAction(title: "Playlists") { _ in
+        let playlist = UIAction(title: "Playlists", image: UIImage(systemName: "list.bullet")) { _ in
             playlistAction()
 
         }
