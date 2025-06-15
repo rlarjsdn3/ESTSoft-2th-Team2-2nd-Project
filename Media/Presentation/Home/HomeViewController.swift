@@ -7,9 +7,7 @@ import CoreData
 
 final class HomeViewController: StoryboardViewController, NavigationBarDelegate {
     private var selectedVideoURL: URL?
-
     private var observation: NSKeyValueObservation?
-
 
     @IBOutlet weak var navigationBar: NavigationBar!
 
@@ -94,8 +92,6 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
             isSearchMode: false
         )
 
-
-
         //        NotificationCenter.default.addObserver(forName: .didSelectedCategories, object: nil, queue: .main) { [weak self]_ in
         //            self?.selectedCategories = TagsDataManager.shared.fetchSeletedCategories()
         //            self?.categoryCollectionView.reloadData()
@@ -143,6 +139,20 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
         navigationController?.navigationBar.isHidden = true
 //        navigationController?.setNavigationBarHidden(false, animated: animated)
 
+        if let observer = timeObserver {
+            player?.removeTimeObserver(observer)
+            timeObserver = nil
+        }
+
+        if let video = selectedVideo {
+            savePlaybackHistoryToCoredata(video: video)
+        }
+
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        print("viewWillDisappear")
     }
     //UIView controller Extention
 
@@ -160,7 +170,9 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
         let item = AVPlayerItem(url: url)
 
         // #2. Player 생성
-        let player = AVPlayer(playerItem: item)
+        player = AVPlayer(playerItem: item)
+
+
 
         // #3. PlayerVC 생성
         let vc = AVPlayerViewController()
@@ -168,25 +180,23 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
         // #4. 연결
         vc.player = player
 
-        // #5. 표시
-        present(vc, animated: true) {
 
-        }
         observation?.invalidate()
 
-
-
-        observation = item.observe(\.status) { playerItem, _ in
-
-
+        observation = item.observe(\.status) { [weak self] playerItem, _ in
             if playerItem.status == .readyToPlay {
-
-
-                player.play()
+                self?.startObservingTime(with: url)
+                self?.player?.play()
             } else if playerItem.status == .failed {
                 print("❌ PlayerItem failed to load\(playerItem.error.debugDescription)")
             }
         }
+
+        // #5. 표시
+        present(vc, animated: true) {
+
+        }
+
     }
 
     private var currentPage: Int = 1
@@ -432,13 +442,69 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
                 //  context.delete(record)
                 CoreDataService.shared.delete(record)
             }
-
             // 새로운 시청기록 생성
             let historyEntity = video.mapToPlaybackHistoryEntity(insertInto: context)
             historyEntity.createdAt = Date()
             try context.save()
         } catch {
             print(error)
+        }
+    }
+
+    func addHistoryVideo(_ video: PixabayResponse.Hit) {
+        historyList.removeAll(where: { $0.id == video.id })
+        historyList.append(video)
+    }
+
+    // MARK: - Record PlayTime
+    private var timeObserver: Any?
+    private var player: AVPlayer?
+    private var playTime: Double?
+    private var historyList: [PixabayResponse.Hit] = []
+    private var selectedVideo: PixabayResponse.Hit?
+
+    func startObservingTime(with url: URL) {
+
+        let interval = CMTime(seconds: 1, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
+
+        timeObserver = player?.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak self] currentTime in
+            guard let self = self,
+                  let duration = player?.currentItem?.duration.seconds,
+                  duration.isFinite else { return }
+
+            let current = currentTime.seconds //
+            let durationInt = Int(duration)
+            let progress = Float(current / Double(durationInt))
+            playTime = current
+        }
+    }
+
+    func savePlaybackHistoryToCoredata(video: PixabayResponse.Hit) {
+        
+        let context = CoreDataService.shared.persistentContainer.viewContext
+
+        let fetchRequest: NSFetchRequest<PlaybackHistoryEntity> = PlaybackHistoryEntity.fetchRequest()
+        print(type(of: video.id))
+        fetchRequest.predicate = NSPredicate(format: "id == %d", video.id)
+
+
+        do {
+            let existing = try context.fetch(fetchRequest)
+
+            // 기존 기록이 있으면 삭제
+            for record in existing {
+                //  context.delete(record)
+                CoreDataService.shared.delete(record)
+
+            }
+            // 새로운 시청기록 생성
+            let historyEntity = video.mapToPlaybackHistoryEntity(insertInto: context)
+            historyEntity.createdAt = Date()
+            historyEntity.playTime = playTime ?? PixabayResponse.Hit.defaultPlayTime
+            print("historyEntity.playTime\(historyEntity.playTime)")
+            try context.save()
+        } catch {
+            print("⚠️ Failed to save playback: \(error)")
         }
     }
 
@@ -646,11 +712,14 @@ extension HomeViewController: UICollectionViewDataSource {
 
             cell.configure(with: viewModel)
 
-            // 썸네일 터치시 영상 재생
+            // MARK: - 썸네일 터치시 영상 재생
             cell.onThumbnailTap = { [weak self] in
                 guard let self = self, let videoURL = video.videos.medium.url else { return }
                 // 시청기록 저장
-                self.addToWatchHistory(video)
+                self.selectedVideo = video
+                self.addHistoryVideo(video)
+//                self.addToWatchHistory(video)
+
                 // 영상재생
                 self.playVideo(with: videoURL)
             }

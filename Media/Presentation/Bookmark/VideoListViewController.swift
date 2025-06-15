@@ -7,6 +7,7 @@
 
 import UIKit
 import CoreData
+import AVKit
 
 /// 재생 기록 또는 재생 목록에 따라 표시할 비디오 목록의 유형을 나타내는 열거형입니다.
 enum VideoListType {
@@ -17,7 +18,7 @@ enum VideoListType {
 }
 
 final class VideoListViewController: StoryboardViewController, VideoPlayable {
-
+    var player: AVPlayer?
     typealias PlaylistDiffableDataSource = UICollectionViewDiffableDataSource<VideoList.Section, VideoList.Item>
 
     var videos: VideoListType?
@@ -248,7 +249,8 @@ extension VideoListViewController {
                     userName: entity.user,
                     viewCount: Int(entity.views),
                     duration: Int(entity.duration),
-                    thumbnailUrl: entity.video?.medium.thumbnail
+                    thumbnailUrl: entity.video?.medium.thumbnail,
+                    playTime: entity.playTime
                 )
                 // 바깥 클로저가 [weak self]로 약하게 `self`를 캡처하므로, 안쪽 클로저에서 [weak self]를 써줄 필요가 없음
                 cell.configureMenu {

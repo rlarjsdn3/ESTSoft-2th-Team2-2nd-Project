@@ -20,11 +20,14 @@ class MediumVideoCell: UICollectionViewCell, NibLodable, UIContextMenuInteractio
                 )
     }
     
-    @IBOutlet weak var containerView: UIView!
+    @IBOutlet private weak var containerView: UIView!
+
+    @IBOutlet private weak var thumbnailImageContainerView: UIView!
     
     /// 썸네일 이미지를 표시하는 뷰
     @IBOutlet private weak var thumbnailImageView: UIImageView!
 
+    @IBOutlet private weak var timeProgressView: UIProgressView!
     /// 태그 정보를 표시하는 타이틀 라벨
     @IBOutlet private weak var tagsLabel: UILabel!
 
@@ -62,6 +65,12 @@ class MediumVideoCell: UICollectionViewCell, NibLodable, UIContextMenuInteractio
         }
     }
 
+    var isProgressHidden: Bool = false {
+        didSet {
+            timeProgressView.isHidden = isProgressHidden
+        }
+    }
+
     /// 셀 외부에서 버튼 액션을 처리할 수 있도록 하는 delegate
     weak var delegate: MediumVideoButtonDelegate?
 
@@ -88,13 +97,8 @@ class MediumVideoCell: UICollectionViewCell, NibLodable, UIContextMenuInteractio
     }
 
     private func setViews() {
-        thumbnailImageView.layer.cornerRadius = 8
+        thumbnailImageContainerView.layer.cornerRadius = 8
         paddingLabel.layer.cornerRadius = 3
-
-        let destruct = UIAction(title: "전체 삭제", image: UIImage(systemName: "trash"), attributes: .destructive) { _ in
-            print("전체 삭제")
-        }
-
         containerView.backgroundColor = .systemBackground
         containerView.layer.cornerRadius = 12
         containerView.layer.masksToBounds = true
@@ -125,6 +129,11 @@ extension MediumVideoCell {
         numberFormatter.numberStyle = .decimal
         let result = numberFormatter.string(for: history.viewCount)
         viewsCountLabel.text = result
+        guard let progress = history.progress else {
+            timeProgressView.isHidden = true
+            return
+        }
+        timeProgressView.setProgress(progress, animated: false)
     }
     
     private func formatDuration(_ seconds: Int) -> String {
@@ -153,9 +162,25 @@ extension MediumVideoCell {
 }
 
 struct MediumVideoViewModel {
-    var tags: String
-    var userName: String
-    var viewCount: Int
-    var duration: Int
-    var thumbnailUrl: URL?
+    let tags: String
+    let userName: String
+    let viewCount: Int
+    let duration: Int
+    let thumbnailUrl: URL?
+    let playTime: Double?
+    
+    var progress: Float? {
+        guard let playTime = playTime else { return nil }
+        return Float(playTime / Double(duration))
+
+    }
+
+    init(tags: String, userName: String, viewCount: Int, duration: Int, thumbnailUrl: URL?, playTime: Double? = nil) {
+        self.tags = tags
+        self.userName = userName
+        self.viewCount = viewCount
+        self.duration = duration
+        self.thumbnailUrl = thumbnailUrl
+        self.playTime = playTime
+    }
 }
