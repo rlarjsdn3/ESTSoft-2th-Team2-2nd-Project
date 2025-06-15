@@ -84,6 +84,8 @@ extension PixabayResponse {
 
 extension PixabayResponse.Hit {
 
+    static let defaultPlayTime: Double = 0.5
+
     /// 영상의 다양한 해상도별 버전을 나타내는 모델입니다.
     struct VideoVariants: Decodable {
         /// 대형(보통 3840x2160) 해상도
