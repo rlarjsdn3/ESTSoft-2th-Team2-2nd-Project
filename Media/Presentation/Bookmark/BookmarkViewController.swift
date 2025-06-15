@@ -166,8 +166,7 @@ extension BookmarkViewController {
                 })
                 cell.setThumbnailImageCornerRadius(8)
                 cell.onThumbnailTap = { [weak self] in
-                    guard let url = playback.video?.medium.url else { return }
-                    self?.playVideo(from: url)
+                    self?.playVideo(with: playback)
                 }
             }
         }
