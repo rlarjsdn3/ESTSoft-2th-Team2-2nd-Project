@@ -16,7 +16,7 @@ class FilterCategoryCollectionViewCell: UICollectionViewCell {
         categoryContentView.backgroundColor = UIColor.tagUnselected
         categoryContentView.layer.borderWidth = 1.0
         categoryContentView.layer.borderColor = UIColor.tagBorder.cgColor
-        categoryLabel.textColor = .black
+        categoryLabel.textColor = .label
     }
 
     func selectedCellConfigure() {

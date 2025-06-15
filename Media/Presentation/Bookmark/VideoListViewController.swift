@@ -70,7 +70,7 @@ final class VideoListViewController: StoryboardViewController, VideoPlayable {
         noVideosFoundView.alpha = 0.0
         searchBar.apply {
             $0.delegate = self
-            $0.placeholder = "검색어를 입력하세요."
+            $0.placeholder = "Enter a search term."
         }
         collectionView.collectionViewLayout = createCompositionalLayout()
         closeButtonTrailingConstraint.constant = -50
@@ -82,7 +82,7 @@ final class VideoListViewController: StoryboardViewController, VideoPlayable {
         switch videos {
         case .playback:
             navigationBar.configure(
-                title: "재생 기록",
+                title: "Playback History",
                 leftIcon: leftIcon,
                 leftIconTint: .mainLabelColor,
                 rightIcon: rightIcon,
@@ -248,27 +248,18 @@ extension VideoListViewController {
                     thumbnailUrl: entity.video?.medium.thumbnail,
                     progress: entity.progress
                 )
-                cell.configureMenu(
-                    deleteAction: { [weak self] in
-                        guard let self = self else { return }
-                        // 삭제 처리 코드
-                        self.showDeleteAlert(
-                            "재생 목록 전체 삭제",
-                            message: "정말 전체 재생목록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
-                            onConfirm: { _ in
-                                do {
-                                    guard case let .playback(entities) = self.videos else { return }
-                                    entities.forEach { CoreDataService.shared.delete($0) }
-                                    print("모든 Video 엔티티가 삭제되었습니다.")
-                                } catch {
-                                    print("삭제 중 오류 발생: \(error)")
-                                }
-                            },
-                            onCancel: { _ in
-                            }
-                        )
-                    }
-                )
+                // 바깥 클로저가 [weak self]로 약하게 `self`를 캡처하므로, 안쪽 클로저에서 [weak self]를 써줄 필요가 없음
+                cell.configureMenu {
+                    self?.showDeleteAlert(
+                        "Delete All Playback History",
+                        message: "Are you sure you want to delete all playback history? This action cannot be undone.",
+                        onConfirm: { _ in
+                            guard case let .playback(entities) = self?.videos else { return }
+                            entities.forEach { CoreDataService.shared.delete($0) }
+                        },
+                        onCancel: { _ in }
+                    )
+                }
             case .playlist(let entity):
                 viewModel = MediumVideoViewModel(
                     tags: entity.tags,
@@ -277,33 +268,19 @@ extension VideoListViewController {
                     duration: Int(entity.duration),
                     thumbnailUrl: entity.video?.medium.thumbnail
                 )
-                if case let .playlist(name, _, _) = self?.videos {
-                    if name == CoreDataString.bookmarkedPlaylistName {
-                        cell.isBookMark = true
-                    } else {
-                        cell.configureMenu(
-                            deleteAction: { [weak self] in
-                                guard let self = self else { return }
-                                // 삭제 처리 코드
-                                self.showDeleteAlert(
-                                    "플레이리스트 전체 삭제",
-                                    message: "정말 전체 플레이리스트를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
-                                    onConfirm: { _ in
-                                        do {
-                                            guard case let .playlist(_, entities, _) = self.videos else { return }
-                                            entities.forEach { CoreDataService.shared.delete($0) }
-                                            print("모든 Video 엔티티가 삭제되었습니다.")
-                                        } catch {
-                                            print("삭제 중 오류 발생: \(error)")
-                                        }
-                                    },
-                                    onCancel: { _ in
-                                    }
-                                )
-                            }
+                cell.configureMenu(
+                    deleteAction: {
+                        self?.showDeleteAlert(
+                            "Delete Entire Playlist",
+                            message: "Are you sure you want to delete the entire playlist? This action cannot be undone.",
+                            onConfirm: { _ in
+                                guard case let .playlist(_, entities, _) = self?.videos else { return }
+                                entities.forEach { CoreDataService.shared.delete($0) }
+                            },
+                            onCancel: { _ in }
                         )
                     }
-                }
+                )
             }
             
             if case let .playlist(_, _, isBookmark) = self?.videos {
@@ -414,8 +391,6 @@ extension VideoListViewController {
     }
 
     private func showContentUnavailableViewIfNeeded<T, U>(_ entities: [T], _ filtered: [U]) {
-        print(entities.isEmpty, filtered.isEmpty)
-        
         UIView.animate(withDuration: 0.25, delay: 0.25) {
             // 재생 목록이 비어있으면
             if entities.isEmpty {
@@ -469,12 +444,18 @@ extension VideoListViewController: UICollectionViewDelegate {
         _ collectionView: UICollectionView,
         didHighlightItemAt indexPath: IndexPath
     ) {
+        guard let cell = collectionView.cellForItem(at: indexPath) else { return }
+        cell.animateScale(0.95)
+        cell.animateOpacity(0.75)
     }
 
     func collectionView(
         _ collectionView: UICollectionView,
         didUnhighlightItemAt indexPath: IndexPath
     ) {
+        guard let cell = collectionView.cellForItem(at: indexPath) else { return }
+        cell.animateScale(1.0)
+        cell.animateOpacity(1.0)
     }
 
 }

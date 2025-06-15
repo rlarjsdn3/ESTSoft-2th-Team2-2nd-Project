@@ -115,6 +115,11 @@ class SearchFilterViewController: StoryboardViewController {
         }
     }
 
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        view.layer.borderColor = UIColor.tagBorder.cgColor
+    }
+
 
     @IBAction func applyButtonTapped(_ sender: UIButton) {
         if selectedCategories != nil {

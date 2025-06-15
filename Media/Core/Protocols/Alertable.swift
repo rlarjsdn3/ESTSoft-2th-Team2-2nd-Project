@@ -27,12 +27,12 @@ extension Alertable where Self: UIViewController {
     ) {
         let alertController = defaultAlertController(title, message: message)
 
-        let okAction = TSAlertAction(title: "확인", style: .default, handler: onConfirm)
+        let okAction = TSAlertAction(title: "OK", style: .default, handler: onConfirm)
         okAction.configuration.backgroundColor = UIColor.primaryColor
         okAction.configuration.titleAttributes?[.foregroundColor] = UIColor.systemBackground
         alertController.addAction(okAction)
 
-        let cancelAction = TSAlertAction(title: "취소", style: .cancel, handler: onCancel)
+        let cancelAction = TSAlertAction(title: "Cancel", style: .cancel, handler: onCancel)
         alertController.addAction(cancelAction)
 
         present(alertController, animated: true)
@@ -52,12 +52,12 @@ extension Alertable where Self: UIViewController {
     ) {
         let alertController = defaultAlertController(title, message: message)
 
-        let okAction = TSAlertAction(title: "삭제", style: .destructive, handler: onConfirm)
+        let okAction = TSAlertAction(title: "Delete", style: .destructive, handler: onConfirm)
         okAction.configuration.backgroundColor = UIColor.primaryColor
         okAction.configuration.titleAttributes?[.foregroundColor] = UIColor.systemBackground
         alertController.addAction(okAction)
 
-        let cancelAction = TSAlertAction(title: "취소", style: .cancel, handler: onCancel)
+        let cancelAction = TSAlertAction(title: "Cancel", style: .cancel, handler: onCancel)
         alertController.addAction(cancelAction)
 
         present(alertController, animated: true)
@@ -76,7 +76,7 @@ extension Alertable where Self: UIViewController {
         message: String,
         defaultText: String? = nil,
         placeholder: String? = nil,
-        maxLength: Int = 20,
+        maxLength: Int = 12,
         onConfirm: @escaping ((TSAlertAction, String)) -> Void,
         onCancel: @escaping (TSAlertAction) -> Void
     ) {
@@ -84,7 +84,7 @@ extension Alertable where Self: UIViewController {
 
         var observer: NSObjectProtocol?
 
-        let okAction = TSAlertAction(title: "확인", style: .default) { action in
+        let okAction = TSAlertAction(title: "OK", style: .default) { action in
             if let observer = observer {
                 NotificationCenter.default.removeObserver(observer)
             }
@@ -100,24 +100,27 @@ extension Alertable where Self: UIViewController {
             textfield.text = defaultText
             textfield.placeholder = placeholder
 
-            #warning("김건우 -> 참조 사이클 문제 다시 확인해보기")
             observer = NotificationCenter.default.addObserver(
                 forName: UITextField.textDidChangeNotification,
                 object: textfield,
                 queue: .main
-            ) { [weak okAction] _ in
-                guard let currentText = textfield.text else { return }
+            ) { [weak okAction, weak textfield] _ in
+                guard let currentText = textfield?.text else { return }
 
                 if currentText.count > maxLength {
-                    textfield.text = String(currentText.prefix(maxLength))
+                    textfield?.text = String(currentText.prefix(maxLength))
                 }
 
                 okAction?.isEnabled = !currentText.isEmpty
             }
         }
 
-
-        let cancelAction = TSAlertAction(title: "취소", style: .cancel, handler: onCancel)
+        let cancelAction = TSAlertAction(title: "Cancel", style: .cancel) { action in
+            if let observer = observer {
+                NotificationCenter.default.removeObserver(observer)
+            }
+            onCancel(action)
+        }
         alertController.addAction(cancelAction)
 
         present(alertController, animated: true)
