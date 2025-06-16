@@ -17,8 +17,22 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
 
     // 초기값설정
     var selectedCategoryIndex: Int = 0
-
+    
     var selectedCategories: [String] = []
+    
+//    // 카테고리 배열 순서
+//    var displayedCategories: [String] {
+//
+//        return ["All"] + selectedCategories.map({ $0.rawValue })
+//    }
+//
+//    // 필터링 소문자로 비교
+//    var selectedCategoryName: Category? {
+//        if selectedCategoryIndex == 0 {
+//            return nil
+//        }
+//        return selectedCategories[selectedCategoryIndex - 1]//.lowercased()
+//    }
 
     @IBOutlet weak var videoCollectionView: UICollectionView!
 
@@ -46,7 +60,7 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
 
                 NotificationCenter.default.addObserver(forName: .didSelectedCategories, object: nil, queue: .main) { [weak self]_ in
                     guard let self = self else { return }
-                        let categories = TagsDataManager.shared.fetchSeletedCategories()
+                        let categories = TagsDataManager.shared.fetchSelectedCategories()
                         self.selectedCategories = categories.map { $0.rawValue }
                         self.categoryCollectionView.reloadData()
                         self.fetchVideo(page: 1, isRepresh: true)
@@ -92,7 +106,7 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
         super.viewWillAppear(animated)
         navigationController?.navigationBar.isHidden = true
 
-        let categories = TagsDataManager.shared.fetchSeletedCategories()
+        let categories = TagsDataManager.shared.fetchSelectedCategories()
         self.selectedCategories = categories.map { $0.rawValue }
 
         categoryCollectionView.reloadData()
@@ -178,7 +192,7 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
 
             // 카테고리 필터
             if let selectedCategory = selectedCategoryName {
-                let filterCategory = selectedCategory.lowercased()
+                let filterCategory = selectedCategory//.lowercased()
                 fetchedVideos = fetchedVideos.filter { hit in
                     let tagsArray = hit.tags
                         .split(separator: ",")
