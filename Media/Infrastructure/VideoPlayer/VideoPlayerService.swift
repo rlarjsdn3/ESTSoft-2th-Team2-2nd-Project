@@ -214,7 +214,7 @@ extension DefaultVideoPlayerService: VideoPlayerService {
         observation?.invalidate()
 
         let player = AVPlayer(url: url)
-        let playerVC = AVPlayerViewController()
+        let playerVC = PiPEnabledPlayerViewController()
         playerVC.player = player
 
         self.observation = player.currentItem?.observe(\.status, options: [.new]) { [weak self] playerItem, _ in
