@@ -199,13 +199,25 @@ class SelectedTagsViewController: StoryboardViewController {
     func updateCellAppearance(_ cell: SelectedTagsViewControllerCell, selected: Bool) {
         if selected {
             cell.contentView.backgroundColor = .tagSelected
-            cell.tagsTitle.textColor = traitCollection.userInterfaceStyle == .dark ? .black : .white
-            cell.tagsImageView.tintColor = traitCollection.userInterfaceStyle == .dark ? .black : .white
+            cell.tagsTitle.textColor = UIColor.categorySelectedColor
+            cell.tagsImageView.tintColor = UIColor.categorySelectedColor
         } else {
-            cell.contentView.backgroundColor = .tagBorderColorAlpha
-            cell.tagsTitle.textColor = .label
-            cell.tagsImageView.tintColor = .label
+            cell.contentView.backgroundColor = UIColor.categoryUnselectedBackgroundColor
+            cell.tagsTitle.textColor = UIColor.categoryUnselectedColor
+            cell.tagsImageView.tintColor = UIColor.categoryUnselectedColor
         }
+        
+        cell.contentView.layer.cornerRadius = 20
+        cell.contentView.layer.masksToBounds = true
+        
+        // 그림자 설정
+        cell.layer.shadowColor = UIColor.black.cgColor
+        cell.layer.shadowOpacity = selected ? 0.4 : 0.1
+        cell.layer.shadowOffset = CGSize(width: 0, height: 2)
+        cell.layer.shadowRadius = 5
+        cell.layer.masksToBounds = false
+
+        cell.layer.shadowPath = UIBezierPath(roundedRect: cell.bounds, cornerRadius: cell.contentView.layer.cornerRadius).cgPath
     }
 }
 
