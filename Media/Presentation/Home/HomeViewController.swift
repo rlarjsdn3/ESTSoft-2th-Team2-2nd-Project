@@ -17,8 +17,22 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
 
     // 초기값설정
     var selectedCategoryIndex: Int = 0
-
+    
     var selectedCategories: [String] = []
+    
+//    // 카테고리 배열 순서
+//    var displayedCategories: [String] {
+//
+//        return ["All"] + selectedCategories.map({ $0.rawValue })
+//    }
+//
+//    // 필터링 소문자로 비교
+//    var selectedCategoryName: Category? {
+//        if selectedCategoryIndex == 0 {
+//            return nil
+//        }
+//        return selectedCategories[selectedCategoryIndex - 1]//.lowercased()
+//    }
 
     @IBOutlet weak var videoCollectionView: UICollectionView!
 
@@ -46,7 +60,7 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
 
                 NotificationCenter.default.addObserver(forName: .didSelectedCategories, object: nil, queue: .main) { [weak self]_ in
                     guard let self = self else { return }
-                        let categories = TagsDataManager.shared.fetchSeletedCategories()
+                        let categories = TagsDataManager.shared.fetchSelectedCategories()
                         self.selectedCategories = categories.map { $0.rawValue }
                         self.categoryCollectionView.reloadData()
                         self.fetchVideo(page: 1, isRepresh: true)
@@ -92,17 +106,12 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
         super.viewWillAppear(animated)
         navigationController?.navigationBar.isHidden = true
 
-        let categories = TagsDataManager.shared.fetchSeletedCategories()
+        let categories = TagsDataManager.shared.fetchSelectedCategories()
         self.selectedCategories = categories.map { $0.rawValue }
 
         categoryCollectionView.reloadData()
-        fetchVideo(page: 1, isRepresh: true)
 
         // 시청기록 처리 등 기존 코드 유지
-        if let observer = timeObserver {
-            player?.removeTimeObserver(observer)
-            timeObserver = nil
-        }
 
         if let video = selectedVideo {
             savePlaybackHistoryToCoredata(video: video)
@@ -138,6 +147,8 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
 
     private var hasMoreData: Bool = true
 
+
+    // 네트워크
     private func callPixabayAPI(
         query: String?,
         page: Int,
@@ -152,13 +163,18 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
                 perPage: perPage
             )
 
-            service.request(endpoint) { result in
+            service.request(endpoint) { [weak self] result in
                 DispatchQueue.main.async {
+                    guard let self = self else { return }
+
                     switch result {
                     case .success(let response):
+
                         completion(.success(response))
+
                     case .failure(let error):
-                        completion(.failure(error as Error))
+
+                        completion(.failure(error))
                     }
                 }
             }
@@ -172,7 +188,7 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
 
             // 카테고리 필터
             if let selectedCategory = selectedCategoryName {
-                let filterCategory = selectedCategory.lowercased()
+                let filterCategory = selectedCategory//.lowercased()
                 fetchedVideos = fetchedVideos.filter { hit in
                     let tagsArray = hit.tags
                         .split(separator: ",")
@@ -390,27 +406,27 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
     }
 
     // MARK: - Record PlayTime
-    private var timeObserver: Any?
-    private var player: AVPlayer?
+//    private var timeObserver: Any?
+//    private var player: AVPlayer?
     private var playTime: Double?
     private var historyList: [PixabayResponse.Hit] = []
     private var selectedVideo: PixabayResponse.Hit?
 
-    private func startObservingTime(with url: URL) {
-
-        let interval = CMTime(seconds: 1, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
-
-        timeObserver = player?.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak self] currentTime in
-            guard let self = self,
-                  let duration = player?.currentItem?.duration.seconds,
-                  duration.isFinite else { return }
-
-            let current = currentTime.seconds //
-            let durationInt = Int(duration)
-            let progress = Float(current / Double(durationInt))
-            playTime = current
-        }
-    }
+//    private func startObservingTime(with url: URL) {
+//
+//        let interval = CMTime(seconds: 1, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
+//
+//        timeObserver = player?.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak self] currentTime in
+//            guard let self = self,
+//                  let duration = player?.currentItem?.duration.seconds,
+//                  duration.isFinite else { return }
+//
+//            let current = currentTime.seconds //
+//            let durationInt = Int(duration)
+//            let progress = Float(current / Double(durationInt))
+//            playTime = current
+//        }
+//    }
 
     private func savePlaybackHistoryToCoredata(video: PixabayResponse.Hit) {
 
@@ -619,7 +635,10 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
     // 다크모드 적용
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
-
+        // 팝오버 닫기
+        if let popover = presentedViewController as? UIAlertController {
+                popover.dismiss(animated: true)
+            }
         categoryCollectionView.reloadData()
         videoCollectionView.collectionViewLayout.invalidateLayout()
     }
@@ -697,7 +716,10 @@ extension HomeViewController: UICollectionViewDataSource {
 
                 self.selectedVideo = video
 
-                videoPlayerService.playVideo(self, with: video) { error in
+                videoPlayerService.playVideo(self, with: video) { time in
+                    print("\(time.seconds)")
+                    self.playTime = time.seconds
+                } onError: { error in
                     switch error {
                     case .notConnectedToInternet:
                         self.showAlert(

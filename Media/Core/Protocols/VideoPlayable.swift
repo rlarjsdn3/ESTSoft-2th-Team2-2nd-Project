@@ -116,7 +116,7 @@ extension VideoPlayable where Self: UIViewController {
             switch playerItem.status {
             case .readyToPlay:
                 player.play()
-                print("🔹 Played Video:", url)
+                print("Played Video:", url)
                 self?.present(vc, animated: true)
             case .failed:
                 guard let error = playerItem.error,
