@@ -246,9 +246,11 @@ class SettingsTableViewController: UITableViewController, EditProfileDelegate, M
             for quality in VideoQuality.allCases {
                 let action = UIAlertAction(title: quality.rawValue, style: .default) { [weak self] _ in
                     guard let self = self else { return }
+                    
                     self.currentVideoQuality = quality
                     self.videoQualityLabel.text = quality.rawValue
-                    tableView.reloadRows(at: [indexPath], with: .none)
+                    
+                    tableView.reloadData()
                 }
                 alert.addAction(action)
             }
