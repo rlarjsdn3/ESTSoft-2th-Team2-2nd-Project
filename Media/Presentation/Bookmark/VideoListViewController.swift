@@ -172,7 +172,7 @@ final class VideoListViewController: StoryboardViewController {
 
             let columnCount = switch environment.container.effectiveContentSize.width {
             case ..<500:      1 // 아이폰 세로모드
-            case 500..<1000:  2 // 아이패드 세로 모드
+            case 500..<1050:  2 // 아이패드 세로 모드
             default:          3 // 아이패드 가로 모드
             }
             let groupSize = NSCollectionLayoutSize(

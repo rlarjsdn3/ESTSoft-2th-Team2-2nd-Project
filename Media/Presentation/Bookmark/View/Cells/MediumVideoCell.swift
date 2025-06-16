@@ -105,7 +105,7 @@ class MediumVideoCell: UICollectionViewCell, NibLodable, UIContextMenuInteractio
     }
 
     func configureMenu(deleteAction: @escaping () -> Void) {
-        let destruct = UIAction(title: "전체 삭제", image: UIImage(systemName: "trash"), attributes: .destructive) { _ in
+        let destruct = UIAction(title: "Delete All", image: UIImage(systemName: "trash"), attributes: .destructive) { _ in
             deleteAction()
         }
         let interaction = UIContextMenuInteraction(delegate: self)

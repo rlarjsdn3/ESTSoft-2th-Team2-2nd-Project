@@ -211,10 +211,10 @@ extension BookmarkViewController {
                 }
                 cell.configure(viewModel)
                 cell.onEditAction = { [weak self] in
-                    self?.showRenameTextFieldAlert(for: indexPath)
+                    self?.showRenameTextFieldAlert(for: playlist)
                 }
                 cell.onDeleteAction = { [weak self] in
-                    self?.showDeletePlaylistAlert(for: indexPath)
+                    self?.showDeletePlaylistAlert(for: playlist)
                 }
                 cell.isBookMark = playlist.isBookmark
             }
@@ -450,8 +450,7 @@ extension BookmarkViewController {
         }
     }
 
-    func showRenameTextFieldAlert(for indexPath: IndexPath) {
-        guard let entity = self.playListEntityFromDatasource(for: indexPath) else { return }
+    func showRenameTextFieldAlert(for entity: PlaylistEntity) {
         self.showTextFieldAlert(
             "Rename Playlist",
             message: "Please enter a new name.",
@@ -463,16 +462,14 @@ extension BookmarkViewController {
             } else {
                 Toast.makeToast("A playlist with this name already exists.").present()
             }
-        } onCancel: {_ in }
+        } onCancel: { _ in }
     }
 
-    func showDeletePlaylistAlert(for indexPath: IndexPath) {
-        guard let entity = self.playListEntityFromDatasource(for: indexPath) else { return }
+    func showDeletePlaylistAlert(for entity: PlaylistEntity) {
         self.showDeleteAlert(
             "Delete Playlist",
             message: "Are you sure you want to delete this playlist? This action cannot be undone.",
             onConfirm: { _ in
-                guard let entity = self.playListEntityFromDatasource(for: indexPath) else { return }
                 self.coreDataService.delete(entity)
             },
             onCancel: { _ in }
