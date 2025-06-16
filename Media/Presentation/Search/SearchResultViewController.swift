@@ -571,7 +571,12 @@ extension SearchResultViewController: UICollectionViewDataSource {
     }
 }
 
-extension SearchResultViewController: UICollectionViewDelegate {
+extension SearchResultViewController: UICollectionViewDelegate, UIScrollViewDelegate {
+    // 스크롤 시작 시 호출 메서드
+    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        view.endEditing(true)
+        hideRecentSearches()
+    }
 }
 
 extension SearchResultViewController: UICollectionViewDelegateFlowLayout {
