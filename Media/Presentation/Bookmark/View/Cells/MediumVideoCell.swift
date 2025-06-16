@@ -125,17 +125,34 @@ extension MediumVideoCell {
         tagsLabel.text = history.tags.split(by: ",").prefix(2).joined(separator: ", ")
         userNameLabel.text = history.userName
         durationLabel.text = formatDuration(history.duration)
-        let numberFormatter = NumberFormatter()
-        numberFormatter.numberStyle = .decimal
-        let result = numberFormatter.string(for: history.viewCount)
-        viewsCountLabel.text = result
+        viewsCountLabel.text = formatViewCount(history.viewCount)
         guard let progress = history.progress else {
             timeProgressView.isHidden = true
             return
         }
         timeProgressView.setProgress(progress, animated: false)
     }
-    
+
+    private func formatViewCount(_ count: Int) -> String {
+        if count >= 10_000 {
+            let value = Double(count) / 10_000
+            if abs(value.rounded() - value) < 0.1 {
+                return "\(Int(value))M"
+            } else {
+                return String(format: "%.1fM", value)
+            }
+        } else if count >= 1_000 {
+            let value = Double(count) / 1_000
+            if abs(value.rounded() - value) < 0.1 {
+                return "\(Int(value))K"
+            } else {
+                return String(format: "%.1fK", value)
+            }
+        } else {
+            return "\(count)"
+        }
+    }
+
     private func formatDuration(_ seconds: Int) -> String {
         let minutes = seconds / 60
         let remainingSeconds = seconds % 60
