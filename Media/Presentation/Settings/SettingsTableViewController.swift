@@ -181,7 +181,7 @@ class SettingsTableViewController: UITableViewController, EditProfileDelegate, M
                     window.overrideUserInterfaceStyle = self.isDarkMode ? .dark : .light
                 }
                 
-                tableView.reloadRows(at: [indexPath], with: .none)
+                tableView.reloadData()
             }
             
             return cell
@@ -193,6 +193,26 @@ class SettingsTableViewController: UITableViewController, EditProfileDelegate, M
 
     // MARK: - Table View Delegate
     
+    /// 헤더 뷰 디자인 설정
+    override func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
+        if let header = view as? UITableViewHeaderFooterView {
+            header.textLabel?.font = UIFont.systemFont(ofSize: 17, weight: .medium)
+            header.textLabel?.textColor = UIColor.primaryColor
+            header.contentView.backgroundColor = UIColor.backgroundColor
+        }
+    }
+
+    /// 섹션 간 여백
+    override func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        return 45
+    }
+    
+    /// 셀의 높이
+    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 55
+    }
+
+
     /// 셀 선택 시 동작 정의
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard let section = Section(rawValue: indexPath.section) else { return }
@@ -257,9 +277,24 @@ class SettingsTableViewController: UITableViewController, EditProfileDelegate, M
                 if MFMailComposeViewController.canSendMail() {
                     let mailComposeVC = MFMailComposeViewController()
                     mailComposeVC.mailComposeDelegate = self
-                    mailComposeVC.setToRecipients(["ddd@example.com"]) // 수신자 이메일
+                    mailComposeVC.setToRecipients(["aldalddl2007@gmail.com"]) // TODO: 팀 이메일로 설정
                     mailComposeVC.setSubject("App Feedback") // 메일 제목
-                    mailComposeVC.setMessageBody("feedback", isHTML: false) // 메일 내용
+                    
+                    // 유저 정보 가져오기
+                    let name = userDefaults.userName ?? "Unknown"
+                    let email = userDefaults.userEmail ?? "Unknown"
+                    
+                    // 메일 본문 구성
+                    let messageBody = """
+                    [User Name] \(name)
+                    [User Email] \(email)
+                    
+                    ---------------------------
+                    Please write your feedback below:
+                    """
+
+                    mailComposeVC.setMessageBody(messageBody, isHTML: false)
+
                     present(mailComposeVC, animated: true, completion: nil)
                 } else {
                     let alert = UIAlertController(title: "메일 앱이 설정되지 않았습니다", message: "기기의 메일 설정을 확인해 주세요.", preferredStyle: .alert)

@@ -210,6 +210,13 @@ extension BookmarkViewController {
                     )
                 }
                 cell.configure(viewModel)
+                cell.onEditAction = {
+                    self.showRenameTextFieldAlert(for: indexPath)
+                }
+                cell.onDeleteAction = {
+                    self.showDeletePlaylistAlert(for: indexPath)
+                }
+                cell.isBookMark = playlist.isBookmark
             }
 
             if case .addPlaylist = item {
@@ -380,35 +387,6 @@ extension BookmarkViewController: UICollectionViewDelegate {
         }
     }
 
-    func collectionView(
-        _ collectionView: UICollectionView,
-        contextMenuConfigurationForItemsAt indexPaths: [IndexPath],
-        point: CGPoint
-    ) -> UIContextMenuConfiguration? {
-        guard let indexPath = indexPaths.first,
-              let section = self.dataSource?.snapshot().sectionIdentifiers[safe: indexPath.section],
-              let item = self.dataSource?.itemIdentifier(for: indexPath),
-              let entity = self.playListEntityFromDatasource(for: indexPath) else {
-            return nil
-        }
-
-        // 항목이 '재생 기록' 섹션에 속하지 않으며
-        // 항목이 '재생 목록 추가'이 아니며
-        // 항목의 이름이 '북마크를 표시한 재생목록'이 아닐 때 ContextMenu 출력하기
-        if section.type != .playback,
-           item != .addPlaylist,
-           entity.name != CoreDataString.bookmarkedPlaylistName {
-            return UIContextMenuConfiguration(
-                identifier: nil,
-                previewProvider: nil
-            ) { suggestedActions in
-                let renameAction = self.renamePlaylistAction(for: indexPath)
-                let deleteAction = self.deletePlaylistAction(for: indexPath)
-                return UIMenu(title: "", children: [renameAction, deleteAction])
-            }
-        }
-        return nil
-    }
 }
 
 
@@ -470,6 +448,35 @@ extension BookmarkViewController {
                 onCancel: { _ in }
             )
         }
+    }
+
+    func showRenameTextFieldAlert(for indexPath: IndexPath) {
+        guard let entity = self.playListEntityFromDatasource(for: indexPath) else { return }
+        self.showTextFieldAlert(
+            "Rename Playlist",
+            message: "Please enter a new name.",
+            defaultText: entity.name,
+            placeholder: "New name"
+        ) { (_, newName) in
+            if entity.name != newName, !PlaylistEntity.isExist(newName) {
+                self.coreDataService.update(entity,by: \.name, to: newName)
+            } else {
+                Toast.makeToast("A playlist with this name already exists.").present()
+            }
+        } onCancel: {_ in }
+    }
+
+    func showDeletePlaylistAlert(for indexPath: IndexPath) {
+        guard let entity = self.playListEntityFromDatasource(for: indexPath) else { return }
+        self.showDeleteAlert(
+            "Delete Playlist",
+            message: "Are you sure you want to delete this playlist? This action cannot be undone.",
+            onConfirm: { _ in
+                guard let entity = self.playListEntityFromDatasource(for: indexPath) else { return }
+                self.coreDataService.delete(entity)
+            },
+            onCancel: { _ in }
+        )
     }
 
     private func deletePlaylistAction(for indexPath: IndexPath) -> UIAction {
