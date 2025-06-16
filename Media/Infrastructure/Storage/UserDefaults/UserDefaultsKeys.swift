@@ -17,8 +17,8 @@ extension UserDefaultsKeys {
         UserDefaultsKey(name: "hasCompletedOnboarding_v1", defaultValue: false)
     }
     ///
-    var isFirstLaunch: UserDefaultsKey<Bool> {
-        UserDefaultsKey(name: "isFirstLaunch", defaultValue: true)
+    var hasCompletedInitialSetup: UserDefaultsKey<Bool> {
+        UserDefaultsKey(name: "hasCompletedInitialSetup_v1", defaultValue: false)
     }
     /// 사용자 이름을 저장하는 키입니다.
     /// 기본값은 `nil`입니다.
