@@ -181,7 +181,7 @@ class SettingsTableViewController: UITableViewController, EditProfileDelegate, M
                     window.overrideUserInterfaceStyle = self.isDarkMode ? .dark : .light
                 }
                 
-                tableView.reloadRows(at: [indexPath], with: .none)
+                tableView.reloadData()
             }
             
             return cell
