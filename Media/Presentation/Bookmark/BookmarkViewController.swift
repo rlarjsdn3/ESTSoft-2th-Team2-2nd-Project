@@ -442,7 +442,7 @@ extension BookmarkViewController {
                     )
                     self.coreDataService.insert(newPlaylist)
                 } else {
-                    Toast.makeToast("이미 존재하는 재생 목록 이름입니다.").present()
+                    Toast.makeToast("A playlist with this name already exists.").present()
                 }
             } onCancel: { _ in }
     }
