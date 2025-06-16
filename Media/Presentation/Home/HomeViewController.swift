@@ -6,7 +6,7 @@ import CoreData
 
 final class HomeViewController: StoryboardViewController, NavigationBarDelegate {
     private var selectedVideoURL: URL?
-    private var observation: NSKeyValueObservation?
+    var observation: NSKeyValueObservation?
 
     @IBOutlet weak var navigationBar: NavigationBar!
 
@@ -15,10 +15,7 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
     // 초기값설정
     var selectedCategoryIndex: Int = 0
 
-    // 임시 코드 수정예정
-    //    var selectedCategories: [Category] = [.fashion, .music, .business, .food, .health]
-    //    var selectedCategories: [Category] = []
-    var selectedCategories: [String] = ["People", "Nature", "Science", "Buildings", "Business"]
+    var selectedCategories: [String] = []
 
     @IBOutlet weak var videoCollectionView: UICollectionView!
 
@@ -44,14 +41,13 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
             isSearchMode: false
         )
 
-        //        NotificationCenter.default.addObserver(forName: .didSelectedCategories, object: nil, queue: .main) { [weak self]_ in
-        //            self?.selectedCategories = TagsDataManager.shared.fetchSeletedCategories()
-        //            self?.categoryCollectionView.reloadData()
-        //            self?.fetchVideo()
-        //        }
-
-
-        //       selectedCategories = TagsDataManager.shared.fetchSeletedCategories()
+                NotificationCenter.default.addObserver(forName: .didSelectedCategories, object: nil, queue: .main) { [weak self]_ in
+                    guard let self = self else { return }
+                        let categories = TagsDataManager.shared.fetchSeletedCategories()
+                        self.selectedCategories = categories.map { $0.rawValue }
+                        self.categoryCollectionView.reloadData()
+                        self.fetchVideo(page: 1, isRepresh: true)
+                }
 
         //AVAudioSession 설정
         do {
@@ -92,8 +88,14 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.navigationBar.isHidden = true
-        //        navigationController?.setNavigationBarHidden(false, animated: animated)
 
+        let categories = TagsDataManager.shared.fetchSeletedCategories()
+        self.selectedCategories = categories.map { $0.rawValue }
+
+        categoryCollectionView.reloadData()
+        fetchVideo(page: 1, isRepresh: true)
+
+        // 시청기록 처리 등 기존 코드 유지
         if let observer = timeObserver {
             player?.removeTimeObserver(observer)
             timeObserver = nil
@@ -102,51 +104,11 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
         if let video = selectedVideo {
             savePlaybackHistoryToCoredata(video: video)
         }
-
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         print("viewWillDisappear")
-    }
-
-
-    // MARK: - 비디오 재생
-    // UIView controller Extention
-    // 비디오 재생
-    func playVideo(with url: URL) {
-
-        // #1. PlayerItem 생성
-        let item = AVPlayerItem(url: url)
-
-        // #2. Player 생성
-        player = AVPlayer(playerItem: item)
-
-
-
-        // #3. PlayerVC 생성
-        let vc = AVPlayerViewController()
-
-        // #4. 연결
-        vc.player = player
-
-
-        observation?.invalidate()
-
-        observation = item.observe(\.status) { [weak self] playerItem, _ in
-            if playerItem.status == .readyToPlay {
-                self?.startObservingTime(with: url)
-                self?.player?.play()
-            } else if playerItem.status == .failed {
-                print("❌ PlayerItem failed to load\(playerItem.error.debugDescription)")
-            }
-        }
-
-        // #5. 표시
-        present(vc, animated: true) {
-
-        }
-
     }
 
     // MARK: - 카테고리
@@ -400,23 +362,6 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
 
     }
 
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-
-        // 테스트용
-        //                if let testURL = URL(string: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4") {
-        //                    playVideo(with: testURL)
-        //                }
-
-        //        if let testURL = URL(string: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4") {
-        //            playVideo(with: testURL)
-        //        }
-
-        //        if let testURL = URL(string: "https://kxc.blob.core.windows.net/est2/video-vert.mp4") {
-        //            playVideo(with: testURL)
-        //        }
-    }
-
     // 동영상 재생시 시청기록재생 함수
     func addToWatchHistory(_ video: PixabayResponse.Hit) {
         let context = CoreDataService.shared.persistentContainer.viewContext
@@ -582,6 +527,15 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
         fetchRequest.predicate = NSPredicate(format: "name == %@", playlistName)
         do {
             if let playlist = try context.fetch(fetchRequest).first {
+                // 중복체크
+                if let videos = playlist.playlistVideos as? Set<PlaylistVideoEntity> {
+                    let isDuplicate = videos.contains { $0.id == video.id }
+
+                    if isDuplicate {
+                        Toast.makeToast("Already in '\(playlistName)'", systemName: "exclamationmark.triangle").present()
+                            return
+                    }
+                }
                 // PlaylistVideoEntity 생성 및 저장
                 let playlistVideo = video.mapToPlaylistVideoEntity(insertInto: context)
                 playlist.addToPlaylistVideos(playlistVideo)
@@ -734,14 +688,14 @@ extension HomeViewController: UICollectionViewDataSource {
 
             // MARK: - 썸네일 터치시 영상 재생
             cell.onThumbnailTap = { [weak self] in
-                guard let self = self, let videoURL = video.videos.medium.url else { return }
+                guard let self = self else { return }
                 // 시청기록 저장
                 self.selectedVideo = video
                 self.addHistoryVideo(video)
-//                self.addToWatchHistory(video)
+
 
                 // 영상재생
-                self.playVideo(with: videoURL)
+                DefaultVideoPlayerService().playVideo(self, with: video)
             }
 
             // Ellipsis 버튼 실행

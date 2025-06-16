@@ -47,7 +47,7 @@ final class VideoCell: UICollectionViewCell, NibLodable {
         viewCountLabel.textColor = .subLabelColor
         viewCountLabel.backgroundColor = .backgroundColor
 
-        durationLabel.textColor = .white
+        durationLabel.textColor = .background
         durationLabel.backgroundColor = .tagSelectedColor
         durationLabel.layer.cornerRadius = 3
         durationLabel.clipsToBounds = true
@@ -55,7 +55,7 @@ final class VideoCell: UICollectionViewCell, NibLodable {
         likeCountLabel.textColor = .subLabelColor
         likeCountLabel.backgroundColor = .backgroundColor
 
-        tagLabel.textColor = .white
+        tagLabel.textColor = .background
         tagLabel.backgroundColor = .tagSelectedColor
         tagLabel.layer.cornerRadius = 3
         tagLabel.clipsToBounds = true
@@ -159,7 +159,7 @@ final class VideoCell: UICollectionViewCell, NibLodable {
     }
     override func apply(_ layoutAttributes: UICollectionViewLayoutAttributes) {
         super.apply(layoutAttributes)
-        print("📐 VideoCell.apply() - \(layoutAttributes.frame)")
+
     }
 }
 

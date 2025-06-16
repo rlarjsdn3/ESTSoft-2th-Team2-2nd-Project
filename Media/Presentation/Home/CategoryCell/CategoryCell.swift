@@ -37,7 +37,7 @@ final class CategoryCell: UICollectionViewCell {
             titleButton.setTitleColor(.mainLabelColor, for: .normal)
             titleButton.layer.borderColor = UIColor.tagBorderColor.resolvedColor(with: traitCollection).cgColor
         }
-        titleButton.layer.borderWidth = 2.0
+        titleButton.layer.borderWidth = 1.0
 
     }
 
