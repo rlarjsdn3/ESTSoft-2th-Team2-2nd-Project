@@ -77,7 +77,7 @@ final class VideoDataService {
             return .failure(NSError(
                 domain: "VideoDataService",
                 code: 1,
-                userInfo: [NSLocalizedDescriptionKey: "이미 북마크에 있습니다"]
+                userInfo: [NSLocalizedDescriptionKey: "Already in bookmarks"]
             ))
         }
 
@@ -112,7 +112,7 @@ final class VideoDataService {
             return .failure(NSError(
                 domain: "VideoDataService",
                 code: 2,
-                userInfo: [NSLocalizedDescriptionKey: "플레이리스트를 찾을 수 없습니다"]
+                userInfo: [NSLocalizedDescriptionKey: "Already in \(name)"]
             ))
         }
 
@@ -133,7 +133,7 @@ final class VideoDataService {
             return .failure(NSError(
                 domain: "VideoDataService",
                 code: 3,
-                userInfo: [NSLocalizedDescriptionKey: "이미 존재하는 재생 목록 이름입니다"]
+                userInfo: [NSLocalizedDescriptionKey: "Already exist playlist \(name)"]
             ))
         }
 

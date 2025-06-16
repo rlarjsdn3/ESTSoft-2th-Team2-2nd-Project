@@ -10,8 +10,7 @@ import UIKit
 final class SearchViewController: StoryboardViewController {
     @IBOutlet weak var searchTableView: UITableView!
     @IBOutlet weak var navigationBar: NavigationBar!
-    @IBOutlet weak var placeholderImageView: UIImageView!
-
+    @IBOutlet weak var contentUnavailableView: ContentUnavailableView!
     var recordManager = SearchRecordManager()
     private var records: [SearchRecordEntity] = []
     private let userDefaults = UserDefaultsService.shared
@@ -58,6 +57,7 @@ final class SearchViewController: StoryboardViewController {
 
         loadRecentSearches()
         reloadSavedFilters()
+        setKeyBoardDismissGesture()
     }
 
     override func setupHierachy() {
@@ -76,6 +76,7 @@ final class SearchViewController: StoryboardViewController {
     override func setupAttributes() {
         self.view.backgroundColor = UIColor.background
         self.searchTableView.backgroundColor = .clear
+        contentUnavailableView.alpha = 0.0
         changeStateOfFilterButton()
     }
 
@@ -142,9 +143,11 @@ final class SearchViewController: StoryboardViewController {
     private func loadRecentSearches() {
         records = (try? recordManager.fetchRecent(limit: 20)) ?? []
         if !records.isEmpty {
-            placeholderImageView.isHidden = true
+            contentUnavailableView.alpha = 0.0
         } else {
-            placeholderImageView.isHidden = false
+            contentUnavailableView.alpha = 1.0
+            contentUnavailableView.imageResource = .searchDefault
+
         }
         searchTableView.reloadData()
     }
@@ -158,7 +161,7 @@ final class SearchViewController: StoryboardViewController {
 
         // 콜백
         vc.onApply = {
-            Toast.makeToast("필터가 적용되었습니다.", systemName: "slider.horizontal.3").present()
+            Toast.makeToast("Filter has been applied.", systemName: "slider.horizontal.3").present()
             self.reloadSavedFilters()
             self.changeStateOfFilterButton()
         }
@@ -253,8 +256,8 @@ extension SearchViewController: UITableViewDelegate {
             guard let self = self else { return }
 
             self.showDeleteAlert(
-                "정말 삭제하시겠습니까?",
-                message: "이 검색 기록은 복구할 수 없습니다.",
+                "Are you sure you want to delete it?",
+                message: "This keyword cannot be recovered..",
                 onConfirm: { _ in
                     // 데이터 삭제
                     let record = self.records[indexPath.row]
@@ -265,9 +268,10 @@ extension SearchViewController: UITableViewDelegate {
                         tableView.deleteRows(at: [indexPath], with: .automatic)
 
                         if !self.records.isEmpty {
-                            self.placeholderImageView.isHidden = true
+                            self.contentUnavailableView.alpha = 0.0
                         } else {
-                            self.placeholderImageView.isHidden = false
+                            self.contentUnavailableView.alpha = 1.0
+                            self.contentUnavailableView.imageResource = .searchDefault
                         }
 
                         completion(true)

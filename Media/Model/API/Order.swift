@@ -10,4 +10,9 @@ import Foundation
 enum Order: String, CaseIterable {
     case latest
     case popular
+
+    var displayName: String {
+        return rawValue.prefix(1).uppercased()
+        + rawValue.dropFirst()
+    }
 }

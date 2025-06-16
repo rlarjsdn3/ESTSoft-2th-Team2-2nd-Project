@@ -41,24 +41,25 @@
                                     <constraint firstAttribute="height" constant="40" id="M89-nx-KOv"/>
                                 </constraints>
                             </view>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="search_default" translatesAutoresizingMaskIntoConstraints="NO" id="TPX-le-C8E">
-                                <rect key="frame" x="0.0" y="174" width="393" height="561"/>
-                            </imageView>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="SLS-b7-zT8" customClass="ContentUnavailableView" customModule="Media" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="158" width="393" height="694"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                            </view>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="vDu-zF-Fre"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
+                            <constraint firstItem="SLS-b7-zT8" firstAttribute="bottom" secondItem="5EZ-qb-Rvc" secondAttribute="bottom" id="2Xs-s8-eMw"/>
                             <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="2oi-2c-qVG" secondAttribute="trailing" id="3DV-Kn-Wsi"/>
                             <constraint firstItem="vDu-zF-Fre" firstAttribute="bottom" secondItem="Ase-Rr-RAE" secondAttribute="bottom" id="Bo7-nd-AOu"/>
                             <constraint firstItem="Ase-Rr-RAE" firstAttribute="top" secondItem="2oi-2c-qVG" secondAttribute="bottom" constant="16" id="Ekb-01-L0r"/>
-                            <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="TPX-le-C8E" secondAttribute="trailing" id="Fbs-BJ-VE7"/>
                             <constraint firstItem="2oi-2c-qVG" firstAttribute="top" secondItem="vDu-zF-Fre" secondAttribute="top" id="S3h-ty-OXD"/>
                             <constraint firstItem="Ase-Rr-RAE" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="WoM-C9-c2Y"/>
                             <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="Ase-Rr-RAE" secondAttribute="trailing" id="X4j-7L-unB"/>
-                            <constraint firstItem="TPX-le-C8E" firstAttribute="top" secondItem="2oi-2c-qVG" secondAttribute="bottom" constant="16" id="qLo-ST-9Xc"/>
-                            <constraint firstItem="vDu-zF-Fre" firstAttribute="bottom" secondItem="TPX-le-C8E" secondAttribute="bottom" id="tPa-1Q-7kp"/>
+                            <constraint firstItem="SLS-b7-zT8" firstAttribute="leading" secondItem="2oi-2c-qVG" secondAttribute="leading" id="bCr-xe-u2W"/>
+                            <constraint firstItem="SLS-b7-zT8" firstAttribute="top" secondItem="2oi-2c-qVG" secondAttribute="bottom" id="hyU-My-5Qi"/>
+                            <constraint firstItem="SLS-b7-zT8" firstAttribute="trailing" secondItem="2oi-2c-qVG" secondAttribute="trailing" id="nYY-99-fyI"/>
                             <constraint firstItem="2oi-2c-qVG" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="xfc-tF-Qn8"/>
-                            <constraint firstItem="TPX-le-C8E" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="zLp-aG-Xl0"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="네비게이션 바" id="v0y-1H-4Nc">
@@ -70,8 +71,8 @@
                     </navigationItem>
                     <simulatedTabBarMetrics key="simulatedBottomBarMetrics"/>
                     <connections>
+                        <outlet property="contentUnavailableView" destination="SLS-b7-zT8" id="eYV-qZ-xky"/>
                         <outlet property="navigationBar" destination="2oi-2c-qVG" id="fnP-Kv-eNm"/>
-                        <outlet property="placeholderImageView" destination="TPX-le-C8E" id="zjg-Ts-nF7"/>
                         <outlet property="searchTableView" destination="Ase-Rr-RAE" id="7PO-e9-ew5"/>
                     </connections>
                 </viewController>
@@ -82,7 +83,6 @@
     </scenes>
     <resources>
         <image name="line.3.horizontal.decrease" catalog="system" width="128" height="73"/>
-        <image name="search_default" width="512" height="512"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

@@ -13,8 +13,8 @@ final class SearchResultViewController: StoryboardViewController {
     @IBOutlet weak var navigationBar: NavigationBar!
     @IBOutlet weak var videoCollectionView: UICollectionView!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
-    @IBOutlet weak var noVideoFoundImageView: UIImageView!
-
+    @IBOutlet weak var contentUnavailableView: ContentUnavailableView!
+    
     private lazy var refreshControl = UIRefreshControl()
 
     var keyword: String?
@@ -288,7 +288,7 @@ final class SearchResultViewController: StoryboardViewController {
         ) as! SearchFilterViewController
 
         vc.onApply = {
-            Toast.makeToast("필터가 적용되었습니다.", systemName: "slider.horizontal.3").present()
+            Toast.makeToast("Filter has been applied.", systemName: "slider.horizontal.3").present()
             self.reloadSavedFilters()
             self.changeStateOfFilterButton()
         }
@@ -385,7 +385,8 @@ final class SearchResultViewController: StoryboardViewController {
 
                     self.activityIndicator.stopAnimating()
                     self.endRefreshing()
-                    self.noVideoFoundImageView.isHidden = !self.hits.isEmpty
+                    self.contentUnavailableView.alpha = !self.hits.isEmpty ? 0 : 1
+                    self.contentUnavailableView.imageResource = .noVideos
                     self.videoCollectionView.isHidden = false
 
                     UIView.transition(with: self.videoCollectionView, duration: 0.3) {
@@ -401,31 +402,33 @@ final class SearchResultViewController: StoryboardViewController {
                 DispatchQueue.main.async {
                     self.activityIndicator.stopAnimating()
                     self.endRefreshing()
-                    self.showAlert(title: "오류", message: "영상을 불러오는 중 문제가 발생했습니다.") { _ in
-                        print("확인", error)
-                    } onCancel: { _ in
-                        print("취소", error)
-                    }
+                    self.showAlert(title: "Error",
+                                   message: "There was a problem loading the video.",
+                                   onPrimary: { _ in }
+                    )
                 }
             }
         }
     }
 
     // MARK: – 새 재생목록 Alert
-    private func showAddPlaylistAlert(for video: PixabayResponse.Hit) {
+    func showAddPlaylistAlert() {
         showTextFieldAlert(
-            "새로운 재생목록 추가",
-            message: "새 재생목록 이름을 입력하세요."
-        ) { [weak self] _, newName in
-            guard let self = self else { return }
-            switch self.videoDataService.createPlaylist(named: newName, with: video) {
-            case .success:
-                Toast.makeToast("'\(newName)' 생성 및 추가 완료", systemName: "list.clipboard")
-                    .present()
-            case .failure(let err):
-                Toast.makeToast(err.localizedDescription).present()
-            }
-        } onCancel: { _ in }
+            "Add New Playlist",message: "Enter a name for the new playlist.") { (action, newText) in
+                if !PlaylistEntity.isExist(newText) {
+                    let newPlaylist = PlaylistEntity(
+                        name: newText,
+                        insertInto: CoreDataService.shared.viewContext
+                    )
+                    CoreDataService.shared.insert(newPlaylist)
+                    Toast.makeToast("'\(newPlaylist.name)' has been created", systemName: "list.clipboard").present()
+
+                } else {
+                    Toast.makeToast("A playlist with this name already exists").present()
+                }
+            } onCancel: { action in
+
+        }
     }
 }
 
@@ -435,28 +438,6 @@ extension SearchResultViewController: UICollectionViewDataSource {
         let minutes = seconds / 60
         let remainingSeconds = seconds % 60
         return String(format: "%02d:%02d", minutes, remainingSeconds)
-    }
-
-    // 조회 수 포맷
-    func formatViewCount(_ count: Int) -> String {
-        if count >= 10_000 {
-            let value = Double(count) / 10_000
-            // 소수점 검사이후 Int or Double
-            if abs(value.rounded() - value) < 0.01 {
-                return "\(Int(value))만 회"
-            } else {
-                return String(format: "%.1f만 회", value)
-            }
-        } else if count >= 1_000 {
-            let value = Double(count) / 1_000
-            if abs(value.rounded() - value) < 0.01 {
-                return "\(Int(value))천 회"
-            } else {
-                return String(format: "%.1f천 회", value)
-            }
-        } else {
-            return "\(count)회"
-        }
     }
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -506,7 +487,7 @@ extension SearchResultViewController: UICollectionViewDataSource {
                 // 북마크 추가 결과 처리
                 switch self.videoDataService.addToBookmark(video) {
                 case .success:
-                    Toast.makeToast("북마크에 추가되었습니다", systemName: "bookmark")
+                    Toast.makeToast("Add to Bookmarks", systemName: "bookmark")
                         .present()
                 case .failure(let err):
                     Toast.makeToast(err.localizedDescription, systemName: "bookmark.fill")
@@ -520,20 +501,20 @@ extension SearchResultViewController: UICollectionViewDataSource {
                 let lists = self.videoDataService.playlists()
 
                 // 2) 액션시트로 사용자에게 선택지 제시
-                let alert = UIAlertController(title: "재생목록 선택", message: nil, preferredStyle: .actionSheet)
+                let alert = UIAlertController(title: "Select Playlist", message: nil, preferredStyle: .actionSheet)
                 lists.forEach { pl in
                     alert.addAction(.init(title: pl.name, style: .default) { _ in
                         // 선택된 목록에 비디오 추가
                         self.videoDataService.add(video, toPlaylistNamed: pl.name)
-                        Toast.makeToast("\"\(pl.name)\"에 추가되었습니다", systemName: "list.clipboard")
+                        Toast.makeToast("\"\(pl.name)\" added to playlist", systemName: "list.clipboard")
                             .present()
                     })
                 }
                 // 새 재생목록 만들기
-                alert.addAction(.init(title: "새 재생목록 만들기", style: .default) { _ in
-                    self.showAddPlaylistAlert(for: video)
+                alert.addAction(.init(title: "Create New Playlist", style: .default) { _ in
+                    self.showAddPlaylistAlert()
                 })
-                alert.addAction(UIAlertAction(title: "취소", style: .cancel, handler: nil))
+                alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
 
                 cell.layoutIfNeeded()
 
@@ -612,7 +593,7 @@ extension SearchResultViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,
                         insetForSectionAt section: Int) -> UIEdgeInsets {
-        return .init(top: 8, left: 8, bottom: 8, right: 8)
+        return .init(top: 8, left: 8, bottom: 0, right: 8)
     }
     func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,
