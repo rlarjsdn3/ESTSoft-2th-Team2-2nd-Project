@@ -112,10 +112,6 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
         categoryCollectionView.reloadData()
 
         // 시청기록 처리 등 기존 코드 유지
-        if let observer = timeObserver {
-            player?.removeTimeObserver(observer)
-            timeObserver = nil
-        }
 
         if let video = selectedVideo {
             savePlaybackHistoryToCoredata(video: video)
@@ -410,27 +406,27 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
     }
 
     // MARK: - Record PlayTime
-    private var timeObserver: Any?
-    private var player: AVPlayer?
+//    private var timeObserver: Any?
+//    private var player: AVPlayer?
     private var playTime: Double?
     private var historyList: [PixabayResponse.Hit] = []
     private var selectedVideo: PixabayResponse.Hit?
 
-    private func startObservingTime(with url: URL) {
-
-        let interval = CMTime(seconds: 1, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
-
-        timeObserver = player?.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak self] currentTime in
-            guard let self = self,
-                  let duration = player?.currentItem?.duration.seconds,
-                  duration.isFinite else { return }
-
-            let current = currentTime.seconds //
-            let durationInt = Int(duration)
-            let progress = Float(current / Double(durationInt))
-            playTime = current
-        }
-    }
+//    private func startObservingTime(with url: URL) {
+//
+//        let interval = CMTime(seconds: 1, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
+//
+//        timeObserver = player?.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak self] currentTime in
+//            guard let self = self,
+//                  let duration = player?.currentItem?.duration.seconds,
+//                  duration.isFinite else { return }
+//
+//            let current = currentTime.seconds //
+//            let durationInt = Int(duration)
+//            let progress = Float(current / Double(durationInt))
+//            playTime = current
+//        }
+//    }
 
     private func savePlaybackHistoryToCoredata(video: PixabayResponse.Hit) {
 
@@ -720,7 +716,10 @@ extension HomeViewController: UICollectionViewDataSource {
 
                 self.selectedVideo = video
 
-                videoPlayerService.playVideo(self, with: video) { error in
+                videoPlayerService.playVideo(self, with: video) { time in
+                    print("\(time.seconds)")
+                    self.playTime = time.seconds
+                } onError: { error in
                     switch error {
                     case .notConnectedToInternet:
                         self.showAlert(
