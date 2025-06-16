@@ -153,7 +153,15 @@ final class SearchResultViewController: StoryboardViewController {
     // 화면 회전
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
-        coordinator.animate(alongsideTransition: nil) { _ in
+        coordinator.animate(alongsideTransition: nil) { [weak self] _ in
+            guard let self = self else { return }
+
+            //VC 계층에 떠있는 AlertController dismiss
+            if let alert = self.presentedViewController as? UIAlertController {
+                alert.dismiss(animated: true) {
+                    print("alert 닫힘-----------------------")
+                }
+            }
             self.videoCollectionView.reloadData()
         }
     }
@@ -376,7 +384,6 @@ final class SearchResultViewController: StoryboardViewController {
                         self.hits.append(contentsOf: response.hits)
                     }
 
-
                     if let dur = duration {
                         self.hits = self.hits.filter {
                             Duration(seconds: $0.duration) == dur
@@ -399,13 +406,23 @@ final class SearchResultViewController: StoryboardViewController {
                 }
 
             case .failure(let error):
+                debugPrint("🛑 error:", error)
                 DispatchQueue.main.async {
                     self.activityIndicator.stopAnimating()
                     self.endRefreshing()
-                    self.showAlert(title: "Error",
-                                   message: "There was a problem loading the video.",
-                                   onPrimary: { _ in }
-                    )
+                    switch error {
+                    case .networkFailiure(NetworkError.generic):
+                        self.showAlert(title: "No Internet Connection",
+                                       message: "Please check your internet connection.",
+                                       onPrimary: { _ in self.contentUnavailableView.alpha = 1
+                            self.contentUnavailableView.imageResource = .noInternet }
+                        )
+                    default:
+                        self.showAlert(title: "Error",
+                                       message: "There was a problem loading the video.",
+                                       onPrimary: { _ in }
+                        )
+                    }
                 }
             }
         }
@@ -428,7 +445,7 @@ final class SearchResultViewController: StoryboardViewController {
                 }
             } onCancel: { action in
 
-        }
+            }
     }
 }
 
