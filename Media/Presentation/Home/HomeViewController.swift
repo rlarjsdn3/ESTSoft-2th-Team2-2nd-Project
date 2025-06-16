@@ -96,7 +96,6 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
         self.selectedCategories = categories.map { $0.rawValue }
 
         categoryCollectionView.reloadData()
-        fetchVideo(page: 1, isRepresh: true)
 
         // 시청기록 처리 등 기존 코드 유지
         if let observer = timeObserver {
@@ -138,6 +137,8 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
 
     private var hasMoreData: Bool = true
 
+
+    // 네트워크
     private func callPixabayAPI(
         query: String?,
         page: Int,
@@ -152,13 +153,18 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
                 perPage: perPage
             )
 
-            service.request(endpoint) { result in
+            service.request(endpoint) { [weak self] result in
                 DispatchQueue.main.async {
+                    guard let self = self else { return }
+
                     switch result {
                     case .success(let response):
+
                         completion(.success(response))
+
                     case .failure(let error):
-                        completion(.failure(error as Error))
+
+                        completion(.failure(error))
                     }
                 }
             }
@@ -619,7 +625,10 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
     // 다크모드 적용
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
-
+        // 팝오버 닫기
+        if let popover = presentedViewController as? UIAlertController {
+                popover.dismiss(animated: true)
+            }
         categoryCollectionView.reloadData()
         videoCollectionView.collectionViewLayout.invalidateLayout()
     }
