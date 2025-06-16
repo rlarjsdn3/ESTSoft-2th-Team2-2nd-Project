@@ -632,6 +632,8 @@ extension SearchResultViewController: UISearchBarDelegate {
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         guard let keyword = searchBar.text, !keyword.isEmpty else { return }
 
+        let trimmed = keyword.trimmingCharacters(in: .whitespacesAndNewlines)
+
         // 키보드 내리기
         searchBar.resignFirstResponder()
 
@@ -640,13 +642,13 @@ extension SearchResultViewController: UISearchBarDelegate {
 
         //검색 기록 저장
         do {
-            try recordManager.save(query: keyword)
+            try recordManager.save(query: trimmed)
         } catch {
             print(error)
         }
         loadRecentSearches()
 
-        self.keyword = keyword
+        self.keyword = trimmed
         self.activityIndicator.startAnimating()
         self.videoCollectionView.isHidden = true
 
