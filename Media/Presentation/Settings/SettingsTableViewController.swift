@@ -193,6 +193,26 @@ class SettingsTableViewController: UITableViewController, EditProfileDelegate, M
 
     // MARK: - Table View Delegate
     
+    /// 헤더 뷰 디자인 설정
+    override func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
+        if let header = view as? UITableViewHeaderFooterView {
+            header.textLabel?.font = UIFont.systemFont(ofSize: 17, weight: .medium)
+            header.textLabel?.textColor = UIColor.primaryColor
+            header.contentView.backgroundColor = UIColor.backgroundColor
+        }
+    }
+
+    /// 섹션 간 여백
+    override func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        return 45
+    }
+    
+    /// 셀의 높이
+    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 55
+    }
+
+
     /// 셀 선택 시 동작 정의
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard let section = Section(rawValue: indexPath.section) else { return }
