@@ -45,12 +45,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window.makeKeyAndVisible()
     }
 
-    func sceneDidDisconnect(_ scene: UIScene) {
-    }
-
-    func sceneDidBecomeActive(_ scene: UIScene) {
-    }
-    
+//    func sceneDidDisconnect(_ scene: UIScene) {
+//    }
+//
+//    func sceneDidBecomeActive(_ scene: UIScene) {
+//    }
+//    
     /// 사용자 설정에 따라 라이트 / 다크 모드를 적용
     private func applyUserInterfaceStyle(from windowScene: UIWindowScene) {
         let isDark = UserDefaults.standard.bool(forKey: "isDarkMode")
