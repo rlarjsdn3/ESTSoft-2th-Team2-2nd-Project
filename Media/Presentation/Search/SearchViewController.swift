@@ -57,6 +57,7 @@ final class SearchViewController: StoryboardViewController {
         super.viewWillAppear(animated)
 
         loadRecentSearches()
+        reloadSavedFilters()
     }
 
     override func setupHierachy() {
