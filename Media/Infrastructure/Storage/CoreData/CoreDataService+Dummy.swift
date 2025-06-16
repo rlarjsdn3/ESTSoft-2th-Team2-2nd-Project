@@ -35,7 +35,7 @@ extension CoreDataService {
     /// - Returns: 생성된 PlaylistEntity 객체 배열입니다.
     @discardableResult
     private func generatePlaylistEntity() -> [PlaylistEntity] {
-        let names = ["북마크를 표시한 재생목록", "재생목록1", "재생목록2", "재생목록3"]
+        let names = ["재생목록1", "재생목록2", "재생목록3"]
 
         let playlists: [PlaylistEntity] = names.enumerated().map { index, name in
             let playlist = PlaylistEntity(context: self.viewContext)
