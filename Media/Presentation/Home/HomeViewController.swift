@@ -4,7 +4,7 @@ import AVKit
 import AVFoundation
 import CoreData
 
-final class HomeViewController: StoryboardViewController, NavigationBarDelegate, VideoPlayable {
+final class HomeViewController: StoryboardViewController, NavigationBarDelegate {
     private var selectedVideoURL: URL?
     var observation: NSKeyValueObservation?
 
@@ -695,7 +695,7 @@ extension HomeViewController: UICollectionViewDataSource {
 
 
                 // 영상재생
-                self.playVideo(with: video)
+                DefaultVideoPlayerService().playVideo(self, with: video)
             }
 
             // Ellipsis 버튼 실행
