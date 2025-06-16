@@ -47,7 +47,7 @@ final class Toast {
         view.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             view.centerXAnchor.constraint(equalTo: window.centerXAnchor),
-            view.bottomAnchor.constraint(equalTo: window.safeAreaLayoutGuide.bottomAnchor, constant: -40),
+            view.bottomAnchor.constraint(equalTo: window.safeAreaLayoutGuide.bottomAnchor, constant: -70),
             view.widthAnchor.constraint(lessThanOrEqualToConstant: 300)
         ])
 
