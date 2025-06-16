@@ -277,9 +277,24 @@ class SettingsTableViewController: UITableViewController, EditProfileDelegate, M
                 if MFMailComposeViewController.canSendMail() {
                     let mailComposeVC = MFMailComposeViewController()
                     mailComposeVC.mailComposeDelegate = self
-                    mailComposeVC.setToRecipients(["ddd@example.com"]) // 수신자 이메일
+                    mailComposeVC.setToRecipients(["aldalddl2007@gmail.com"]) // TODO: 팀 이메일로 설정
                     mailComposeVC.setSubject("App Feedback") // 메일 제목
-                    mailComposeVC.setMessageBody("feedback", isHTML: false) // 메일 내용
+                    
+                    // 유저 정보 가져오기
+                    let name = userDefaults.userName ?? "Unknown"
+                    let email = userDefaults.userEmail ?? "Unknown"
+                    
+                    // 메일 본문 구성
+                    let messageBody = """
+                    [User Name] \(name)
+                    [User Email] \(email)
+                    
+                    ---------------------------
+                    Please write your feedback below:
+                    """
+
+                    mailComposeVC.setMessageBody(messageBody, isHTML: false)
+
                     present(mailComposeVC, animated: true, completion: nil)
                 } else {
                     let alert = UIAlertController(title: "메일 앱이 설정되지 않았습니다", message: "기기의 메일 설정을 확인해 주세요.", preferredStyle: .alert)
