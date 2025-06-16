@@ -74,16 +74,16 @@ class SelectedTagsViewController: StoryboardViewController {
         }
         
         // 온보딩에서의 셀 선택이 반영되도록 메인 스레드에서 업데이트
-        
-        for indexPath in self.selectIndexPath {
-            self.tagsCollectionView.selectItem(at: indexPath, animated: false, scrollPosition: [])
-            
-            if let cell = self.tagsCollectionView.cellForItem(at: indexPath) as? SelectedTagsViewControllerCell {
-                self.updateCellAppearance(cell, selected: true)
+        DispatchQueue.main.async {
+            for indexPath in self.selectIndexPath {
+                self.tagsCollectionView.selectItem(at: indexPath, animated: false, scrollPosition: [])
+                
+                if let cell = self.tagsCollectionView.cellForItem(at: indexPath) as? SelectedTagsViewControllerCell {
+                    self.updateCellAppearance(cell, selected: true)
+                }
             }
         }
-        
-        
+
         // UI 갱신
         tagsCollectionView.reloadData()
     }
