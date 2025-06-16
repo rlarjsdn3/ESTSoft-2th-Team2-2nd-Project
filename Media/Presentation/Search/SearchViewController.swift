@@ -10,8 +10,7 @@ import UIKit
 final class SearchViewController: StoryboardViewController {
     @IBOutlet weak var searchTableView: UITableView!
     @IBOutlet weak var navigationBar: NavigationBar!
-    @IBOutlet weak var placeholderImageView: UIImageView!
-
+    @IBOutlet weak var contentUnavailableView: ContentUnavailableView!
     var recordManager = SearchRecordManager()
     private var records: [SearchRecordEntity] = []
     private let userDefaults = UserDefaultsService.shared
@@ -76,6 +75,7 @@ final class SearchViewController: StoryboardViewController {
     override func setupAttributes() {
         self.view.backgroundColor = UIColor.background
         self.searchTableView.backgroundColor = .clear
+        contentUnavailableView.alpha = 0.0
         changeStateOfFilterButton()
     }
 
@@ -142,9 +142,11 @@ final class SearchViewController: StoryboardViewController {
     private func loadRecentSearches() {
         records = (try? recordManager.fetchRecent(limit: 20)) ?? []
         if !records.isEmpty {
-            placeholderImageView.isHidden = true
+            contentUnavailableView.alpha = 0.0
         } else {
-            placeholderImageView.isHidden = false
+            contentUnavailableView.alpha = 1.0
+            contentUnavailableView.imageResource = .searchDefault
+
         }
         searchTableView.reloadData()
     }
@@ -265,9 +267,10 @@ extension SearchViewController: UITableViewDelegate {
                         tableView.deleteRows(at: [indexPath], with: .automatic)
 
                         if !self.records.isEmpty {
-                            self.placeholderImageView.isHidden = true
+                            self.contentUnavailableView.alpha = 0.0
                         } else {
-                            self.placeholderImageView.isHidden = false
+                            self.contentUnavailableView.alpha = 1.0
+                            self.contentUnavailableView.imageResource = .searchDefault
                         }
 
                         completion(true)

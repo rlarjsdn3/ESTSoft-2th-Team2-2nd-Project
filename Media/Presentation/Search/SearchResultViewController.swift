@@ -13,8 +13,8 @@ final class SearchResultViewController: StoryboardViewController {
     @IBOutlet weak var navigationBar: NavigationBar!
     @IBOutlet weak var videoCollectionView: UICollectionView!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
-    @IBOutlet weak var noVideoFoundImageView: UIImageView!
-
+    @IBOutlet weak var contentUnavailableView: ContentUnavailableView!
+    
     private lazy var refreshControl = UIRefreshControl()
 
     var keyword: String?
@@ -385,7 +385,8 @@ final class SearchResultViewController: StoryboardViewController {
 
                     self.activityIndicator.stopAnimating()
                     self.endRefreshing()
-                    self.noVideoFoundImageView.isHidden = !self.hits.isEmpty
+                    self.contentUnavailableView.alpha = !self.hits.isEmpty ? 0 : 1
+                    self.contentUnavailableView.imageResource = .noVideos
                     self.videoCollectionView.isHidden = false
 
                     UIView.transition(with: self.videoCollectionView, duration: 0.3) {
