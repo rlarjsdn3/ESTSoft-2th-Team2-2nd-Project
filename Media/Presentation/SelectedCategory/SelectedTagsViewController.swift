@@ -91,6 +91,18 @@ class SelectedTagsViewController: StoryboardViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        // 네비게이션 바 투명하게 설정
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithTransparentBackground()
+        appearance.backgroundColor = .clear
+        appearance.shadowColor = .clear
+
+        // 모든 상태에 대해 동일하게 설정
+        navigationController?.navigationBar.standardAppearance = appearance
+        navigationController?.navigationBar.scrollEdgeAppearance = appearance
+        navigationController?.navigationBar.compactAppearance = appearance
+        navigationController?.navigationBar.isTranslucent = true
+        
         navigationController?.navigationBar.shadowImage = UIImage()
         navigationController?.toolbar.setShadowImage(UIImage(), forToolbarPosition: .any)
         
