@@ -31,6 +31,15 @@ final class VideoCell: UICollectionViewCell, NibLodable {
 
     var onThumbnailTap: (() -> Void)?
 
+    var onTagTap: ((String) -> Void)?
+
+    // Scroll To Item
+    @objc private func tagTapped() {
+        guard let tagText = tagLabel.text else { return }
+
+        onTagTap?(tagText)
+    }
+
     override func awakeFromNib() {
         super.awakeFromNib()
 
@@ -65,6 +74,10 @@ final class VideoCell: UICollectionViewCell, NibLodable {
         thumbnailImage.addGestureRecognizer(tapGesture)
         
         ellipsisButton.showsMenuAsPrimaryAction = true
+
+        tagLabel.isUserInteractionEnabled = true
+        let tagTapGesture = UITapGestureRecognizer(target: self, action: #selector(tagTapped))
+        tagLabel.addGestureRecognizer(tagTapGesture)
     }
 
     @objc private func thumbnailTapped() {
