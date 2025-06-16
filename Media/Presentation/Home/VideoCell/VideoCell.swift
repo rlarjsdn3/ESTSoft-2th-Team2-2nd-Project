@@ -26,6 +26,7 @@ final class VideoCell: UICollectionViewCell, NibLodable {
     @IBOutlet weak var likeIcon: UIImageView!
 
     private var currentImageURL: URL?
+    private var currentProfileURL: URL?
 
     @IBAction func ellipsisButtonAction(_ sender: Any) {
 
@@ -120,7 +121,7 @@ final class VideoCell: UICollectionViewCell, NibLodable {
         ellipsisButton.menu = menu
         ellipsisButton.showsMenuAsPrimaryAction = true
     }
-    
+
     /// 점 세 개 버튼(ellipsisButton)에 삭제 메뉴를 구성합니다.
     /// - Parameter onDeleteAction: 사용자가 "Delete Playback History" 항목을 선택했을 때 실행될 클로저입니다.
     func configureMenu(onDeleteAction: @escaping UIActionHandler) {
@@ -130,7 +131,7 @@ final class VideoCell: UICollectionViewCell, NibLodable {
             attributes: .destructive,
             handler: onDeleteAction
         )
-        
+
         ellipsisButton.menu = UIMenu(title: "", children: [deleteAction])
     }
 
@@ -147,30 +148,39 @@ final class VideoCell: UICollectionViewCell, NibLodable {
 
         thumbnailImage.startShimmeringOverlay()
 
-        if let thumbnailURL = viewModel.thumbnailURL {
-            loadImage(from: thumbnailURL, into: thumbnailImage)
-        } else {
-            thumbnailImage.image = UIImage(named: "no_videos")
-        }
-        if let profileURL = viewModel.profileImageURL {
-            loadImage(from: profileURL, into: profileImage)
-        } else {
-            profileImage.image = UIImage(named: "no_profile")
-        }
+        if let thumbURL = viewModel.thumbnailURL {
+                    loadImage(
+                        from: thumbURL,
+                        into: thumbnailImage,
+                        compareWith: \.currentImageURL
+                    )
+                } else {
+                    thumbnailImage.stopShimmeringOverlay()
+                    thumbnailImage.image = UIImage(named: "no_videos")
+                }
+                currentProfileURL = viewModel.profileImageURL
+                if let profURL = viewModel.profileImageURL {
+                    loadImage(
+                        from: profURL,
+                        into: profileImage,
+                        compareWith: \.currentProfileURL
+                    )
+                } else {
+                    profileImage.image = UIImage(named: "no_profile")
+                }
 
         self.setNeedsLayout()
         self.layoutIfNeeded()
-    }
+            }
 
-    private func loadImage(from url: URL, into imageView: UIImageView) {
+    private func loadImage(from url: URL, into imageView: UIImageView, compareWith holderKeyPath: KeyPath<VideoCell, URL?>) {
         DispatchQueue.global(qos: .background).async { [weak imageView] in
             guard let data = try? Data(contentsOf: url),
                   let image = UIImage(data: data) else { return }
 
             DispatchQueue.main.async {
                 guard let imageView = imageView else { return }
-                guard self.currentImageURL == url
-                else { return }
+                guard self[keyPath: holderKeyPath] == url else { return }
                 imageView.image = image
                 imageView.stopShimmeringOverlay()
             }
@@ -181,7 +191,7 @@ final class VideoCell: UICollectionViewCell, NibLodable {
         thumbnailImage.layer.cornerRadius = radius
         thumbnailImage.layer.masksToBounds = true
     }
-    
+
     override func apply(_ layoutAttributes: UICollectionViewLayoutAttributes) {
         super.apply(layoutAttributes)
 
