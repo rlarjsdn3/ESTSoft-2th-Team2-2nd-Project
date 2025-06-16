@@ -153,7 +153,15 @@ final class SearchResultViewController: StoryboardViewController {
     // 화면 회전
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
-        coordinator.animate(alongsideTransition: nil) { _ in
+        coordinator.animate(alongsideTransition: nil) { [weak self] _ in
+            guard let self = self else { return }
+
+            //VC 계층에 떠있는 AlertController dismiss
+            if let alert = self.presentedViewController as? UIAlertController {
+                alert.dismiss(animated: true) {
+                    print("alert 닫힘-----------------------")
+                }
+            }
             self.videoCollectionView.reloadData()
         }
     }
@@ -427,7 +435,7 @@ final class SearchResultViewController: StoryboardViewController {
                 }
             } onCancel: { action in
 
-        }
+            }
     }
 }
 
