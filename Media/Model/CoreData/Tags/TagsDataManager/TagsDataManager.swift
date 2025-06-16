@@ -50,9 +50,9 @@ class TagsDataManager {
         }
     }
     
-    func deleteAll() {
+    func deleteAllTagsData() {
         do {
-            try coreData.clearAll()
+            try coreData.deleteAll(TagsEntity.self)
             coreData.saveContext()
         } catch {
             print(error)
