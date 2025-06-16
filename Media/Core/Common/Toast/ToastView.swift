@@ -37,4 +37,8 @@ class ToastView: UIView {
             iconImageView.isHidden = true
         }
     }
+    
+    deinit {
+        print("ToastView도 해제됨")
+    }
 }
