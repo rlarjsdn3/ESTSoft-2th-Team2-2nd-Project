@@ -30,17 +30,7 @@ class SettingsTableViewController: UITableViewController, EditProfileDelegate, M
     enum ModeFeedbackRow: Int, CaseIterable {
         case mode, feedback
     }
-    
-    /// 현재 선택된 비디오 해상도를 반환하거나 설정하는 연산 프로퍼티
-    var currentVideoQuality: VideoQuality {
-        get {
-            VideoQuality(rawValue: userDefaults.videoQuality) ?? .medium
-        }
-        set {
-            userDefaults.videoQuality = newValue.rawValue
-        }
-    }
-    
+        
     /// 다크 모드 활성화 여부
     var isDarkMode = false
     
@@ -66,7 +56,7 @@ class SettingsTableViewController: UITableViewController, EditProfileDelegate, M
         // 사용자 정보 및 해상도 표시
         nameLabel.text = userDefaults.userName
         emailLabel.text = userDefaults.userEmail
-        videoQualityLabel.text = currentVideoQuality.rawValue
+        videoQualityLabel.text = userDefaults.videoQuality
         
         // 다크 모드 초기화
         isDarkMode = UserDefaults.standard.bool(forKey: "isDarkMode")
@@ -247,9 +237,11 @@ class SettingsTableViewController: UITableViewController, EditProfileDelegate, M
                 let action = UIAlertAction(title: quality.rawValue, style: .default) { [weak self] _ in
                     guard let self = self else { return }
                     
-                    self.currentVideoQuality = quality
-                    self.videoQualityLabel.text = quality.rawValue
+                    // 선택한 해상도를 UserDefaults에 저장
+                    UserDefaults.standard.set(quality.rawValue, forKey: "video_quality")
                     
+                    // UI 업데이트
+                    self.videoQualityLabel.text = quality.rawValue
                     tableView.reloadData()
                 }
                 alert.addAction(action)
