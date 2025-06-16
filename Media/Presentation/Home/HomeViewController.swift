@@ -20,21 +20,21 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
 
     // 임시 코드 수정예정
     //    var selectedCategories: [Category] = [.fashion, .music, .business, .food, .health]
-    //    var selectedCategories: [Category] = []
-    var selectedCategories: [String] = ["People", "Nature", "Science", "Buildings", "Business"]
+        var selectedCategories: [Category] = []
+//    var selectedCategories: [String] = ["People", "Nature", "Science", "Buildings", "Business"]
 
     // 카테고리 배열 순서
     var displayedCategories: [String] {
 
-        return ["All"] + selectedCategories
+        return ["All"] + selectedCategories.map({ $0.rawValue })
     }
 
     // 필터링 소문자로 비교
-    var selectedCategoryName: String? {
+    var selectedCategoryName: Category? {
         if selectedCategoryIndex == 0 {
             return nil
         }
-        return selectedCategories[selectedCategoryIndex - 1].lowercased()
+        return selectedCategories[selectedCategoryIndex - 1]//.lowercased()
     }
 
     @IBOutlet weak var videoCollectionView: UICollectionView!
@@ -96,14 +96,14 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
 
 
 
-        //        NotificationCenter.default.addObserver(forName: .didSelectedCategories, object: nil, queue: .main) { [weak self]_ in
-        //            self?.selectedCategories = TagsDataManager.shared.fetchSeletedCategories()
-        //            self?.categoryCollectionView.reloadData()
-        //            self?.fetchVideo()
-        //        }
+                NotificationCenter.default.addObserver(forName: .didSelectedCategories, object: nil, queue: .main) { [weak self]_ in
+                    self?.selectedCategories = TagsDataManager.shared.fetchSelectedCategories()
+                    self?.categoryCollectionView.reloadData()
+                    self?.fetchVideo()
+                }
 
 
-        //       selectedCategories = TagsDataManager.shared.fetchSeletedCategories()
+               selectedCategories = TagsDataManager.shared.fetchSelectedCategories()
 
         //AVAudioSession 설정
         do {
@@ -228,12 +228,12 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
 
             // 카테고리 필터
             if let selectedCategory = selectedCategoryName {
-                let filterCategory = selectedCategory.lowercased()
+                let filterCategory = selectedCategory//.lowercased()
                 fetchedVideos = fetchedVideos.filter { hit in
                     let tagsArray = hit.tags
                         .split(separator: ",")
                         .map { $0.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() }
-                    return tagsArray.contains(where: { $0.contains(filterCategory) })
+                    return tagsArray.contains(where: { $0.contains(filterCategory.rawValue) })
                 }
             }
 
@@ -327,7 +327,7 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
                 }
             } else {
                 // 선택된 카테고리에서 2개 랜덤 선택
-                let selectedLower = selectedCategories.map { $0.lowercased() }
+                let selectedLower = selectedCategories.map { $0.rawValue.lowercased() }
                 for category in selectedLower.shuffled().prefix(2) {
                     if keywordSet.insert(category).inserted {
                         keywords.append(category)
@@ -359,7 +359,7 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
         } else {
             // 카테고리 선택 시
             if selectedCategoryIndex - 1 >= 0 && selectedCategoryIndex - 1 < selectedCategories.count {
-                let category = selectedCategories[selectedCategoryIndex - 1].lowercased()
+                let category = selectedCategories[selectedCategoryIndex - 1].rawValue.lowercased()
                 dispatchGroup.enter()
                 callPixabayAPI(query: category, page: page, perPage: 15) { result in
                     if case let .success(response) = result {
