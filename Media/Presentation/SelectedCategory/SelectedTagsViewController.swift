@@ -28,7 +28,7 @@ class SelectedTagsViewController: StoryboardViewController {
             userInfo: ["categories": selectedCategories]
         )
         
-        showAlert(title: "Notification", message: "\(selectedCategories.count) categories have been selected.") { _ in
+        showAlert(title: "\(selectedCategories.count) categories have been selected.", message: "The home screen is configured based on your interests.") { _ in
             /// 확인 버튼을 눌렀을 경우
             // 태그 코어데이터의 모든 데이터를 삭제
             TagsDataManager.shared.deleteAllTagsData()
