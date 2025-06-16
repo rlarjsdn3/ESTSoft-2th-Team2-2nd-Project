@@ -76,7 +76,6 @@
                         <outlet property="activityIndicator" destination="2Gm-tV-rVm" id="VKb-mU-xoP"/>
                         <outlet property="contentUnavailableView" destination="wkq-ly-TTM" id="PFm-h5-ybJ"/>
                         <outlet property="navigationBar" destination="zhQ-qm-gp9" id="3K6-Bi-lti"/>
-                        <outlet property="noVideoFoundImageView" destination="dnS-Vn-52w" id="Yru-d8-hIO"/>
                         <outlet property="videoCollectionView" destination="B7J-me-q7q" id="loY-ha-6P6"/>
                     </connections>
                 </viewController>
