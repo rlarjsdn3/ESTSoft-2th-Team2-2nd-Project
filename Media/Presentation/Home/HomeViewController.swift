@@ -15,6 +15,7 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
 
     @IBOutlet weak var categoryCollectionView: UICollectionView!
 
+    @IBOutlet weak var contentUnavailableView: ContentUnavailableView!
     // 초기값설정
     var selectedCategoryIndex: Int = 0
     
@@ -98,7 +99,7 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
             layout.estimatedItemSize = .zero
         }
 
-        fetchVideo()
+        fetchVideo(page: 1, isRepresh: true)
 
     }
 
@@ -168,17 +169,22 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
                     guard let self = self else { return }
 
                     switch result {
-                    case .success(let response):
+                                case .success(let response):
+                                    completion(.success(response))
+                                    UIView.animate(withDuration: 0.25) {
+                                        self.contentUnavailableView.alpha = 0
+                                    }
 
-                        completion(.success(response))
-
-                    case .failure(let error):
-
-                        completion(.failure(error))
+                                case .failure:
+                                    // 실패하면 noInternet 이미지 띄우기
+                                    self.contentUnavailableView.imageResource = .noInternet
+                                    UIView.animate(withDuration: 0.25) {
+                                        self.contentUnavailableView.alpha = 1
+                                    }
+                                }
+                            }
+                        }
                     }
-                }
-            }
-        }
 
     // 카테고리 필터 함수
     private func handleVideoResponse(_ result: Result<PixabayResponse, Error>, page: Int) {
