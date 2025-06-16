@@ -16,7 +16,7 @@ class SelectedTagsViewController: StoryboardViewController {
     @IBAction func selectedTagsButton(_ sender: Any) {
         
         TagsDataManager.shared.deleteAllTagsData()
-
+        
         for category in selectedCategories {
             TagsDataManager.shared.save(category: category)
         }
@@ -74,16 +74,16 @@ class SelectedTagsViewController: StoryboardViewController {
         }
         
         // 온보딩에서의 셀 선택이 반영되도록 메인 스레드에서 업데이트
-        DispatchQueue.main.async {
-            for indexPath in self.selectIndexPath {
-                self.tagsCollectionView.selectItem(at: indexPath, animated: false, scrollPosition: [])
-                
-                if let cell = self.tagsCollectionView.cellForItem(at: indexPath) as? SelectedTagsViewControllerCell {
-                    self.updateCellAppearance(cell, selected: true)
-                }
+        
+        for indexPath in self.selectIndexPath {
+            self.tagsCollectionView.selectItem(at: indexPath, animated: false, scrollPosition: [])
+            
+            if let cell = self.tagsCollectionView.cellForItem(at: indexPath) as? SelectedTagsViewControllerCell {
+                self.updateCellAppearance(cell, selected: true)
             }
         }
-
+        
+        
         // UI 갱신
         tagsCollectionView.reloadData()
     }
@@ -106,7 +106,7 @@ class SelectedTagsViewController: StoryboardViewController {
     
     private func createCompositionalLayout() -> UICollectionViewCompositionalLayout {
         let sectionProvider: UICollectionViewCompositionalLayoutSectionProvider = { [weak self] sectionIndex, environment in
-
+            
             let itemWidthDimension: NSCollectionLayoutDimension = switch environment.container.effectiveContentSize.width {
             case ..<500:      .fractionalWidth(0.5)  // 아이폰 세로모드
             case 500..<1050:  .fractionalWidth(0.2)  // 아이패드 세로 모드
@@ -117,7 +117,7 @@ class SelectedTagsViewController: StoryboardViewController {
                 heightDimension: itemWidthDimension
             )
             let item = NSCollectionLayoutItem(layoutSize: itemSize)
-
+            
             let columnCount = switch environment.container.effectiveContentSize.width {
             case ..<500:      2 // 아이폰 세로모드
             case 500..<1050:  5 // 아이패드 세로 모드
@@ -134,15 +134,15 @@ class SelectedTagsViewController: StoryboardViewController {
                 count: columnCount
             )
             group.interItemSpacing = .flexible(20)
-
+            
             let section = NSCollectionLayoutSection(group: group)
             section.interGroupSpacing = 8
             section.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 14, bottom: 8, trailing: 14)
-
-           
+            
+            
             return section
         }
-
+        
         return UICollectionViewCompositionalLayout(sectionProvider: sectionProvider)
     }
     
@@ -178,7 +178,7 @@ extension SelectedTagsViewController: UICollectionViewDataSource {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "SelectedTagsViewControllerCell", for: indexPath) as? SelectedTagsViewControllerCell else { return UICollectionViewCell() }
         
         let target = tags[indexPath.item]
-
+        
         cell.tagsTitle.text = target.rawValue.capitalized
         cell.tagsImageView.image = target.symbolImage
         
