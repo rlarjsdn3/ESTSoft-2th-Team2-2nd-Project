@@ -55,12 +55,16 @@ final class Toast {
             view.alpha = 1
         }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + duration) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + duration) { [weak self] in
             UIView.animate(withDuration: 0.3, animations: {
                 view.alpha = 0
             }, completion: { _ in
                 view.removeFromSuperview()
             })
         }
+    }
+    
+    deinit {
+        print("Toast 인스턴스 메모리에서 해제됨")
     }
 }
