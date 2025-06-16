@@ -110,6 +110,11 @@ class SelectedTagsViewController: StoryboardViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        navigationController?.navigationBar.shadowImage = UIImage()
+        navigationController?.toolbar.setShadowImage(UIImage(), forToolbarPosition: .any)
+        
+        tagsCollectionView.collectionViewLayout = createCompositionalLayout()
+        
         for (index, tag) in tags.enumerated() {
             if selectedCategories.contains(tag) {
                 let indexPath = IndexPath(item: index, section: 0)
@@ -119,8 +124,6 @@ class SelectedTagsViewController: StoryboardViewController {
         
         backUpCategories = selectedCategories
         backUpIndexPath = selectIndexPath
-        
-        setUpLayout()
         
         tagsCollectionView.allowsMultipleSelection = true
         tagsCollectionView.allowsSelection = true
@@ -141,34 +144,46 @@ class SelectedTagsViewController: StoryboardViewController {
         
     }
     
-    func setUpLayout() {
-        // item 사이즈
-        let itemSize: NSCollectionLayoutSize
-        let groupSize: NSCollectionLayoutSize
-        
-        // 디바이스 정보에 따라 카테고리 아이템 크기 분기
-        if traitCollection.userInterfaceIdiom == .phone {
-            itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.47), heightDimension: .fractionalWidth(0.47))
-            groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalWidth(0.47))
-        } else {
-            itemSize = NSCollectionLayoutSize(widthDimension: .absolute(160), heightDimension: .absolute(160))
-            groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(160))
+    private func createCompositionalLayout() -> UICollectionViewCompositionalLayout {
+        let sectionProvider: UICollectionViewCompositionalLayoutSectionProvider = { [weak self] sectionIndex, environment in
+
+            let itemWidthDimension: NSCollectionLayoutDimension = switch environment.container.effectiveContentSize.width {
+            case ..<500:      .fractionalWidth(0.5)  // 아이폰 세로모드
+            case 500..<1050:  .fractionalWidth(0.2)  // 아이패드 세로 모드
+            default:          .fractionalWidth(0.125) // 아이패드 가로 모드
+            }
+            let itemSize = NSCollectionLayoutSize(
+                widthDimension: itemWidthDimension,
+                heightDimension: itemWidthDimension
+            )
+            let item = NSCollectionLayoutItem(layoutSize: itemSize)
+
+            let columnCount = switch environment.container.effectiveContentSize.width {
+            case ..<500:      2 // 아이폰 세로모드
+            case 500..<1050:  5 // 아이패드 세로 모드
+            default:          8 // 아이패드 가로 모드
+            }
+            print(environment.container.effectiveContentSize.width)
+            let groupSize = NSCollectionLayoutSize(
+                widthDimension: .fractionalWidth(1.0),
+                heightDimension: itemWidthDimension
+            )
+            let group = NSCollectionLayoutGroup.horizontal(
+                layoutSize: groupSize,
+                repeatingSubitem: item,
+                count: columnCount
+            )
+            group.interItemSpacing = .flexible(20)
+
+            let section = NSCollectionLayoutSection(group: group)
+            section.interGroupSpacing = 8
+            section.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 14, bottom: 8, trailing: 14)
+
+           
+            return section
         }
-        
-        let item = NSCollectionLayoutItem(layoutSize: itemSize)
-        
-        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
-        
-        group.interItemSpacing = .flexible(10)
-        
-        // 섹션 구성
-        let section = NSCollectionLayoutSection(group: group)
-        section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 20, bottom: 10, trailing: 20)
-        section.interGroupSpacing = 25
-        
-        // 레이아웃을 만들어서 컬렉션 뷰에 저장
-        let layout = UICollectionViewCompositionalLayout(section: section)
-        tagsCollectionView.collectionViewLayout = layout
+
+        return UICollectionViewCompositionalLayout(sectionProvider: sectionProvider)
     }
     
     // 셀이 3개 이상 선택되면 버튼 활성화
@@ -220,10 +235,9 @@ extension SelectedTagsViewController: UICollectionViewDataSource {
 extension SelectedTagsViewController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        print("셀 선택")
         if selectIndexPath.count >= 5 {
             
-            showAlert(title: "❌Can't select more than 5", message: "Only up to 5 categories can be selected") { _ in
+            showAlert(title: "Can't select more than 5", message: "Only up to 5 categories can be selected") { _ in
                 self.dismiss(animated: true)
             } onCancel: { _ in
                 self.dismiss(animated: true)
@@ -249,7 +263,6 @@ extension SelectedTagsViewController: UICollectionViewDelegate {
         selectIndexPath.remove(indexPath)
         selectedCategories = selectIndexPath.map { tags[$0.item] }
         
-        print("셀 선택 해제")
         // 셀 선택해제 시 색상변경
         if let cell = collectionView.cellForItem(at: indexPath) as? SelectedTagsViewControllerCell {
             updateCellAppearance(cell, selected: false)
