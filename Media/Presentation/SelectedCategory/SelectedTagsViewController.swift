@@ -14,8 +14,8 @@ class SelectedTagsViewController: StoryboardViewController {
     @IBOutlet weak var selectedTagsButton: UIButton!
     
     @IBAction func selectedTagsButton(_ sender: Any) {
-        TagsDataManager.shared.deleteAll()
-        
+//        TagsDataManager.shared.deleteAll()
+
         for category in selectedCategories {
             TagsDataManager.shared.save(category: category)
         }

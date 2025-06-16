@@ -79,13 +79,13 @@ final class SearchResultViewController: StoryboardViewController {
     /// 서치 결과 뷰에서 서치를 시작할 때 나오는 생략된 서치 뷰
     private lazy var recentSearchContainerView: UIView = {
         let view = UIView()
-        view.backgroundColor = .clear
-        view.layer.shadowColor = UIColor.tagSelected.cgColor
-        view.layer.shadowOpacity = 0.1
-        view.layer.shadowRadius = 4
-        view.clipsToBounds = true
-        view.layer.cornerRadius = 16
-        view.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
+        view.backgroundColor = UIColor.background
+
+        view.layer.shadowColor = UIColor.label.cgColor
+        view.layer.shadowOpacity = 0.2
+        view.layer.shadowRadius = 2
+        view.layer.shadowOffset = .init(width: 0, height: 4)
+        view.clipsToBounds = false
 
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -571,7 +571,12 @@ extension SearchResultViewController: UICollectionViewDataSource {
     }
 }
 
-extension SearchResultViewController: UICollectionViewDelegate {
+extension SearchResultViewController: UICollectionViewDelegate, UIScrollViewDelegate {
+    // 스크롤 시작 시 호출 메서드
+    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        view.endEditing(true)
+        hideRecentSearches()
+    }
 }
 
 extension SearchResultViewController: UICollectionViewDelegateFlowLayout {
@@ -627,6 +632,8 @@ extension SearchResultViewController: UISearchBarDelegate {
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         guard let keyword = searchBar.text, !keyword.isEmpty else { return }
 
+        let trimmed = keyword.trimmingCharacters(in: .whitespacesAndNewlines)
+
         // 키보드 내리기
         searchBar.resignFirstResponder()
 
@@ -635,13 +642,13 @@ extension SearchResultViewController: UISearchBarDelegate {
 
         //검색 기록 저장
         do {
-            try recordManager.save(query: keyword)
+            try recordManager.save(query: trimmed)
         } catch {
             print(error)
         }
         loadRecentSearches()
 
-        self.keyword = keyword
+        self.keyword = trimmed
         self.activityIndicator.startAnimating()
         self.videoCollectionView.isHidden = true
 

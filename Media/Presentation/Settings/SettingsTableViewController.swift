@@ -73,6 +73,16 @@ class SettingsTableViewController: UITableViewController, EditProfileDelegate, M
         
         // 커스텀 스위치 셀 등록
         tableView.register(SwitchTableViewCell.nib, forCellReuseIdentifier: SwitchTableViewCell.id)
+        
+        // interests 셀 클릭 시 뜨는 모달을 닫기 위한 작업
+        // 'didSelectedCategories'이라는 Notification이 발생하면
+        // 'didReceiveSelectedCategories' 메서드를 호출
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(didReceiveSelectedCategories),
+            name: .didSelectedCategories,
+            object: nil
+        )
     }
     
     /// 프로필 수정 화면으로 이동 전 사용자 정보 전달
@@ -89,6 +99,15 @@ class SettingsTableViewController: UITableViewController, EditProfileDelegate, M
             editVC.editType = .email
             editVC.delegate = self
             editVC.currentText = userDefaults.userEmail ?? ""
+        }
+    }
+    
+    // MARK: - Notification
+    
+    @objc private func didReceiveSelectedCategories(_ notification: Notification) {
+        // 띄운 모달이 있으면 닫기
+        if let presented = self.presentedViewController {
+            presented.dismiss(animated: true)
         }
     }
     
@@ -190,8 +209,9 @@ class SettingsTableViewController: UITableViewController, EditProfileDelegate, M
             case .interests:
                 let storyboard = UIStoryboard(name: "SelectedTagsViewController", bundle: nil)
                 if let interestVC = storyboard.instantiateViewController(withIdentifier: "SelectedTagsViewController") as? SelectedTagsViewController {
-                    interestVC.modalPresentationStyle = .automatic
-                    present(interestVC, animated: true)
+                    let nav = UINavigationController(rootViewController: interestVC)
+                    nav.modalPresentationStyle = .automatic
+                    present(nav, animated: true)
                 }
                 break
             case .none:

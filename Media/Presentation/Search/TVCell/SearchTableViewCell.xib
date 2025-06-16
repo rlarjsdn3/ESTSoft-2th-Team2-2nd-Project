@@ -19,7 +19,7 @@
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <stackView opaque="NO" contentMode="scaleToFill" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="pbh-xb-l2t">
-                        <rect key="frame" x="0.0" y="0.0" width="409" height="40"/>
+                        <rect key="frame" x="8" y="0.0" width="393" height="40"/>
                         <subviews>
                             <button opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="mGh-I5-y6M">
                                 <rect key="frame" x="0.0" y="0.0" width="40" height="40"/>
@@ -33,14 +33,14 @@
                                 <state key="normal" image="magnifyingglass" catalog="system"/>
                             </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="i14-bZ-TtP">
-                                <rect key="frame" x="48" y="0.0" width="313" height="40"/>
+                                <rect key="frame" x="48" y="0.0" width="297" height="40"/>
                                 <color key="tintColor" name="MainLabel"/>
                                 <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <button opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="MjU-h9-1yh">
-                                <rect key="frame" x="369" y="0.0" width="40" height="40"/>
+                                <rect key="frame" x="353" y="0.0" width="40" height="40"/>
                                 <constraints>
                                     <constraint firstAttribute="width" secondItem="MjU-h9-1yh" secondAttribute="height" multiplier="1:1" id="VRa-Qy-wgt"/>
                                     <constraint firstAttribute="height" constant="40" id="hYY-9a-mIo"/>
@@ -58,9 +58,9 @@
                 <color key="backgroundColor" name="Background"/>
                 <constraints>
                     <constraint firstAttribute="bottom" secondItem="pbh-xb-l2t" secondAttribute="bottom" id="8YK-gF-sTp"/>
-                    <constraint firstItem="pbh-xb-l2t" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" id="FVg-c2-ExA"/>
+                    <constraint firstItem="pbh-xb-l2t" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="8" id="FVg-c2-ExA"/>
                     <constraint firstItem="pbh-xb-l2t" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" id="ePm-EJ-SlF"/>
-                    <constraint firstAttribute="trailing" secondItem="pbh-xb-l2t" secondAttribute="trailing" id="m72-VN-HxV"/>
+                    <constraint firstAttribute="trailing" secondItem="pbh-xb-l2t" secondAttribute="trailing" constant="8" id="m72-VN-HxV"/>
                 </constraints>
             </tableViewCellContentView>
             <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
