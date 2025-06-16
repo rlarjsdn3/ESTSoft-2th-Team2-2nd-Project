@@ -387,37 +387,6 @@ extension BookmarkViewController: UICollectionViewDelegate {
         }
     }
 
-//     // MARK: - Context Menu
-//
-//    func collectionView(
-//        _ collectionView: UICollectionView,
-//        contextMenuConfigurationForItemsAt indexPaths: [IndexPath],
-//        point: CGPoint
-//    ) -> UIContextMenuConfiguration? {
-//        guard let indexPath = indexPaths.first,
-//              let section = self.dataSource?.snapshot().sectionIdentifiers[safe: indexPath.section],
-//              let item = self.dataSource?.itemIdentifier(for: indexPath),
-//              let entity = self.playListEntityFromDatasource(for: indexPath) else {
-//            return nil
-//        }
-//
-//        // 항목이 '재생 기록' 섹션에 속하지 않으며
-//        // 항목이 '재생 목록 추가'이 아니며
-//        // 항목의 이름이 '북마크를 표시한 재생목록'이 아닐 때 ContextMenu 출력하기
-//        if section.type != .playback,
-//           item != .addPlaylist,
-//           entity.name != CoreDataString.bookmarkedPlaylistName {
-//            return UIContextMenuConfiguration(
-//                identifier: nil,
-//                previewProvider: nil
-//            ) { suggestedActions in
-//                let renameAction = self.renamePlaylistAction(for: indexPath)
-//                let deleteAction = self.deletePlaylistAction(for: indexPath)
-//                return UIMenu(title: "", children: [renameAction, deleteAction])
-//            }
-//        }
-//        return nil
-//    }
 }
 
 
