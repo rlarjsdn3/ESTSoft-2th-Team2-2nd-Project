@@ -384,7 +384,6 @@ final class SearchResultViewController: StoryboardViewController {
                         self.hits.append(contentsOf: response.hits)
                     }
 
-
                     if let dur = duration {
                         self.hits = self.hits.filter {
                             Duration(seconds: $0.duration) == dur
