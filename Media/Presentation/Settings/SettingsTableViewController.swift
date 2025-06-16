@@ -190,8 +190,9 @@ class SettingsTableViewController: UITableViewController, EditProfileDelegate, M
             case .interests:
                 let storyboard = UIStoryboard(name: "SelectedTagsViewController", bundle: nil)
                 if let interestVC = storyboard.instantiateViewController(withIdentifier: "SelectedTagsViewController") as? SelectedTagsViewController {
-                    interestVC.modalPresentationStyle = .automatic
-                    present(interestVC, animated: true)
+                    let nav = UINavigationController(rootViewController: interestVC)
+                    nav.modalPresentationStyle = .automatic
+                    present(nav, animated: true)
                 }
                 break
             case .none:
