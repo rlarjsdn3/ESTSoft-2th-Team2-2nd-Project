@@ -25,14 +25,17 @@ extension CoreDataService {
     /// - Important: 이 메서드 호출 이후 `UserDefaultsService.shared.isFirstLaunch` 값을 반드시 `false`로 설정해야
     ///   중복 데이터 생성이 발생하지 않습니다.
     func initializeDefaultDataIfFirstRun() {
-        if UserDefaultsService.shared.isFirstLaunch {
+        let userDefaults = UserDefaultsService.shared
+        if !userDefaults.hasCompletedInitialSetup {
             // 기본 플레이리스트('북마크로 표시된 재생목록') 엔터티 추가
             let _ = PlaylistEntity(
                 name: CoreDataString.bookmarkedPlaylistName,
                 isBookmark: true,
                 insertInto: viewContext
             )
+            print("기본 플레이리스트 추가됨")
             saveContext()
         }
+        userDefaults.hasCompletedInitialSetup = true
     }
 }
