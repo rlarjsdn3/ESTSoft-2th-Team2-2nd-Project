@@ -14,22 +14,49 @@ class SelectedTagsViewController: StoryboardViewController {
     @IBOutlet weak var selectedTagsButton: UIButton!
     
     @IBAction func selectedTagsButton(_ sender: Any) {
-        TagsDataManager.shared.deleteAll()
-        
-        for category in selectedCategories {
-            TagsDataManager.shared.save(category: category)
-        }
-        
-        
-        NotificationCenter.default.post(
-            name: .didSelectedCategories,
-            object: nil,
-            userInfo: ["categories": selectedCategories]
-        )
         
         showAlert("Notification", message: "\(selectedCategories.count) categories have been selected.") { _ in
+            /// 확인 버튼을 눌렀을 경우
+            // 태그 코어데이터의 모든 데이터를 삭제
+            TagsDataManager.shared.deleteAll()
+            
+            // 선택한 태그들을 코어데이터에 저장
+            for category in self.selectedCategories {
+                TagsDataManager.shared.save(category: category)
+            }
+            
+            // homeView로 선택한 카테고리 데이터 Notification 전달
+            NotificationCenter.default.post(
+                name: .didSelectedCategories,
+                object: nil,
+                userInfo: ["categories": self.selectedCategories]
+            )
+            
             self.dismiss(animated: true)
         } onCancel: { _ in
+            /// 취소버튼을 눌렀을 경우
+            // 선택된 모든 셀의 선택을 해제하고 기본색상으로 설정
+            for indexPath in self.selectIndexPath {
+                self.tagsCollectionView.deselectItem(at: indexPath, animated: false)
+                if let cell = self.tagsCollectionView.cellForItem(at: indexPath) as? SelectedTagsViewControllerCell {
+                    cell.contentView.backgroundColor = .tagBorder
+                }
+            }
+            
+            // 백업 해두었던 태그 index와 categoty배열을 불러온 후
+            self.selectedCategories = self.backUpCategories
+            self.selectIndexPath = self.backUpIndexPath
+            
+            // 백업으로 불러온 데이터들의 셀을 선택한 후 선택색상으로 처리
+            for indexPath in self.selectIndexPath {
+                self.tagsCollectionView.selectItem(at: indexPath, animated: false, scrollPosition: [])
+                if let cell = self.tagsCollectionView.cellForItem(at: indexPath) as? SelectedTagsViewControllerCell {
+                    cell.contentView.backgroundColor = .tagSelected
+                }
+            }
+            
+            self.buttonIsEnabled()
+            
             self.dismiss(animated: true)
         }
         
@@ -41,10 +68,14 @@ class SelectedTagsViewController: StoryboardViewController {
     
     var selectedCategories: [Category] = []
     
+    var backUpIndexPath: Set<IndexPath> = []
+    
+    var backUpCategories: [Category] = []
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        selectedCategories = TagsDataManager.shared.fetchSeletedCategories()
+        selectedCategories = TagsDataManager.shared.fetchSelectedCategories()
         
         for (index, tag) in tags.enumerated() {
             if selectedCategories.contains(tag) {
@@ -53,13 +84,18 @@ class SelectedTagsViewController: StoryboardViewController {
             }
         }
         
+        backUpCategories = selectedCategories
+        backUpIndexPath = selectIndexPath
+        
+        tagsCollectionView.reloadData()
+        
         setUpLayout()
         
         tagsCollectionView.allowsMultipleSelection = true
         tagsCollectionView.allowsSelection = true
         tagsCollectionView.delegate = self
         
-        // 실제 셀 선택이 반영되도록 메인 스레드에서 업데이트
+        // 온보딩에서의 셀 선택이 반영되도록 메인 스레드에서 업데이트
         DispatchQueue.main.async {
             for indexPath in self.selectIndexPath {
                 self.tagsCollectionView.selectItem(at: indexPath, animated: false, scrollPosition: [])
