@@ -731,7 +731,7 @@ extension HomeViewController: UICollectionViewDataSource {
                     self.videoCollectionView.scrollToItem(at: indexPath, at: .centeredVertically, animated: true)
                     Toast.makeToast("Found tag: '\(tag)'", systemName: "lightbulb.max.fill").present()
                 } else {
-                    Toast.makeToast("No Found tag: '\(tag)'", systemName: "questionmark.circle").present()
+                    Toast.makeToast("Not Found tag: '\(tag)'", systemName: "questionmark.circle").present()
                 }
             }
 
