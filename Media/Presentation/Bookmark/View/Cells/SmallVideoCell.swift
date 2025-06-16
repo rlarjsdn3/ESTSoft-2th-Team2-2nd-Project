@@ -44,6 +44,13 @@ final class SmallVideoCell: UICollectionViewCell, NibLodable {
             titleLabel.textAlignment = isLast ? .center : .left
             videoCountBackgroundView.isHidden = isLast
             if isLast { titleLabel.text = "재생목록 추가"}
+            fileContainerView.isUserInteractionEnabled = !isLast
+        }
+    }
+
+    var isBookMark: Bool = false {
+        didSet {
+            fileContainerView.isUserInteractionEnabled = !isBookMark
         }
     }
 
@@ -86,7 +93,6 @@ final class SmallVideoCell: UICollectionViewCell, NibLodable {
 
     private func setupContextMenu() {
         let interaction = UIContextMenuInteraction(delegate: self)
-        fileContainerView.isUserInteractionEnabled = true
         fileContainerView.addInteraction(interaction)
     }
 }

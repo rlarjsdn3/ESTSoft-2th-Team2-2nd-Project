@@ -216,6 +216,7 @@ extension BookmarkViewController {
                 cell.onDeleteAction = {
                     self.showDeletePlaylistAlert(for: indexPath)
                 }
+                cell.isBookMark = playlist.isBookmark
             }
 
             if case .addPlaylist = item {
