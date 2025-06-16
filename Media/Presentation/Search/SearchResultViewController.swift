@@ -406,7 +406,6 @@ final class SearchResultViewController: StoryboardViewController {
                 }
 
             case .failure(let error):
-                debugPrint("🛑 error:", error)
                 DispatchQueue.main.async {
                     self.activityIndicator.stopAnimating()
                     self.endRefreshing()
