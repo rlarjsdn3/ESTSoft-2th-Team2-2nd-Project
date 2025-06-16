@@ -96,6 +96,13 @@ class MediumVideoCell: UICollectionViewCell, NibLodable, UIContextMenuInteractio
         setViews()
     }
 
+    override func prepareForReuse() {
+        super.prepareForReuse()
+
+        thumbnailImageView.stopShimmeringOverlay()
+        thumbnailImageView.image = nil
+    }
+
     private func setViews() {
         thumbnailImageContainerView.layer.cornerRadius = 8
         paddingLabel.layer.cornerRadius = 3
@@ -120,6 +127,7 @@ class MediumVideoCell: UICollectionViewCell, NibLodable, UIContextMenuInteractio
 
 extension MediumVideoCell {
     func configure(_ history: MediumVideoViewModel) {
+        thumbnailImageView.startShimmeringOverlay()
         currentThumbnailURL = history.thumbnailUrl
         configureThumbnail(from: history.thumbnailUrl)
         tagsLabel.text = history.tags.split(by: ",").prefix(2).joined(separator: ", ")
@@ -170,8 +178,9 @@ extension MediumVideoCell {
                 guard self.currentThumbnailURL == url else { return }
 
                 thumbnailImageView.image = UIImage(data: data)
+                thumbnailImageView.stopShimmeringOverlay()
             } else {
-                thumbnailImageView.image = UIImage(named: "default")
+                thumbnailImageView.image = UIImage(named: "no_videos")
             }
         }
     }

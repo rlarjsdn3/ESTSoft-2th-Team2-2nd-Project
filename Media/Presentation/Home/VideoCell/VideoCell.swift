@@ -25,6 +25,8 @@ final class VideoCell: UICollectionViewCell, NibLodable {
 
     @IBOutlet weak var likeIcon: UIImageView!
 
+    private var currentImageURL: URL?
+
     @IBAction func ellipsisButtonAction(_ sender: Any) {
 
     }
@@ -93,13 +95,14 @@ final class VideoCell: UICollectionViewCell, NibLodable {
     override func prepareForReuse() {
         super.prepareForReuse()
 
+        thumbnailImage.stopShimmeringOverlay()
         thumbnailImage.image = nil
         profileImage.image = nil
 
         titleLabel.text = nil
         viewCountLabel.text = nil
     }
-    
+
     // Ellipsis 버튼 함수
     func configureMenu(bookmarkAction: @escaping () -> Void, playlistAction: @escaping () -> Void) {
 
@@ -140,6 +143,10 @@ final class VideoCell: UICollectionViewCell, NibLodable {
         likeCountLabel.text = viewModel.likeCountText
         tagLabel.text = viewModel.categoryText
 
+        currentImageURL = viewModel.thumbnailURL
+
+        thumbnailImage.startShimmeringOverlay()
+
         if let thumbnailURL = viewModel.thumbnailURL {
             loadImage(from: thumbnailURL, into: thumbnailImage)
         } else {
@@ -156,12 +163,16 @@ final class VideoCell: UICollectionViewCell, NibLodable {
     }
 
     private func loadImage(from url: URL, into imageView: UIImageView) {
-        DispatchQueue.global().async {
-            if let data = try? Data(contentsOf: url),
-               let image = UIImage(data: data) {
-                DispatchQueue.main.async {
-                    imageView.image = image
-                }
+        DispatchQueue.global(qos: .background).async { [weak imageView] in
+            guard let data = try? Data(contentsOf: url),
+                  let image = UIImage(data: data) else { return }
+
+            DispatchQueue.main.async {
+                guard let imageView = imageView else { return }
+                guard self.currentImageURL == url
+                else { return }
+                imageView.image = image
+                imageView.stopShimmeringOverlay()
             }
         }
     }
@@ -170,6 +181,7 @@ final class VideoCell: UICollectionViewCell, NibLodable {
         thumbnailImage.layer.cornerRadius = radius
         thumbnailImage.layer.masksToBounds = true
     }
+    
     override func apply(_ layoutAttributes: UICollectionViewLayoutAttributes) {
         super.apply(layoutAttributes)
 
