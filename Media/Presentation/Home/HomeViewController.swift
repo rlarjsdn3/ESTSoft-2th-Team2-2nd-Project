@@ -18,7 +18,7 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
     @IBOutlet weak var contentUnavailableView: ContentUnavailableView!
     // 초기값설정
     var selectedCategoryIndex: Int = 0
-    
+
     var selectedCategories: [String] = []
 
     @IBOutlet weak var videoCollectionView: UICollectionView!
@@ -45,13 +45,13 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
             isSearchMode: false
         )
 
-                NotificationCenter.default.addObserver(forName: .didSelectedCategories, object: nil, queue: .main) { [weak self]_ in
-                    guard let self = self else { return }
-                        let categories = TagsDataManager.shared.fetchSelectedCategories()
-                        self.selectedCategories = categories.map { $0.rawValue }
-                        self.categoryCollectionView.reloadData()
-                        self.fetchVideo(page: 1, isRepresh: true)
-                }
+        NotificationCenter.default.addObserver(forName: .didSelectedCategories, object: nil, queue: .main) { [weak self]_ in
+            guard let self = self else { return }
+            let categories = TagsDataManager.shared.fetchSelectedCategories()
+            self.selectedCategories = categories.map { $0.rawValue }
+            self.categoryCollectionView.reloadData()
+            self.fetchVideo(page: 1, isRepresh: true)
+        }
 
         //AVAudioSession 설정
         do {
@@ -92,6 +92,7 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.navigationBar.isHidden = true
+
 
         let categories = TagsDataManager.shared.fetchSelectedCategories()
         self.selectedCategories = categories.map { $0.rawValue }
@@ -155,22 +156,22 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
                     guard let self = self else { return }
 
                     switch result {
-                                case .success(let response):
-                                    completion(.success(response))
-                                    UIView.animate(withDuration: 0.25) {
-                                        self.contentUnavailableView.alpha = 0
-                                    }
+                    case .success(let response):
+                        completion(.success(response))
+                        UIView.animate(withDuration: 0.25) {
+                            self.contentUnavailableView.alpha = 0
+                        }
 
-                                case .failure:
-                                    // 실패하면 noInternet 이미지 띄우기
-                                    self.contentUnavailableView.imageResource = .noInternet
-                                    UIView.animate(withDuration: 0.25) {
-                                        self.contentUnavailableView.alpha = 1
-                                    }
-                                }
-                            }
+                    case .failure:
+                        // 실패하면 noInternet 이미지 띄우기
+                        self.contentUnavailableView.imageResource = .noInternet
+                        UIView.animate(withDuration: 0.25) {
+                            self.contentUnavailableView.alpha = 1
                         }
                     }
+                }
+            }
+        }
 
     // 카테고리 필터 함수
     private func handleVideoResponse(_ result: Result<PixabayResponse, Error>, page: Int) {
@@ -398,27 +399,27 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
     }
 
     // MARK: - Record PlayTime
-//    private var timeObserver: Any?
-//    private var player: AVPlayer?
+    //    private var timeObserver: Any?
+    //    private var player: AVPlayer?
     private var playTime: Double?
     private var historyList: [PixabayResponse.Hit] = []
     private var selectedVideo: PixabayResponse.Hit?
 
-//    private func startObservingTime(with url: URL) {
-//
-//        let interval = CMTime(seconds: 1, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
-//
-//        timeObserver = player?.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak self] currentTime in
-//            guard let self = self,
-//                  let duration = player?.currentItem?.duration.seconds,
-//                  duration.isFinite else { return }
-//
-//            let current = currentTime.seconds //
-//            let durationInt = Int(duration)
-//            let progress = Float(current / Double(durationInt))
-//            playTime = current
-//        }
-//    }
+    //    private func startObservingTime(with url: URL) {
+    //
+    //        let interval = CMTime(seconds: 1, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
+    //
+    //        timeObserver = player?.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak self] currentTime in
+    //            guard let self = self,
+    //                  let duration = player?.currentItem?.duration.seconds,
+    //                  duration.isFinite else { return }
+    //
+    //            let current = currentTime.seconds //
+    //            let durationInt = Int(duration)
+    //            let progress = Float(current / Double(durationInt))
+    //            playTime = current
+    //        }
+    //    }
 
     private func savePlaybackHistoryToCoredata(video: PixabayResponse.Hit) {
 
@@ -507,7 +508,7 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
 
             }
             alertController.addAction(createNewAction)
-            
+
             // 취소 버튼 추가
             let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
             alertController.addAction(cancelAction)
@@ -544,7 +545,7 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
 
                     if isDuplicate {
                         Toast.makeToast("Already in '\(playlistName)'", systemName: "exclamationmark.triangle").present()
-                            return
+                        return
                     }
                 }
                 // PlaylistVideoEntity 생성 및 저장
@@ -620,6 +621,10 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
 
+        if let alert = presentedViewController as? UIAlertController {
+            alert.dismiss(animated: true)
+        }
+
         coordinator.animate(alongsideTransition: nil) { _ in
             self.videoCollectionView.reloadData()
         }
@@ -627,10 +632,7 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
     // 다크모드 적용
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
-        // 팝오버 닫기
-        if let popover = presentedViewController as? UIAlertController {
-                popover.dismiss(animated: true)
-            }
+
         categoryCollectionView.reloadData()
         videoCollectionView.collectionViewLayout.invalidateLayout()
     }
