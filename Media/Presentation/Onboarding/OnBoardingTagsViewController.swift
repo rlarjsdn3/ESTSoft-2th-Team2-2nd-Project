@@ -31,7 +31,6 @@ class OnBoardingTagsViewController: StoryboardViewController {
             UserDefaults.standard.seenOnboarding = true
             
             vc.modalPresentationStyle = .fullScreen
-//            self.navigationController?.pushViewController(vc, animated: true)
             self.navigationController?.setViewControllers([vc], animated: true)
         }
     }
@@ -47,7 +46,7 @@ class OnBoardingTagsViewController: StoryboardViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        setUpLayout()
+        tagsCollectionView.collectionViewLayout = createCompositionalLayout()
         
         tagsCollectionView.allowsMultipleSelection = true
         tagsCollectionView.allowsSelection = true
@@ -55,27 +54,66 @@ class OnBoardingTagsViewController: StoryboardViewController {
        
         selectedTagButton.isEnabled = false
         
-        self.navigationItem.hidesBackButton = true
-        
-        #warning("나중에 수정 할수도 있음")
         self.navigationController?.navigationBar.isHidden = true
+    }
+    
+    private func createCompositionalLayout() -> UICollectionViewCompositionalLayout {
+        let sectionProvider: UICollectionViewCompositionalLayoutSectionProvider = { [weak self] sectionIndex, environment in
+
+            let itemWidthDimension: NSCollectionLayoutDimension = switch environment.container.effectiveContentSize.width {
+            case ..<500:      .fractionalWidth(0.5)  // 아이폰 세로모드
+            case 500..<1050:  .fractionalWidth(0.2)  // 아이패드 세로 모드
+            default:          .fractionalWidth(0.125) // 아이패드 가로 모드
+            }
+            let itemSize = NSCollectionLayoutSize(
+                widthDimension: itemWidthDimension,
+                heightDimension: itemWidthDimension
+            )
+            let item = NSCollectionLayoutItem(layoutSize: itemSize)
+
+            let columnCount = switch environment.container.effectiveContentSize.width {
+            case ..<500:      2 // 아이폰 세로모드
+            case 500..<1050:  5 // 아이패드 세로 모드
+            default:          8 // 아이패드 가로 모드
+            }
+            print(environment.container.effectiveContentSize.width)
+            let groupSize = NSCollectionLayoutSize(
+                widthDimension: .fractionalWidth(1.0),
+                heightDimension: itemWidthDimension
+            )
+            let group = NSCollectionLayoutGroup.horizontal(
+                layoutSize: groupSize,
+                repeatingSubitem: item,
+                count: columnCount
+            )
+            group.interItemSpacing = .flexible(20)
+
+            let section = NSCollectionLayoutSection(group: group)
+            section.interGroupSpacing = 8
+            section.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 14, bottom: 8, trailing: 14)
+
+           
+            return section
+        }
+
+        return UICollectionViewCompositionalLayout(sectionProvider: sectionProvider)
     }
     
     func setUpLayout() {
         // item 사이즈
         let itemSize: NSCollectionLayoutSize
+        let groupSize: NSCollectionLayoutSize
         
         // 디바이스 정보에 따라 카테고리 아이템 크기 분기
         if traitCollection.userInterfaceIdiom == .phone {
-            itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.47), heightDimension: .absolute(150))
+            itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.47), heightDimension: .fractionalWidth(0.47))
+            groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalWidth(0.47))
         } else {
             itemSize = NSCollectionLayoutSize(widthDimension: .absolute(160), heightDimension: .absolute(160))
+            groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(160))
         }
         
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
-        
-        // 그룹 사이즈
-        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(150))
         
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
         
@@ -100,6 +138,18 @@ class OnBoardingTagsViewController: StoryboardViewController {
         }
     }
     
+    func updateCellAppearance(_ cell: OnboardingTagsViewCell, selected: Bool) {
+        if selected {
+            cell.contentView.backgroundColor = .tagSelected
+            cell.tagsTitle.textColor = traitCollection.userInterfaceStyle == .dark ? .black : .white
+            cell.tagsImageView.tintColor = traitCollection.userInterfaceStyle == .dark ? .black : .white
+        } else {
+            cell.contentView.backgroundColor = .tagBorderColorAlpha
+            cell.tagsTitle.textColor = .label
+            cell.tagsImageView.tintColor = .label
+        }
+    }
+    
 }
 
 extension OnBoardingTagsViewController: UICollectionViewDataSource {
@@ -113,9 +163,9 @@ extension OnBoardingTagsViewController: UICollectionViewDataSource {
         let target = tags[indexPath.item]
         
         if selectedIndexPath.contains(indexPath) {
-            cell.contentView.backgroundColor = .tagSelected
+            updateCellAppearance(cell, selected: true)
         } else {
-            cell.contentView.backgroundColor = .tagBorder
+            updateCellAppearance(cell, selected: false)
         }
         
         cell.tagsTitle.text = target.rawValue.capitalized
@@ -129,7 +179,7 @@ extension OnBoardingTagsViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if selectedIndexPath.count >= 5 {
             
-            showAlert("🔔Notification", message: "Only up to 5 categories can be selected") { _ in
+            showAlert(title: "Can't select more than 5", message: "Only up to 5 categories can be selected") { _ in
                 self.dismiss(animated: true)
             } onCancel: { _ in
                 self.dismiss(animated: true)
@@ -141,29 +191,22 @@ extension OnBoardingTagsViewController: UICollectionViewDelegate {
         
         selectedIndexPath.insert(indexPath)
         selectedCategories = selectedIndexPath.map { tags[$0.item] }
-//        let category = tags[indexPath.item]
-//        TagsDataManager.shared.save(category: category)
-        
-//        selectedIndexPath.insert(indexPath)
         
         // 셀 선택시 색상변경
         if let cell = collectionView.cellForItem(at: indexPath) as? OnboardingTagsViewCell {
-            cell.contentView.backgroundColor = .tagSelected
+            updateCellAppearance(cell, selected: true)
         }
         
        buttonIsEnabled()
     }
     
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
-//        selectedIndexPath.remove(indexPath)
         selectedIndexPath.remove(indexPath)
         selectedCategories = selectedIndexPath.map { tags[$0.item] }
-//        let category = tags[indexPath.item]
-//        TagsDataManager.shared.delete(category: category)
         
         // 셀 선택해제 시 색상변경
         if let cell = collectionView.cellForItem(at: indexPath) as? OnboardingTagsViewCell {
-            cell.contentView.backgroundColor = .tagBorder
+            updateCellAppearance(cell, selected: false)
         }
         
         buttonIsEnabled()

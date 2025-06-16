@@ -14,6 +14,7 @@ extension UIColor {
     static let tagSelectedColor = UIColor(named: "TagSelected")!
     static let tagUnselectedColor = UIColor(named: "TagUnselected")!
     static let tagBorderColor = UIColor(named: "TagBorder")!
+    static let tagBorderColorAlpha = UIColor(named: "TagBorder")!.withAlphaComponent(0.5)
     static let searchBarBackgroundColor = UIColor(named: "SearchBarBackground")!
     static let mainLabelColor = UIColor(named: "MainLabel")!
     static let subLabelColor = UIColor(named: "SubLabel")!

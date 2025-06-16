@@ -207,7 +207,7 @@ extension SearchFilterViewController: UICollectionViewDataSource {
 
             let target = orders[indexPath.item]
             cell.defaultCellConfigure()
-            cell.orderLabel.text = target.rawValue
+            cell.orderLabel.text = target.displayName
 
             return cell
         case filterVideoDurationCollectionView:

@@ -5,6 +5,7 @@
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -49,16 +50,24 @@
                                     <constraint firstAttribute="height" constant="50" id="bNG-ZJ-f2e"/>
                                 </constraints>
                             </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="nDx-eT-TdJ" customClass="ContentUnavailableView" customModule="Media" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="218" width="393" height="566"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                            </view>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="vDu-zF-Fre"/>
                         <color key="backgroundColor" name="Background"/>
                         <constraints>
                             <constraint firstItem="29M-e4-Jdi" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="2FF-G1-O36"/>
                             <constraint firstItem="nMB-R3-bAS" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="APH-CI-9Jv"/>
+                            <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="nDx-eT-TdJ" secondAttribute="trailing" id="ElM-Jr-74l"/>
+                            <constraint firstItem="vDu-zF-Fre" firstAttribute="bottom" secondItem="nDx-eT-TdJ" secondAttribute="bottom" id="FnB-fj-0ml"/>
                             <constraint firstItem="GBB-wv-WeZ" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="Kf1-of-Ce1"/>
                             <constraint firstItem="nMB-R3-bAS" firstAttribute="top" secondItem="GBB-wv-WeZ" secondAttribute="bottom" constant="5" id="UdD-C8-Us2"/>
+                            <constraint firstItem="nDx-eT-TdJ" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="XOf-Ey-4Ih"/>
                             <constraint firstAttribute="bottom" secondItem="29M-e4-Jdi" secondAttribute="bottom" id="b7j-Lf-eYK"/>
                             <constraint firstItem="GBB-wv-WeZ" firstAttribute="top" secondItem="vDu-zF-Fre" secondAttribute="top" id="cTc-az-vVz"/>
+                            <constraint firstItem="nDx-eT-TdJ" firstAttribute="top" secondItem="nMB-R3-bAS" secondAttribute="bottom" constant="5" id="dFQ-Jz-Q1S"/>
                             <constraint firstItem="GBB-wv-WeZ" firstAttribute="trailing" secondItem="vDu-zF-Fre" secondAttribute="trailing" id="eKE-wK-L6Y"/>
                             <constraint firstItem="nMB-R3-bAS" firstAttribute="trailing" secondItem="vDu-zF-Fre" secondAttribute="trailing" id="lUr-pq-AfN"/>
                             <constraint firstItem="29M-e4-Jdi" firstAttribute="trailing" secondItem="vDu-zF-Fre" secondAttribute="trailing" id="nX7-xz-72U"/>
@@ -68,6 +77,7 @@
                     <toolbarItems/>
                     <connections>
                         <outlet property="categoryCollectionView" destination="nMB-R3-bAS" id="n6s-WR-XaZ"/>
+                        <outlet property="contentUnavailableView" destination="nDx-eT-TdJ" id="toM-cy-d0y"/>
                         <outlet property="navigationBar" destination="GBB-wv-WeZ" id="MT2-dN-dFl"/>
                         <outlet property="videoCollectionView" destination="29M-e4-Jdi" id="47S-ff-Hq0"/>
                     </connections>
@@ -81,5 +91,8 @@
         <namedColor name="Background">
             <color red="0.98039215686274506" green="0.98039215686274506" blue="0.98039215686274506" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
     </resources>
 </document>

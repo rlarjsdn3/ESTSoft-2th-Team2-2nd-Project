@@ -35,7 +35,7 @@ class TagsDataManager {
     }
     
     // 선택한 카테고리 데이터 전달
-    func fetchSeletedCategories() -> [Category] {
+    func fetchSelectedCategories() -> [Category] {
         do {
             let tags: [TagsEntity] = try coreData.fetch()
             
@@ -50,9 +50,9 @@ class TagsDataManager {
         }
     }
     
-    func deleteAll() {
+    func deleteAllTagsData() {
         do {
-            try coreData.clearAll()
+            try coreData.deleteAll(TagsEntity.self)
             coreData.saveContext()
         } catch {
             print(error)
