@@ -242,6 +242,7 @@ class SettingsTableViewController: UITableViewController, EditProfileDelegate, M
                     
                     // UI 업데이트
                     self.videoQualityLabel.text = quality.rawValue
+
                     tableView.reloadData()
                 }
                 alert.addAction(action)
