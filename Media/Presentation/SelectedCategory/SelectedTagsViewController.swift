@@ -16,7 +16,7 @@ class SelectedTagsViewController: StoryboardViewController {
     @IBAction func selectedTagsButton(_ sender: Any) {
         
         TagsDataManager.shared.deleteAllTagsData()
-
+        
         for category in selectedCategories {
             TagsDataManager.shared.save(category: category)
         }
@@ -28,7 +28,7 @@ class SelectedTagsViewController: StoryboardViewController {
             userInfo: ["categories": selectedCategories]
         )
         
-        showAlert(title: "Notification", message: "\(selectedCategories.count) categories have been selected.") { _ in
+        showAlert(title: "\(selectedCategories.count) categories have been selected.", message: "The home screen is configured based on your interests.") { _ in
             /// 확인 버튼을 눌렀을 경우
             // 태그 코어데이터의 모든 데이터를 삭제
             TagsDataManager.shared.deleteAllTagsData()
@@ -47,32 +47,6 @@ class SelectedTagsViewController: StoryboardViewController {
             
             self.dismiss(animated: true)
         } onCancel: { _ in
-            #warning("전광호 -> 수정해야 됨!!!!!!!!!!!!!!!!!!!!!")
-            /// 취소버튼을 눌렀을 경우
-            // 선택된 모든 셀의 선택을 해제하고 기본색상으로 설정
-            for indexPath in self.selectIndexPath {
-                self.tagsCollectionView.deselectItem(at: indexPath, animated: false)
-                if let cell = self.tagsCollectionView.cellForItem(at: indexPath) as? SelectedTagsViewControllerCell {
-//                    cell.contentView.backgroundColor = .tagBorderColorAlpha
-                    self.updateCellAppearance(cell, selected: false)
-                }
-            }
-            
-            // 백업 해두었던 태그 index와 categoty배열을 불러온 후
-            self.selectedCategories = self.backUpCategories
-            self.selectIndexPath = self.backUpIndexPath
-            
-            // 백업으로 불러온 데이터들의 셀을 선택한 후 선택색상으로 처리
-            for indexPath in self.selectIndexPath {
-                self.tagsCollectionView.selectItem(at: indexPath, animated: false, scrollPosition: [])
-                if let cell = self.tagsCollectionView.cellForItem(at: indexPath) as? SelectedTagsViewControllerCell {
-//                    cell.contentView.backgroundColor = .tagSelected
-                    self.updateCellAppearance(cell, selected: true)
-                }
-            }
-            
-            self.buttonIsEnabled()
-            
             self.dismiss(animated: true)
         }
         
@@ -83,10 +57,6 @@ class SelectedTagsViewController: StoryboardViewController {
     var selectIndexPath: Set<IndexPath> = []
     
     var selectedCategories: [Category] = []
-    
-    var backUpIndexPath: Set<IndexPath> = []
-    
-    var backUpCategories: [Category] = []
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -102,6 +72,17 @@ class SelectedTagsViewController: StoryboardViewController {
                 selectIndexPath.insert(IndexPath(item: index, section: 0))
             }
         }
+        
+        // 온보딩에서의 셀 선택이 반영되도록 메인 스레드에서 업데이트
+        DispatchQueue.main.async {
+            for indexPath in self.selectIndexPath {
+                self.tagsCollectionView.selectItem(at: indexPath, animated: false, scrollPosition: [])
+                
+                if let cell = self.tagsCollectionView.cellForItem(at: indexPath) as? SelectedTagsViewControllerCell {
+                    self.updateCellAppearance(cell, selected: true)
+                }
+            }
+        }
 
         // UI 갱신
         tagsCollectionView.reloadData()
@@ -115,30 +96,9 @@ class SelectedTagsViewController: StoryboardViewController {
         
         tagsCollectionView.collectionViewLayout = createCompositionalLayout()
         
-        for (index, tag) in tags.enumerated() {
-            if selectedCategories.contains(tag) {
-                let indexPath = IndexPath(item: index, section: 0)
-                selectIndexPath.insert(indexPath)
-            }
-        }
-        
-        backUpCategories = selectedCategories
-        backUpIndexPath = selectIndexPath
-        
         tagsCollectionView.allowsMultipleSelection = true
         tagsCollectionView.allowsSelection = true
         tagsCollectionView.delegate = self
-        
-        // 온보딩에서의 셀 선택이 반영되도록 메인 스레드에서 업데이트
-        DispatchQueue.main.async {
-            for indexPath in self.selectIndexPath {
-                self.tagsCollectionView.selectItem(at: indexPath, animated: false, scrollPosition: [])
-                
-                if let cell = self.tagsCollectionView.cellForItem(at: indexPath) as? SelectedTagsViewControllerCell {
-                    cell.contentView.backgroundColor = .tagSelected
-                }
-            }
-        }
         
         buttonIsEnabled()
         
@@ -146,7 +106,7 @@ class SelectedTagsViewController: StoryboardViewController {
     
     private func createCompositionalLayout() -> UICollectionViewCompositionalLayout {
         let sectionProvider: UICollectionViewCompositionalLayoutSectionProvider = { [weak self] sectionIndex, environment in
-
+            
             let itemWidthDimension: NSCollectionLayoutDimension = switch environment.container.effectiveContentSize.width {
             case ..<500:      .fractionalWidth(0.5)  // 아이폰 세로모드
             case 500..<1050:  .fractionalWidth(0.2)  // 아이패드 세로 모드
@@ -157,7 +117,7 @@ class SelectedTagsViewController: StoryboardViewController {
                 heightDimension: itemWidthDimension
             )
             let item = NSCollectionLayoutItem(layoutSize: itemSize)
-
+            
             let columnCount = switch environment.container.effectiveContentSize.width {
             case ..<500:      2 // 아이폰 세로모드
             case 500..<1050:  5 // 아이패드 세로 모드
@@ -174,15 +134,15 @@ class SelectedTagsViewController: StoryboardViewController {
                 count: columnCount
             )
             group.interItemSpacing = .flexible(20)
-
+            
             let section = NSCollectionLayoutSection(group: group)
             section.interGroupSpacing = 8
             section.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 14, bottom: 8, trailing: 14)
-
-           
+            
+            
             return section
         }
-
+        
         return UICollectionViewCompositionalLayout(sectionProvider: sectionProvider)
     }
     
@@ -218,7 +178,7 @@ extension SelectedTagsViewController: UICollectionViewDataSource {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "SelectedTagsViewControllerCell", for: indexPath) as? SelectedTagsViewControllerCell else { return UICollectionViewCell() }
         
         let target = tags[indexPath.item]
-
+        
         cell.tagsTitle.text = target.rawValue.capitalized
         cell.tagsImageView.image = target.symbolImage
         
@@ -227,7 +187,6 @@ extension SelectedTagsViewController: UICollectionViewDataSource {
         } else {
             updateCellAppearance(cell, selected: false)
         }
-        
         return cell
     }
 }

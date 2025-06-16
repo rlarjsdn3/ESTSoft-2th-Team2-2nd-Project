@@ -20,20 +20,6 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
     var selectedCategoryIndex: Int = 0
     
     var selectedCategories: [String] = []
-    
-//    // 카테고리 배열 순서
-//    var displayedCategories: [String] {
-//
-//        return ["All"] + selectedCategories.map({ $0.rawValue })
-//    }
-//
-//    // 필터링 소문자로 비교
-//    var selectedCategoryName: Category? {
-//        if selectedCategoryIndex == 0 {
-//            return nil
-//        }
-//        return selectedCategories[selectedCategoryIndex - 1]//.lowercased()
-//    }
 
     @IBOutlet weak var videoCollectionView: UICollectionView!
 
