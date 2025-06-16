@@ -20,7 +20,7 @@ final class SmallVideoCell: UICollectionViewCell, NibLodable {
     /// 썸네일에 그림자를 줄 때 사용하는 뷰 (목록임을 나타내는 이미지)
     @IBOutlet private weak var shadowView: UIView!
 
-//    @IBOutlet weak var fileContainerView: UIView!
+    @IBOutlet weak var fileContainerView: UIView!
 
     /// 동영상 재생목록 타이틀을 표시하는 라벨
     @IBOutlet private weak var titleLabel: UILabel!
@@ -70,7 +70,7 @@ final class SmallVideoCell: UICollectionViewCell, NibLodable {
 
     private func setViews() {
         setupLayout()
-//        setupContextMenu()
+        setupContextMenu()
     }
 
     private func setupLayout() {
@@ -84,11 +84,11 @@ final class SmallVideoCell: UICollectionViewCell, NibLodable {
         videoCountBackgroundView.directionalLayoutMargins = NSDirectionalEdgeInsets(top: 3, leading: 5, bottom: 3, trailing: 5)
     }
 
-//    private func setupContextMenu() {
-//        let interaction = UIContextMenuInteraction(delegate: self)
-//        fileContainerView.isUserInteractionEnabled = true
-//        fileContainerView.addInteraction(interaction)
-//    }
+    private func setupContextMenu() {
+        let interaction = UIContextMenuInteraction(delegate: self)
+        fileContainerView.isUserInteractionEnabled = true
+        fileContainerView.addInteraction(interaction)
+    }
 }
 
 extension SmallVideoCell {
