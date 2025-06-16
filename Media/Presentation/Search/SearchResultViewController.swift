@@ -79,13 +79,13 @@ final class SearchResultViewController: StoryboardViewController {
     /// 서치 결과 뷰에서 서치를 시작할 때 나오는 생략된 서치 뷰
     private lazy var recentSearchContainerView: UIView = {
         let view = UIView()
-        view.backgroundColor = .clear
-        view.layer.shadowColor = UIColor.tagSelected.cgColor
-        view.layer.shadowOpacity = 0.1
-        view.layer.shadowRadius = 4
-        view.clipsToBounds = true
-        view.layer.cornerRadius = 16
-        view.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
+        view.backgroundColor = UIColor.background
+
+        view.layer.shadowColor = UIColor.label.cgColor
+        view.layer.shadowOpacity = 0.2
+        view.layer.shadowRadius = 2
+        view.layer.shadowOffset = .init(width: 0, height: 4)
+        view.clipsToBounds = false
 
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
