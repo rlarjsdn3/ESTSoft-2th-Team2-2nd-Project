@@ -6,7 +6,10 @@ import CoreData
 
 final class HomeViewController: StoryboardViewController, NavigationBarDelegate {
     private var selectedVideoURL: URL?
+
     var observation: NSKeyValueObservation?
+
+    private let videoPlayerService: VideoPlayerService = DefaultVideoPlayerService()
 
     @IBOutlet weak var navigationBar: NavigationBar!
 
@@ -689,14 +692,26 @@ extension HomeViewController: UICollectionViewDataSource {
             // MARK: - 썸네일 터치시 영상 재생
             cell.onThumbnailTap = { [weak self] in
                 guard let self = self else { return }
-                // 시청기록 저장
+
                 self.selectedVideo = video
-                self.addHistoryVideo(video)
 
-
-                // 영상재생
-                DefaultVideoPlayerService().playVideo(self, with: video)
+                videoPlayerService.playVideo(self, with: video) { error in
+                    switch error {
+                    case .notConnectedToInternet:
+                        self.showAlert(
+                            title: "No Internet Connection",
+                            message: "Please check your internet connection.",
+                            onPrimary: { _ in }
+                        )
+                    case .generic(let err):
+                        print("Generic error occurred", err.localizedDescription)
+                    case .none:
+                        self.addHistoryVideo(video)
+                    }
+                }
             }
+
+
 
             // Ellipsis 버튼 실행
             cell.configureMenu(
