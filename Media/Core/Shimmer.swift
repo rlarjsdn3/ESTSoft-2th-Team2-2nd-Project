@@ -8,30 +8,31 @@
 import UIKit
 
 extension UIView {
+    func startShimmeringOverlay() {
+        stopShimmeringOverlay() // 중복 방지
 
-    func startShimmering() {
-        let light = UIColor(white: 0.0, alpha: 0.1).cgColor
-        let dark = UIColor.black.cgColor
+        let lightColor = UIColor.white.withAlphaComponent(0.4).cgColor
+        let darkColor = UIColor.black.withAlphaComponent(0.1).cgColor
 
         let gradient = CAGradientLayer()
-        gradient.colors = [dark, light, dark]
-        gradient.frame = CGRect(x: -bounds.width, y: 0, width: 3 * bounds.width, height: bounds.height)
+        gradient.name = "shimmerLayer"
+        gradient.colors = [darkColor, lightColor, darkColor]
+        gradient.locations = [0.0, 0.5, 1.0]
         gradient.startPoint = CGPoint(x: 0.0, y: 0.5)
-        gradient.endPoint = CGPoint(x: 1.0, y: 0.525) // 약간 기울임
-        gradient.locations = [0.4, 0.5, 0.6]
+        gradient.endPoint = CGPoint(x: 1.0, y: 0.5)
+        gradient.frame = CGRect(x: -bounds.width, y: 0, width: bounds.width * 3, height: bounds.height)
 
-        self.layer.mask = gradient
-
-        let animation = CABasicAnimation(keyPath: "locations")
-        animation.fromValue = [0.0, 0.1, 0.2]
-        animation.toValue = [0.8, 0.9, 1.0]
-        animation.duration = 1.5
+        let animation = CABasicAnimation(keyPath: "transform.translation.x")
+        animation.fromValue = -bounds.width
+        animation.toValue = bounds.width
+        animation.duration = 1.4
         animation.repeatCount = .infinity
 
-        gradient.add(animation, forKey: "shimmer")
+        gradient.add(animation, forKey: "shimmerMove")
+        self.layer.addSublayer(gradient)
     }
 
-    func stopShimmering() {
-        self.layer.mask = nil
+    func stopShimmeringOverlay() {
+        layer.sublayers?.removeAll(where: { $0.name == "shimmerLayer" })
     }
 }
