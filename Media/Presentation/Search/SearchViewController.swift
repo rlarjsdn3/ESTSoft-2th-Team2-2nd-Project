@@ -57,6 +57,7 @@ final class SearchViewController: StoryboardViewController {
 
         loadRecentSearches()
         reloadSavedFilters()
+        setKeyBoardDismissGesture()
     }
 
     override func setupHierachy() {
@@ -160,7 +161,7 @@ final class SearchViewController: StoryboardViewController {
 
         // 콜백
         vc.onApply = {
-            Toast.makeToast("필터가 적용되었습니다.", systemName: "slider.horizontal.3").present()
+            Toast.makeToast("Filter has been applied.", systemName: "slider.horizontal.3").present()
             self.reloadSavedFilters()
             self.changeStateOfFilterButton()
         }
@@ -255,8 +256,8 @@ extension SearchViewController: UITableViewDelegate {
             guard let self = self else { return }
 
             self.showDeleteAlert(
-                "정말 삭제하시겠습니까?",
-                message: "이 검색 기록은 복구할 수 없습니다.",
+                "Are you sure you want to delete it?",
+                message: "This keyword cannot be recovered..",
                 onConfirm: { _ in
                     // 데이터 삭제
                     let record = self.records[indexPath.row]

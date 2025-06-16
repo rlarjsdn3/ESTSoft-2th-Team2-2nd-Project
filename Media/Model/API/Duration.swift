@@ -33,13 +33,13 @@ enum Duration: CaseIterable {
     var description: String {
         switch self {
         case .short:
-            return "10초 이내"
+            return "Within 10 seconds"
         case .shortMedium:
-            return "30초 이내"
+            return "Within 30 seconds"
         case .medium:
-            return "1분 이내"
+            return "Within 1 minute"
         case .long:
-            return "1분 초과"
+            return "Over 1 minute"
         }
     }
 }
