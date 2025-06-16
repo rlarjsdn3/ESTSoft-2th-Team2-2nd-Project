@@ -407,13 +407,23 @@ final class SearchResultViewController: StoryboardViewController {
                 }
 
             case .failure(let error):
+                debugPrint("🛑 error:", error)
                 DispatchQueue.main.async {
                     self.activityIndicator.stopAnimating()
                     self.endRefreshing()
-                    self.showAlert(title: "Error",
-                                   message: "There was a problem loading the video.",
-                                   onPrimary: { _ in }
-                    )
+                    switch error {
+                    case .networkFailiure(NetworkError.generic):
+                        self.showAlert(title: "No Internet Connection",
+                                       message: "Please check your internet connection.",
+                                       onPrimary: { _ in self.contentUnavailableView.alpha = 1
+                            self.contentUnavailableView.imageResource = .noInternet }
+                        )
+                    default:
+                        self.showAlert(title: "Error",
+                                       message: "There was a problem loading the video.",
+                                       onPrimary: { _ in }
+                        )
+                    }
                 }
             }
         }
