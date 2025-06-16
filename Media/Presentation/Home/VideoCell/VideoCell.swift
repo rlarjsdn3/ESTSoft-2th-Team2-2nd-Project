@@ -135,7 +135,7 @@ final class VideoCell: UICollectionViewCell, NibLodable {
         if let profileURL = viewModel.profileImageURL {
             loadImage(from: profileURL, into: profileImage)
         } else {
-            profileImage.image = nil
+            profileImage.image = UIImage(named: "no_profile")
         }
 
         self.setNeedsLayout()
