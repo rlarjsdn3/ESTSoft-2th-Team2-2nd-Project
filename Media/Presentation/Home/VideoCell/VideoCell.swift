@@ -131,7 +131,6 @@ final class VideoCell: UICollectionViewCell, NibLodable {
         tagLabel.text = viewModel.categoryText
 
         currentImageURL = viewModel.thumbnailURL
-        thumbnailImage.image = nil
 
         thumbnailImage.startShimmeringOverlay()
 
@@ -151,8 +150,6 @@ final class VideoCell: UICollectionViewCell, NibLodable {
     }
 
     private func loadImage(from url: URL, into imageView: UIImageView) {
-
-
         DispatchQueue.global(qos: .background).async { [weak imageView] in
             guard let data = try? Data(contentsOf: url),
                   let image = UIImage(data: data) else { return }
@@ -171,6 +168,7 @@ final class VideoCell: UICollectionViewCell, NibLodable {
         thumbnailImage.layer.cornerRadius = radius
         thumbnailImage.layer.masksToBounds = true
     }
+    
     override func apply(_ layoutAttributes: UICollectionViewLayoutAttributes) {
         super.apply(layoutAttributes)
 
