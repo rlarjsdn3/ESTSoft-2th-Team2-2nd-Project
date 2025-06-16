@@ -210,11 +210,11 @@ extension BookmarkViewController {
                     )
                 }
                 cell.configure(viewModel)
-                cell.onEditAction = {
-                    self.showRenameTextFieldAlert(for: indexPath)
+                cell.onEditAction = { [weak self] in
+                    self?.showRenameTextFieldAlert(for: indexPath)
                 }
-                cell.onDeleteAction = {
-                    self.showDeletePlaylistAlert(for: indexPath)
+                cell.onDeleteAction = { [weak self] in
+                    self?.showDeletePlaylistAlert(for: indexPath)
                 }
                 cell.isBookMark = playlist.isBookmark
             }
