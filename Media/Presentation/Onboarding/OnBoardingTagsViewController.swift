@@ -179,7 +179,7 @@ extension OnBoardingTagsViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if selectedIndexPath.count >= 5 {
             
-            showAlert(title: "🔔Can't select more than 5", message: "Only up to 5 categories can be selected") { _ in
+            showAlert(title: "Can't select more than 5", message: "Only up to 5 categories can be selected") { _ in
                 self.dismiss(animated: true)
             } onCancel: { _ in
                 self.dismiss(animated: true)
