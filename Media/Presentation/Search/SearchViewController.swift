@@ -57,6 +57,7 @@ final class SearchViewController: StoryboardViewController {
         super.viewWillAppear(animated)
 
         loadRecentSearches()
+        reloadSavedFilters()
     }
 
     override func setupHierachy() {
@@ -142,6 +143,8 @@ final class SearchViewController: StoryboardViewController {
         records = (try? recordManager.fetchRecent(limit: 20)) ?? []
         if !records.isEmpty {
             placeholderImageView.isHidden = true
+        } else {
+            placeholderImageView.isHidden = false
         }
         searchTableView.reloadData()
     }
@@ -224,12 +227,14 @@ extension SearchViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let target = records[indexPath.row]
 
+        let trimmed = target.query?.trimmingCharacters(in: .whitespacesAndNewlines)
+
         let storyboard = UIStoryboard(name: "SearchResultViewController", bundle: nil)
         if let searchResultVC = storyboard.instantiateViewController(withIdentifier: "SearchResultViewController") as? SearchResultViewController {
-            searchResultVC.keyword = target.query!
+            searchResultVC.keyword = trimmed
             // 검색 기록 저장
             do {
-                try recordManager.save(query: target.query!)
+                try recordManager.save(query: trimmed!)
             } catch {
                 print("Search Record save error:", error)
             }
@@ -258,6 +263,13 @@ extension SearchViewController: UITableViewDelegate {
 
                         self.records.remove(at: indexPath.row)
                         tableView.deleteRows(at: [indexPath], with: .automatic)
+
+                        if !self.records.isEmpty {
+                            self.placeholderImageView.isHidden = true
+                        } else {
+                            self.placeholderImageView.isHidden = false
+                        }
+
                         completion(true)
                     } catch {
                         print("삭제 실패:", error)
@@ -286,9 +298,11 @@ extension SearchViewController: UISearchBarDelegate {
         // 키보드 내리기
         searchBar.resignFirstResponder()
 
+        let trimmed = keyword.trimmingCharacters(in: .whitespacesAndNewlines)
+
         // 검색 기록 저장
         do {
-            try recordManager.save(query: keyword)
+            try recordManager.save(query: trimmed)
         } catch {
             print("Search Record save error:", error)
         }
@@ -300,7 +314,7 @@ extension SearchViewController: UISearchBarDelegate {
             identifier: "SearchResultViewController"
         ) as? SearchResultViewController {
             // 검색어 전달
-            searchResultVC.keyword = keyword
+            searchResultVC.keyword = trimmed
             navigationController?.pushViewController(searchResultVC, animated: true)
         }
     }

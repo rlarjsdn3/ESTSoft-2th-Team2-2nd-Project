@@ -199,7 +199,7 @@ extension SearchFilterViewController: UICollectionViewDataSource {
 
             let target = categories[indexPath.item]
             cell.defaultCellConfigure()
-            cell.categoryLabel.text = target.rawValue
+            cell.categoryLabel.text = target.displayName
 
             return cell
         case filterOrderCollectionView:

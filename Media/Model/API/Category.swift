@@ -29,7 +29,12 @@ enum Category: String, CaseIterable {
     case buildings
     case business
     case music
-    
+
+    var displayName: String {
+        return rawValue.prefix(1).uppercased()
+        + rawValue.dropFirst()
+    }
+
     var symbolImage: UIImage? {
         switch self {
         case .backgrounds:
