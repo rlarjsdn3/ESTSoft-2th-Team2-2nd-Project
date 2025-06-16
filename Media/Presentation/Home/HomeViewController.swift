@@ -633,6 +633,8 @@ extension HomeViewController: UICollectionViewDelegate {
             selectedCategoryIndex = indexPath.item
             // 카테고리 컬렉션뷰 다시 그리기 (선택 상태 반영)
             categoryCollectionView.reloadData()
+            // 선택된 셀로 스크롤
+            categoryCollectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
             // 맨 위로 스크롤
             videoCollectionView.setContentOffset(.zero, animated: true)
             // 선택한 카테고리에 맞춰 비디오 재요청(초기화)
@@ -708,6 +710,28 @@ extension HomeViewController: UICollectionViewDataSource {
                     case .none:
                         self.addHistoryVideo(video)
                     }
+                }
+            }
+
+            cell.onTagTap = { [weak self] tag in
+                guard let self = self else { return }
+
+                // 본인 인덱스는 제외
+                let currentIndex = indexPath.item
+
+                // 본인 인덱스 제외 첫번째 영상찾기
+                if let index = self.videos.enumerated().first(where: { offset, hit in
+                    guard offset != currentIndex else { return false }
+                    let tags = hit.tags
+                        .split(separator: ",")
+                        .map { $0.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() }
+                    return tags.contains(tag.lowercased())
+                })?.offset {
+                    let indexPath = IndexPath(item: index, section: 0)
+                    self.videoCollectionView.scrollToItem(at: indexPath, at: .centeredVertically, animated: true)
+                    Toast.makeToast("Found tag: '\(tag)'", systemName: "lightbulb.max.fill").present()
+                } else {
+                    Toast.makeToast("No Found tag: '\(tag)'", systemName: "questionmark.circle").present()
                 }
             }
 
