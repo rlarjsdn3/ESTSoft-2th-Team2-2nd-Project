@@ -29,13 +29,22 @@ final class VideoCell: UICollectionViewCell, NibLodable {
 
     }
 
-
     var onThumbnailTap: (() -> Void)?
+
+    var onTagTap: ((String) -> Void)?
+
+    // Scroll To Item
+    @objc private func tagTapped() {
+        guard let tagText = tagLabel.text else { return }
+
+        onTagTap?(tagText)
+    }
 
     override func awakeFromNib() {
         super.awakeFromNib()
 
         thumbnailImage.contentMode = .scaleAspectFill
+        thumbnailImage.layer.cornerRadius = 8
         thumbnailImage.clipsToBounds = true
 
         profileImage.contentMode = .scaleAspectFill
@@ -47,22 +56,28 @@ final class VideoCell: UICollectionViewCell, NibLodable {
         viewCountLabel.textColor = .subLabelColor
         viewCountLabel.backgroundColor = .backgroundColor
 
-        durationLabel.textColor = .white
-        durationLabel.backgroundColor = .black.withAlphaComponent(0.6)
-        durationLabel.layer.cornerRadius = 2
+        durationLabel.textColor = .background
+        durationLabel.backgroundColor = .tagSelectedColor
+        durationLabel.layer.cornerRadius = 3
         durationLabel.clipsToBounds = true
 
         likeCountLabel.textColor = .subLabelColor
         likeCountLabel.backgroundColor = .backgroundColor
 
-        tagLabel.textColor = .white
-        tagLabel.backgroundColor = .black.withAlphaComponent(0.6)
-        tagLabel.layer.cornerRadius = 2
+        tagLabel.textColor = .background
+        tagLabel.backgroundColor = .tagSelectedColor
+        tagLabel.layer.cornerRadius = 3
         tagLabel.clipsToBounds = true
 
         thumbnailImage.isUserInteractionEnabled = true
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(thumbnailTapped))
         thumbnailImage.addGestureRecognizer(tapGesture)
+        
+        ellipsisButton.showsMenuAsPrimaryAction = true
+
+        tagLabel.isUserInteractionEnabled = true
+        let tagTapGesture = UITapGestureRecognizer(target: self, action: #selector(tagTapped))
+        tagLabel.addGestureRecognizer(tagTapGesture)
     }
 
     @objc private func thumbnailTapped() {
@@ -80,17 +95,20 @@ final class VideoCell: UICollectionViewCell, NibLodable {
 
         thumbnailImage.image = nil
         profileImage.image = nil
-    }
 
+        titleLabel.text = nil
+        viewCountLabel.text = nil
+    }
+    
     // Ellipsis 버튼 함수
     func configureMenu(bookmarkAction: @escaping () -> Void, playlistAction: @escaping () -> Void) {
 
-        let bookmark = UIAction(title: "북마크") { _ in
+        let bookmark = UIAction(title: "Add to Bookmark", image: UIImage(systemName: "bookmark")) { _ in
             bookmarkAction()
 
         }
 
-        let playlist = UIAction(title: "재생목록") { _ in
+        let playlist = UIAction(title: "Add to Playlists", image: UIImage(systemName: "list.bullet")) { _ in
             playlistAction()
 
         }
@@ -98,6 +116,19 @@ final class VideoCell: UICollectionViewCell, NibLodable {
         let menu = UIMenu(title: "", children: [bookmark, playlist])
         ellipsisButton.menu = menu
         ellipsisButton.showsMenuAsPrimaryAction = true
+    }
+    
+    /// 점 세 개 버튼(ellipsisButton)에 삭제 메뉴를 구성합니다.
+    /// - Parameter onDeleteAction: 사용자가 "Delete Playback History" 항목을 선택했을 때 실행될 클로저입니다.
+    func configureMenu(onDeleteAction: @escaping UIActionHandler) {
+        let deleteAction = UIAction(
+            title: "Delete Playback History",
+            image: UIImage(systemName: "trash"),
+            attributes: .destructive,
+            handler: onDeleteAction
+        )
+        
+        ellipsisButton.menu = UIMenu(title: "", children: [deleteAction])
     }
 
     // 뷰 모델을 받아 셀의 UI를 업데이트하는 함수
@@ -117,8 +148,11 @@ final class VideoCell: UICollectionViewCell, NibLodable {
         if let profileURL = viewModel.profileImageURL {
             loadImage(from: profileURL, into: profileImage)
         } else {
-            profileImage.image = nil
+            profileImage.image = UIImage(named: "no_profile")
         }
+
+        self.setNeedsLayout()
+        self.layoutIfNeeded()
     }
 
     private func loadImage(from url: URL, into imageView: UIImageView) {
@@ -130,6 +164,15 @@ final class VideoCell: UICollectionViewCell, NibLodable {
                 }
             }
         }
+    }
+
+    func setThumbnailImageCornerRadius(_ radius: CGFloat) {
+        thumbnailImage.layer.cornerRadius = radius
+        thumbnailImage.layer.masksToBounds = true
+    }
+    override func apply(_ layoutAttributes: UICollectionViewLayoutAttributes) {
+        super.apply(layoutAttributes)
+
     }
 }
 

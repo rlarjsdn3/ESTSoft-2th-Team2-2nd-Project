@@ -15,7 +15,20 @@ class SelectedTagsViewController: StoryboardViewController {
     
     @IBAction func selectedTagsButton(_ sender: Any) {
         
-        showAlert("Notification", message: "\(selectedCategories.count) categories have been selected.") { _ in
+        TagsDataManager.shared.deleteAllTagsData()
+
+        for category in selectedCategories {
+            TagsDataManager.shared.save(category: category)
+        }
+        
+        
+        NotificationCenter.default.post(
+            name: .didSelectedCategories,
+            object: nil,
+            userInfo: ["categories": selectedCategories]
+        )
+        
+        showAlert(title: "Notification", message: "\(selectedCategories.count) categories have been selected.") { _ in
             /// 확인 버튼을 눌렀을 경우
             // 태그 코어데이터의 모든 데이터를 삭제
             TagsDataManager.shared.deleteAllTagsData()
@@ -210,7 +223,7 @@ extension SelectedTagsViewController: UICollectionViewDelegate {
         print("셀 선택")
         if selectIndexPath.count >= 5 {
             
-            showAlert("❌Can't select more than 5", message: "Only up to 5 categories can be selected") { _ in
+            showAlert(title: "❌Can't select more than 5", message: "Only up to 5 categories can be selected") { _ in
                 self.dismiss(animated: true)
             } onCancel: { _ in
                 self.dismiss(animated: true)

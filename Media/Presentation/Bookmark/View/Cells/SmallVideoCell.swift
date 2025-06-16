@@ -11,11 +11,16 @@ import UIKit
 /// 마지막 셀일 경우 "재생목록 추가" UI를 표시합니다.
 final class SmallVideoCell: UICollectionViewCell, NibLodable {
 
+    var onEditAction: (() -> Void)?
+    var onDeleteAction: (() -> Void)?
+
     /// 썸네일 이미지를 표시하는 이미지 뷰
     @IBOutlet private weak var thumbnailImageView: UIImageView!
 
     /// 썸네일에 그림자를 줄 때 사용하는 뷰 (목록임을 나타내는 이미지)
     @IBOutlet private weak var shadowView: UIView!
+
+    @IBOutlet weak var fileContainerView: UIView!
 
     /// 동영상 재생목록 타이틀을 표시하는 라벨
     @IBOutlet private weak var titleLabel: UILabel!
@@ -39,6 +44,13 @@ final class SmallVideoCell: UICollectionViewCell, NibLodable {
             titleLabel.textAlignment = isLast ? .center : .left
             videoCountBackgroundView.isHidden = isLast
             if isLast { titleLabel.text = "재생목록 추가"}
+            fileContainerView.isUserInteractionEnabled = !isLast
+        }
+    }
+
+    var isBookMark: Bool = false {
+        didSet {
+            fileContainerView.isUserInteractionEnabled = !isBookMark
         }
     }
 
@@ -55,6 +67,7 @@ final class SmallVideoCell: UICollectionViewCell, NibLodable {
 
     override func layoutSubviews() {
         super.layoutSubviews()
+        setViews()
     }
 
     override func awakeFromNib() {
@@ -63,9 +76,14 @@ final class SmallVideoCell: UICollectionViewCell, NibLodable {
     }
 
     private func setViews() {
+        setupLayout()
+        setupContextMenu()
+    }
+
+    private func setupLayout() {
         plusImageView.layer.cornerRadius = plusImageView.frame.height/2
         thumbnailImageView.layer.borderWidth = 2
-        thumbnailImageView.layer.borderColor = UIColor.white.cgColor
+        thumbnailImageView.layer.borderColor = UIColor.background.resolvedColor(with: traitCollection).cgColor
         thumbnailImageView.layer.cornerRadius = 8
         shadowView.layer.cornerRadius = 8
         videoCountBackgroundView.layer.cornerRadius = 3
@@ -73,6 +91,10 @@ final class SmallVideoCell: UICollectionViewCell, NibLodable {
         videoCountBackgroundView.directionalLayoutMargins = NSDirectionalEdgeInsets(top: 3, leading: 5, bottom: 3, trailing: 5)
     }
 
+    private func setupContextMenu() {
+        let interaction = UIContextMenuInteraction(delegate: self)
+        fileContainerView.addInteraction(interaction)
+    }
 }
 
 extension SmallVideoCell {
@@ -101,7 +123,7 @@ extension SmallVideoCell {
     }
 
     private func configureThumbnail(from url: URL?) {
-        thumbnailImageView.backgroundColor = .systemGray6
+        thumbnailImageView.backgroundColor = .systemGray4
 
         let session = URLSession.shared
         Task {
@@ -117,6 +139,38 @@ extension SmallVideoCell {
         }
     }
 }
+
+extension SmallVideoCell: UIContextMenuInteractionDelegate {
+
+    func contextMenuInteraction(
+        _ interaction: UIContextMenuInteraction,
+        configurationForMenuAtLocation location: CGPoint
+    ) -> UIContextMenuConfiguration? {
+
+        return UIContextMenuConfiguration(
+            identifier: nil,
+            previewProvider: nil
+        ) { suggestedActions in
+
+            // 메뉴 항목 생성
+            let edit = UIAction(
+                title: "Rename Playlist",
+                image: UIImage(systemName: "square.and.pencil")
+            ) { action in
+                self.onEditAction?()
+            }
+            let delete = UIAction(
+                title: "Delete",
+                image: UIImage(systemName: "trash"),
+                attributes: .destructive
+            ) { action in
+                self.onDeleteAction?()
+            }
+            return UIMenu(title: "", children: [edit, delete])
+        }
+    }
+}
+
 
 struct PlayListViewModel {
     var thumbnailUrl: URL?

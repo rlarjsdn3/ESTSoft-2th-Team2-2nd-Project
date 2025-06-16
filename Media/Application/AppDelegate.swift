@@ -24,13 +24,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         userDefaultsService.clear(forKey: \.filterOrders)
         userDefaultsService.clear(forKey: \.filterDurations)
 
+        CoreDataService.shared.initializeDefaultDataIfFirstRun()
+
         #if DEBUG
         CoreDataService.shared.generateDummy()
-        #else
-        if userDefaultsService.isFirstLaunch {
-            CoreDataService.shared.initializeDefaultDataIfFirstRun()
-        }
-        userDefaultsService.isFirstLaunch = false
         #endif
 
         return true

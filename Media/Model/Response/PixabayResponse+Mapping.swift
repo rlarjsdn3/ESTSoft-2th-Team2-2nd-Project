@@ -50,6 +50,7 @@ extension PixabayResponse.Hit {
         entity.userId = Int64(self.userId)
         entity.user = self.user
         entity.userImageUrl = self.userImageUrl
+        entity.playTime = PixabayResponse.Hit.defaultPlayTime
         return entity
     }
 }

@@ -2,16 +2,15 @@
 //  SearchViewController.swift
 //  Media
 //
-//  Created by Jaehun Kim on 6/8/25.
+//  Created by 백현진 on 6/8/25.
 //
 
 import UIKit
 
-final class SearchViewController: StoryboardViewController, NavigationBarDelegate {
+final class SearchViewController: StoryboardViewController {
     @IBOutlet weak var searchTableView: UITableView!
     @IBOutlet weak var navigationBar: NavigationBar!
-    @IBOutlet weak var placeholderImageView: UIImageView!
-
+    @IBOutlet weak var contentUnavailableView: ContentUnavailableView!
     var recordManager = SearchRecordManager()
     private var records: [SearchRecordEntity] = []
     private let userDefaults = UserDefaultsService.shared
@@ -28,7 +27,7 @@ final class SearchViewController: StoryboardViewController, NavigationBarDelegat
         return raw.flatMap { Order(rawValue: $0) }
     }()
 
-    private lazy var selectedDuration: Duration? = {
+    private var selectedDuration: Duration? = {
         let raw: String? = UserDefaultsService.shared[keyPath: \.filterDurations]
 
         return raw.flatMap { descript in
@@ -51,12 +50,19 @@ final class SearchViewController: StoryboardViewController, NavigationBarDelegat
 
     override func viewDidLoad() {
         super.viewDidLoad()
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
         loadRecentSearches()
+        reloadSavedFilters()
     }
 
     override func setupHierachy() {
         configureSearchTableView()
         configureSearchBar()
+        navigationBar.searchBar.becomeFirstResponder()
 
         NSLayoutConstraint.activate([
             filterLabel.trailingAnchor.constraint(equalTo: navigationBar.rightButton.trailingAnchor, constant: 5),
@@ -69,12 +75,19 @@ final class SearchViewController: StoryboardViewController, NavigationBarDelegat
     override func setupAttributes() {
         self.view.backgroundColor = UIColor.background
         self.searchTableView.backgroundColor = .clear
+        contentUnavailableView.alpha = 0.0
         changeStateOfFilterButton()
     }
 
+
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        filterLabel.layer.cornerRadius = filterLabel.frame.size.height / 2
+        filterLabel.layer.cornerRadius =
+        filterLabel.frame.size.height / 2
+    }
+
+    @objc private func dismissKeyboard() {
+        view.endEditing(true)
     }
 
     //검색 기록 테이블뷰 등록
@@ -102,6 +115,16 @@ final class SearchViewController: StoryboardViewController, NavigationBarDelegat
         navigationBar.rightButton.addSubview(filterLabel)
     }
 
+    // 키보드 dismiss
+    private func setKeyBoardDismissGesture() {
+        let tap = UITapGestureRecognizer(
+            target: self,
+            action: #selector(dismissKeyboard)
+        )
+        tap.cancelsTouchesInView = false
+        view.addGestureRecognizer(tap)
+    }
+
     // 필터가 하나라도 켜져 있으면 filterButton색, filterLabel 활성화
     private func changeStateOfFilterButton() {
         let count = (selectedCategories != nil ? 1 : 0) + (selectedOrder != nil ? 1 : 0) + (selectedDuration != nil ? 1 : 0)
@@ -111,6 +134,7 @@ final class SearchViewController: StoryboardViewController, NavigationBarDelegat
             filterLabel.text = "\(count)"
         } else {
             filterLabel.isHidden = true
+            navigationBar.rightButton.tintColor = .label
         }
     }
 
@@ -118,22 +142,17 @@ final class SearchViewController: StoryboardViewController, NavigationBarDelegat
     private func loadRecentSearches() {
         records = (try? recordManager.fetchRecent(limit: 20)) ?? []
         if !records.isEmpty {
-            placeholderImageView.isHidden = true
+            contentUnavailableView.alpha = 0.0
+        } else {
+            contentUnavailableView.alpha = 1.0
+            contentUnavailableView.imageResource = .searchDefault
+
         }
         searchTableView.reloadData()
     }
 
-    //navigationBarItem Tap Event
-    func navigationBarDidTapLeft(_ navBar: NavigationBar) {
-        navigationController?.popViewController(animated: true)
-    }
-
-    func navigationBarDidTapRight(_ navBar: NavigationBar) {
-        showSheet()
-    }
-
     // 서치 필터 뷰 present
-    func showSheet() {
+    private func showSheet() {
         let storyboard = UIStoryboard(name: "SearchFilterViewController", bundle: nil)
         let vc = storyboard.instantiateViewController(
             identifier: "SearchFilterViewController"
@@ -166,30 +185,30 @@ final class SearchViewController: StoryboardViewController, NavigationBarDelegat
 
     // 실시간 필터 색 반영하기 위한 userDefault 리로드
     func reloadSavedFilters() {
-            // 1) 카테고리
+        // 1) 카테고리
         if let rawCat: String = userDefaults[keyPath: \.filterCategories],
-               let cat = Category(rawValue: rawCat) {
-                selectedCategories = cat
-            } else {
-                selectedCategories = nil
-            }
-
-            // 2) 정렬
-        if let rawOrd: String = userDefaults[keyPath: \.filterOrders],
-               let ord = Order(rawValue: rawOrd) {
-                selectedOrder = ord
-            } else {
-                selectedOrder = nil
-            }
-
-            // 3) 길이
-        if let rawDur: String = userDefaults[keyPath: \.filterDurations],
-               let dur = Duration.allCases.first(where: { $0.description == rawDur }) {
-                selectedDuration = dur
-            } else {
-                selectedDuration = nil
-            }
+           let cat = Category(rawValue: rawCat) {
+            selectedCategories = cat
+        } else {
+            selectedCategories = nil
         }
+
+        // 2) 정렬
+        if let rawOrd: String = userDefaults[keyPath: \.filterOrders],
+           let ord = Order(rawValue: rawOrd) {
+            selectedOrder = ord
+        } else {
+            selectedOrder = nil
+        }
+
+        // 3) 길이
+        if let rawDur: String = userDefaults[keyPath: \.filterDurations],
+           let dur = Duration.allCases.first(where: { $0.description == rawDur }) {
+            selectedDuration = dur
+        } else {
+            selectedDuration = nil
+        }
+    }
 }
 
 extension SearchViewController: UITableViewDataSource {
@@ -210,12 +229,14 @@ extension SearchViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let target = records[indexPath.row]
 
+        let trimmed = target.query?.trimmingCharacters(in: .whitespacesAndNewlines)
+
         let storyboard = UIStoryboard(name: "SearchResultViewController", bundle: nil)
         if let searchResultVC = storyboard.instantiateViewController(withIdentifier: "SearchResultViewController") as? SearchResultViewController {
-            searchResultVC.keyword = target.query!
+            searchResultVC.keyword = trimmed
             // 검색 기록 저장
             do {
-                try recordManager.save(query: target.query!)
+                try recordManager.save(query: trimmed!)
             } catch {
                 print("Search Record save error:", error)
             }
@@ -244,6 +265,14 @@ extension SearchViewController: UITableViewDelegate {
 
                         self.records.remove(at: indexPath.row)
                         tableView.deleteRows(at: [indexPath], with: .automatic)
+
+                        if !self.records.isEmpty {
+                            self.contentUnavailableView.alpha = 0.0
+                        } else {
+                            self.contentUnavailableView.alpha = 1.0
+                            self.contentUnavailableView.imageResource = .searchDefault
+                        }
+
                         completion(true)
                     } catch {
                         print("삭제 실패:", error)
@@ -272,9 +301,11 @@ extension SearchViewController: UISearchBarDelegate {
         // 키보드 내리기
         searchBar.resignFirstResponder()
 
+        let trimmed = keyword.trimmingCharacters(in: .whitespacesAndNewlines)
+
         // 검색 기록 저장
         do {
-            try recordManager.save(query: keyword)
+            try recordManager.save(query: trimmed)
         } catch {
             print("Search Record save error:", error)
         }
@@ -286,8 +317,18 @@ extension SearchViewController: UISearchBarDelegate {
             identifier: "SearchResultViewController"
         ) as? SearchResultViewController {
             // 검색어 전달
-            searchResultVC.keyword = keyword
+            searchResultVC.keyword = trimmed
             navigationController?.pushViewController(searchResultVC, animated: true)
         }
+    }
+}
+
+extension SearchViewController: NavigationBarDelegate {
+    func navigationBarDidTapLeft(_ navBar: NavigationBar) {
+        navigationController?.popViewController(animated: true)
+    }
+
+    func navigationBarDidTapRight(_ navBar: NavigationBar) {
+        showSheet()
     }
 }

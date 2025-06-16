@@ -10,13 +10,9 @@ import UIKit
 class SearchFilterViewController: StoryboardViewController {
 
     @IBOutlet weak var containerUIView: UIView!
-
     @IBOutlet weak var filterCategoryCollectionView: UICollectionView!
-
     @IBOutlet weak var filterOrderCollectionView: UICollectionView!
-
     @IBOutlet weak var filterVideoDurationCollectionView: UICollectionView!
-
     @IBOutlet weak var filterCategoryCVHeightConstraint: NSLayoutConstraint!
 
     private let categories = Category.allCases
@@ -53,8 +49,6 @@ class SearchFilterViewController: StoryboardViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        print(selectedCategories, selectedOrder, selectedDuration)
     }
 
     deinit {
@@ -114,7 +108,6 @@ class SearchFilterViewController: StoryboardViewController {
             )
         }
     }
-
 
     @IBAction func applyButtonTapped(_ sender: UIButton) {
         if selectedCategories != nil {
@@ -206,7 +199,7 @@ extension SearchFilterViewController: UICollectionViewDataSource {
 
             let target = categories[indexPath.item]
             cell.defaultCellConfigure()
-            cell.categoryLabel.text = target.rawValue
+            cell.categoryLabel.text = target.displayName
 
             return cell
         case filterOrderCollectionView:

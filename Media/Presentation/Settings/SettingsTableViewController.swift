@@ -73,6 +73,16 @@ class SettingsTableViewController: UITableViewController, EditProfileDelegate, M
         
         // 커스텀 스위치 셀 등록
         tableView.register(SwitchTableViewCell.nib, forCellReuseIdentifier: SwitchTableViewCell.id)
+        
+        // interests 셀 클릭 시 뜨는 모달을 닫기 위한 작업
+        // 'didSelectedCategories'이라는 Notification이 발생하면
+        // 'didReceiveSelectedCategories' 메서드를 호출
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(didReceiveSelectedCategories),
+            name: .didSelectedCategories,
+            object: nil
+        )
     }
     
     /// 프로필 수정 화면으로 이동 전 사용자 정보 전달
@@ -89,6 +99,15 @@ class SettingsTableViewController: UITableViewController, EditProfileDelegate, M
             editVC.editType = .email
             editVC.delegate = self
             editVC.currentText = userDefaults.userEmail ?? ""
+        }
+    }
+    
+    // MARK: - Notification
+    
+    @objc private func didReceiveSelectedCategories(_ notification: Notification) {
+        // 띄운 모달이 있으면 닫기
+        if let presented = self.presentedViewController {
+            presented.dismiss(animated: true)
         }
     }
     
@@ -134,9 +153,7 @@ class SettingsTableViewController: UITableViewController, EditProfileDelegate, M
         case .modeFeedback: return ModeFeedbackRow.allCases.count
         }
     }
-    
-    // MARK: - Table View Delegate
-    
+        
     /// 셀 구성
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let section = Section(rawValue: indexPath.section) else {
@@ -164,7 +181,7 @@ class SettingsTableViewController: UITableViewController, EditProfileDelegate, M
                     window.overrideUserInterfaceStyle = self.isDarkMode ? .dark : .light
                 }
                 
-                tableView.reloadRows(at: [indexPath], with: .none)
+                tableView.reloadData()
             }
             
             return cell
@@ -173,7 +190,29 @@ class SettingsTableViewController: UITableViewController, EditProfileDelegate, M
         // 나머지 셀은 storyboard에 정의된 셀 사용
         return super.tableView(tableView, cellForRowAt: indexPath)
     }
+
+    // MARK: - Table View Delegate
     
+    /// 헤더 뷰 디자인 설정
+    override func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
+        if let header = view as? UITableViewHeaderFooterView {
+            header.textLabel?.font = UIFont.systemFont(ofSize: 17, weight: .medium)
+            header.textLabel?.textColor = UIColor.primaryColor
+            header.contentView.backgroundColor = UIColor.backgroundColor
+        }
+    }
+
+    /// 섹션 간 여백
+    override func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        return 45
+    }
+    
+    /// 셀의 높이
+    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 55
+    }
+
+
     /// 셀 선택 시 동작 정의
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard let section = Section(rawValue: indexPath.section) else { return }
@@ -190,8 +229,9 @@ class SettingsTableViewController: UITableViewController, EditProfileDelegate, M
             case .interests:
                 let storyboard = UIStoryboard(name: "SelectedTagsViewController", bundle: nil)
                 if let interestVC = storyboard.instantiateViewController(withIdentifier: "SelectedTagsViewController") as? SelectedTagsViewController {
-                    interestVC.modalPresentationStyle = .automatic
-                    present(interestVC, animated: true)
+                    let nav = UINavigationController(rootViewController: interestVC)
+                    nav.modalPresentationStyle = .automatic
+                    present(nav, animated: true)
                 }
                 break
             case .none:
@@ -237,9 +277,24 @@ class SettingsTableViewController: UITableViewController, EditProfileDelegate, M
                 if MFMailComposeViewController.canSendMail() {
                     let mailComposeVC = MFMailComposeViewController()
                     mailComposeVC.mailComposeDelegate = self
-                    mailComposeVC.setToRecipients(["ddd@example.com"]) // 수신자 이메일
+                    mailComposeVC.setToRecipients(["aldalddl2007@gmail.com"]) // TODO: 팀 이메일로 설정
                     mailComposeVC.setSubject("App Feedback") // 메일 제목
-                    mailComposeVC.setMessageBody("feedback", isHTML: false) // 메일 내용
+                    
+                    // 유저 정보 가져오기
+                    let name = userDefaults.userName ?? "Unknown"
+                    let email = userDefaults.userEmail ?? "Unknown"
+                    
+                    // 메일 본문 구성
+                    let messageBody = """
+                    [User Name] \(name)
+                    [User Email] \(email)
+                    
+                    ---------------------------
+                    Please write your feedback below:
+                    """
+
+                    mailComposeVC.setMessageBody(messageBody, isHTML: false)
+
                     present(mailComposeVC, animated: true, completion: nil)
                 } else {
                     let alert = UIAlertController(title: "메일 앱이 설정되지 않았습니다", message: "기기의 메일 설정을 확인해 주세요.", preferredStyle: .alert)

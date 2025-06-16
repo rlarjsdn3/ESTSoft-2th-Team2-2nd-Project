@@ -7,8 +7,9 @@
 
 import UIKit
 import CoreData
+import Combine
 
-final class BookmarkViewController: StoryboardViewController, VideoPlayable {
+final class BookmarkViewController: StoryboardViewController {
 
     private typealias BookmarkDiffableDataSource = UICollectionViewDiffableDataSource<Bookmark.Section, Bookmark.Item>
 
@@ -16,6 +17,7 @@ final class BookmarkViewController: StoryboardViewController, VideoPlayable {
 
     private let userDefaultsService = UserDefaultsService.shared
     private let coreDataService = CoreDataService.shared
+    private let videoPlayerService = DefaultVideoPlayerService()
 
     private var dataSource: BookmarkDiffableDataSource? = nil
 
@@ -26,7 +28,6 @@ final class BookmarkViewController: StoryboardViewController, VideoPlayable {
     private var playlistFetchedResultsController: NSFetchedResultsController<PlaylistEntity>? = nil
     private var playlistVideoFetchedResultsController: NSFetchedResultsController<PlaylistVideoEntity>? = nil
 
-
     // MARK: - Lifecycles
 
     override func viewDidLoad() {
@@ -34,6 +35,7 @@ final class BookmarkViewController: StoryboardViewController, VideoPlayable {
 
         setupFetchedResultsController()
         setupDataSource()
+        registerUserDefaultsDidChangeNotification()
     }
 
     override func prepare(
@@ -62,13 +64,39 @@ final class BookmarkViewController: StoryboardViewController, VideoPlayable {
     override func setupAttributes() {
         super.setupAttributes()
 
-        let username = userDefaultsService.userName
+        setupNaivgationBar()
+        collectionView.apply {
+            $0.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 20, right: 0)
+            $0.collectionViewLayout = createCompositionalLayout()
+        }
+    }
+    
+    private func setupNaivgationBar() {
+        guard let userName = userDefaultsService.userName else {
+            navigationBar.configure(
+                title: "Library",
+                isLeadingAligned: true
+            )
+            return
+        }
+
         navigationBar.configure(
-            title: (username != nil) ? "\(username!)'s Library" : "Library",
+            title: userName.isEmpty ? "Library" : "\(userName)'s Library",
             isLeadingAligned: true
         )
-        collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 20, right: 0)
-        collectionView.collectionViewLayout = createCompositionalLayout()
+    }
+    
+    private func registerUserDefaultsDidChangeNotification() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleUserDefaultsDidChangeNotification),
+            name: UserDefaults.didChangeNotification,
+            object: nil
+        )
+    }
+    
+    @objc func handleUserDefaultsDidChangeNotification(_ notification: NotificationCenter) {
+        setupNaivgationBar()
     }
 
     private func createCompositionalLayout() -> UICollectionViewCompositionalLayout {
@@ -120,7 +148,7 @@ extension BookmarkViewController {
     }
 
     private func createPlaybackCellRagistration() -> UICollectionView.CellRegistration<VideoCell, Bookmark.Item> {
-        UICollectionView.CellRegistration<VideoCell, Bookmark.Item>(cellNib: VideoCell.nib) { cell, indexPath, item in
+        UICollectionView.CellRegistration<VideoCell, Bookmark.Item>(cellNib: VideoCell.nib) { [weak self] cell, indexPath, item in
             if case .playback(let playback) = item {
                 guard let thumbnailUrl = playback.video?.medium.thumbnail else { return }
                 let viewModel = VideoCellViewModel(
@@ -133,11 +161,28 @@ extension BookmarkViewController {
                     tags: playback.tags
 
                 )
-                cell.onThumbnailTap = { [weak self] in
-                    guard let url = playback.video?.medium.url else { return }
-                    self?.playVideo(from: url)
-                }
                 cell.configure(with: viewModel)
+                cell.configureMenu(onDeleteAction: { _ in
+                    self?.coreDataService.delete(playback)
+                })
+                cell.setThumbnailImageCornerRadius(8)
+                cell.onThumbnailTap = {
+                    guard let self = self else { return }
+                    self.videoPlayerService.playVideo(self, with: playback) { error in
+                        guard let error = error else { return }
+
+                        switch error {
+                        case .notConnectedToInternet:
+                            self.showAlert(
+                                title: "No Internet Connection",
+                                message: "Please check your internet connection.",
+                                onPrimary: { _ in }
+                            )
+                        default:
+                            break
+                        }
+                    }
+                }
             }
         }
     }
@@ -157,7 +202,7 @@ extension BookmarkViewController {
                         userName: playlist.name,
                         total: totalVideos
                     )
-                    // 대표 이미지가 없다면 이미지를 빼고 재생 목록 셀 구성
+                // 대표 이미지가 없다면 이미지를 빼고 재생 목록 셀 구성
                 } else {
                     viewModel = PlayListViewModel(
                         userName: playlist.name,
@@ -165,6 +210,13 @@ extension BookmarkViewController {
                     )
                 }
                 cell.configure(viewModel)
+                cell.onEditAction = { [weak self] in
+                    self?.showRenameTextFieldAlert(for: indexPath)
+                }
+                cell.onDeleteAction = { [weak self] in
+                    self?.showDeletePlaylistAlert(for: indexPath)
+                }
+                cell.isBookMark = playlist.isBookmark
             }
 
             if case .addPlaylist = item {
@@ -183,9 +235,9 @@ extension BookmarkViewController {
             switch section.type {
             case .playback:
                 supplementaryView.delegate = self
-                supplementaryView.configure(title: "재생 기록", hasEvent: true)
+                supplementaryView.configure(title: "Playback History", hasEvent: true)
             case .playlist:
-                supplementaryView.configure(title: "재생 목록")
+                supplementaryView.configure(title: "Playlist")
             }
         }
 
@@ -282,11 +334,9 @@ extension BookmarkViewController: NSFetchedResultsControllerDelegate {
         var snapshot = dataSource.snapshot()
 
         switch type {
-        case .insert, .delete, .update:
-            let playlistSection = Bookmark.Section(type: .playlist)
-            if anObject is PlaylistVideoEntity,
-               snapshot.sectionIdentifiers.contains(playlistSection) {
-                snapshot.reloadSections([playlistSection])
+        case .update:
+            if let playlist = anObject as? PlaylistEntity {
+                snapshot.reloadItems([Bookmark.Item.playlist(playlist)])
             }
 
         default:
@@ -337,35 +387,6 @@ extension BookmarkViewController: UICollectionViewDelegate {
         }
     }
 
-    func collectionView(
-        _ collectionView: UICollectionView,
-        contextMenuConfigurationForItemsAt indexPaths: [IndexPath],
-        point: CGPoint
-    ) -> UIContextMenuConfiguration? {
-        guard let indexPath = indexPaths.first,
-              let section = self.dataSource?.snapshot().sectionIdentifiers[safe: indexPath.section],
-              let item = self.dataSource?.itemIdentifier(for: indexPath),
-              let entity = self.playListEntityFromDatasource(for: indexPath) else {
-            return nil
-        }
-
-        // 항목이 '재생 기록' 섹션에 속하지 않으며
-        // 항목이 '재생 목록 추가'이 아니며
-        // 항목의 이름이 '북마크를 표시한 재생목록'이 아닐 때 ContextMenu 출력하기
-        if section.type != .playback,
-           item != .addPlaylist,
-           entity.name != CoreDataString.bookmarkedPlaylistName {
-            return UIContextMenuConfiguration(
-                identifier: nil,
-                previewProvider: nil
-            ) { suggestedActions in
-                let renameAction = self.renamePlaylistAction(for: indexPath)
-                let deleteAction = self.deletePlaylistAction(for: indexPath)
-                return UIMenu(title: "", children: [renameAction, deleteAction])
-            }
-        }
-        return nil
-    }
 }
 
 
@@ -399,7 +420,7 @@ extension BookmarkViewController {
                     )
                     self.coreDataService.insert(newPlaylist)
                 } else {
-                    Toast.makeToast("이미 존재하는 재생 목록 이름입니다.").present()
+                    Toast.makeToast("A playlist with this name already exists.").present()
                 }
             } onCancel: { _ in }
     }
@@ -407,21 +428,21 @@ extension BookmarkViewController {
     private func renamePlaylistAction(for indexPath: IndexPath) -> UIAction {
 
         return UIAction(
-            title: "재생 목록 이름 변경",
+            title: "Rename Playlist",
             image: UIImage(systemName: "square.and.pencil")
         ) { _ in
             guard let entity = self.playListEntityFromDatasource(for: indexPath) else { return }
 
             self.showTextFieldAlert(
-                "재생 목록 이름 변경",
-                message: "새로운 이름을 입력해 주세요.",
+                "Rename Playlist",
+                message: "Please enter a new name.",
                 defaultText: entity.name,
-                placeholder: "새 이름",
+                placeholder: "New name",
                 onConfirm: { (_, newName) in
                     if entity.name != newName, !PlaylistEntity.isExist(newName) {
                         self.coreDataService.update(entity, by: \.name, to: newName)
                     } else {
-                        Toast.makeToast("이미 존재하는 재생 목록 이름입니다.").present()
+                        Toast.makeToast("A playlist with this name already exists.").present()
                     }
                 },
                 onCancel: { _ in }
@@ -429,22 +450,50 @@ extension BookmarkViewController {
         }
     }
 
+    func showRenameTextFieldAlert(for indexPath: IndexPath) {
+        guard let entity = self.playListEntityFromDatasource(for: indexPath) else { return }
+        self.showTextFieldAlert(
+            "Rename Playlist",
+            message: "Please enter a new name.",
+            defaultText: entity.name,
+            placeholder: "New name"
+        ) { (_, newName) in
+            if entity.name != newName, !PlaylistEntity.isExist(newName) {
+                self.coreDataService.update(entity,by: \.name, to: newName)
+            } else {
+                Toast.makeToast("A playlist with this name already exists.").present()
+            }
+        } onCancel: {_ in }
+    }
+
+    func showDeletePlaylistAlert(for indexPath: IndexPath) {
+        guard let entity = self.playListEntityFromDatasource(for: indexPath) else { return }
+        self.showDeleteAlert(
+            "Delete Playlist",
+            message: "Are you sure you want to delete this playlist? This action cannot be undone.",
+            onConfirm: { _ in
+                guard let entity = self.playListEntityFromDatasource(for: indexPath) else { return }
+                self.coreDataService.delete(entity)
+            },
+            onCancel: { _ in }
+        )
+    }
+
     private func deletePlaylistAction(for indexPath: IndexPath) -> UIAction {
         return UIAction(
-            title: "재생 목록 삭제",
+            title: "Delete Playlist",
             image: UIImage(systemName: "trash"),
             attributes: .destructive
         ) { _ in
             guard let entity = self.playListEntityFromDatasource(for: indexPath) else { return }
 
             self.showDeleteAlert(
-                "재생 목록 삭제",
-                message: "정말 이 재생목록을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
+                "Delete Playlist",
+                message: "Are you sure you want to delete this playlist? This action cannot be undone.",
                 onConfirm: { _ in
                     self.coreDataService.delete(entity)
                 },
-                onCancel: { _ in
-                }
+                onCancel: { _ in }
             )
         }
     }

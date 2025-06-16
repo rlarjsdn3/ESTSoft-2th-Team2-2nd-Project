@@ -20,6 +20,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
      - 각 탭(Home, Library, Interest, Setting)의 일반 상태와 선택된 상태 이미지 설정
      */
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
+
         guard let windowScene = (scene as? UIWindowScene) else { return }
         
         let window = UIWindow(windowScene: windowScene)
@@ -44,21 +45,24 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window.makeKeyAndVisible()
     }
 
-    func sceneDidDisconnect(_ scene: UIScene) {
+//    func sceneDidDisconnect(_ scene: UIScene) {
+//    }
+//
+//    func sceneDidBecomeActive(_ scene: UIScene) {
+//    }
+//    
+    /// 사용자 설정에 따라 라이트 / 다크 모드를 적용
+    private func applyUserInterfaceStyle(from windowScene: UIWindowScene) {
+        let isDark = UserDefaults.standard.bool(forKey: "isDarkMode")
+        if let window = windowScene.windows.first {
+            window.overrideUserInterfaceStyle = isDark ? .dark : .light
+        }
     }
 
-    func sceneDidBecomeActive(_ scene: UIScene) {
-    }
-
-    func sceneWillResignActive(_ scene: UIScene) {
-    }
-
-    func sceneWillEnterForeground(_ scene: UIScene) {
-    }
-
-    func sceneDidEnterBackground(_ scene: UIScene) {
-    }
-
-
+    func sceneDidDisconnect(_ scene: UIScene) {}
+    func sceneDidBecomeActive(_ scene: UIScene) {}
+    func sceneWillResignActive(_ scene: UIScene) {}
+    func sceneWillEnterForeground(_ scene: UIScene) {}
+    func sceneDidEnterBackground(_ scene: UIScene) {}
 }
 
