@@ -23,6 +23,7 @@ protocol VideoPlayerService {
     func playVideo(
         _ vc: UIViewController,
         with hits: PixabayResponse.Hit,
+        onProgress: ((CMTime) -> Void)?,
         onError: VideoPlayerErrorHandler?
     )
 
@@ -35,6 +36,7 @@ protocol VideoPlayerService {
     func playVideo(
         _ vc: UIViewController,
         with entity: PlaylistVideoEntity,
+        onProgress: ((CMTime) -> Void)?,
         onError: VideoPlayerErrorHandler?
     )
 
@@ -47,6 +49,7 @@ protocol VideoPlayerService {
     func playVideo(
         _ vc: UIViewController,
         with entity: PlaybackHistoryEntity,
+        onProgress: ((CMTime) -> Void)?,
         onError: VideoPlayerErrorHandler?
     )
 }
@@ -56,6 +59,10 @@ protocol VideoPlayerService {
 /// 지정된 캐싱 객체를 사용하여 비디오를 로컬에 저장한 뒤, AVPlayer를 통해 재생하는 기능을 제공합니다.
 /// 내부적으로 AVPlayerItem의 상태를 관찰하여 재생 가능 여부를 판단하며, 에러 발생 시 핸들러를 통해 전달할 수 있습니다.
 final class DefaultVideoPlayerService {
+
+    private var timeObserverToken: Any?
+
+    private var player: AVPlayer?
 
     /// 비디오를 다운로드하고 캐시하는 데 사용되는 객체입니다.
     private let cacher: any VideoCacher
@@ -82,6 +89,7 @@ extension DefaultVideoPlayerService: VideoPlayerService {
     func playVideo(
         _ vc: UIViewController,
         with hits: PixabayResponse.Hit,
+        onProgress: ((CMTime) -> Void)? = nil,
         onError: VideoPlayerErrorHandler? = nil
     ) {
         let variants = VideoVariants(
@@ -91,7 +99,7 @@ extension DefaultVideoPlayerService: VideoPlayerService {
             tinyUrl: hits.videos.tiny.url
         )
 
-        playVideo(vc, with: variants, onError: onError)
+        playVideo(vc, with: variants, onProgress: onProgress, onError: onError)
     }
 
     /// 재생 목록에 저장된 비디오 데이터를 기반으로 비디오를 재생합니다.
@@ -103,6 +111,7 @@ extension DefaultVideoPlayerService: VideoPlayerService {
     func playVideo(
         _ vc: UIViewController,
         with entity: PlaylistVideoEntity,
+        onProgress: ((CMTime) -> Void)? = nil,
         onError: VideoPlayerErrorHandler? = nil
     ) {
         let variants = VideoVariants(
@@ -124,6 +133,7 @@ extension DefaultVideoPlayerService: VideoPlayerService {
     func playVideo(
         _ vc: UIViewController,
         with entity: PlaybackHistoryEntity,
+        onProgress: ((CMTime) -> Void)? = nil,
         onError: VideoPlayerErrorHandler? = nil
     ) {
         let variants = VideoVariants(
@@ -155,6 +165,7 @@ extension DefaultVideoPlayerService: VideoPlayerService {
     private func playVideo(
         _ vc: UIViewController,
         with variants: VideoVariants,
+        onProgress: ((CMTime) -> Void)? = nil,
         onError: VideoPlayerErrorHandler? = nil
     ) {
         let userDefaults = UserDefaultsService.shared
@@ -167,7 +178,7 @@ extension DefaultVideoPlayerService: VideoPlayerService {
 
         /// 저장된 비디오 품질에 해당되는 비디오 Url이 존재한다면
         if let preferredUrl = variants.url(for: preferredQuality) {
-            playVideo(vc, from: preferredUrl, onError: onError)
+            playVideo(vc, from: preferredUrl, onProgress: onProgress, onError: onError)
         // 저장된 비디오 품질에 해당되는 비디오 Url이 존재하지 않는다면
         } else {
             let availableQualities = VideoQuality.allCases
@@ -209,17 +220,32 @@ extension DefaultVideoPlayerService: VideoPlayerService {
     func playVideo(
         _ vc: UIViewController,
         from url: URL,
+        onProgress: ((CMTime) -> Void)? = nil,
         onError: VideoPlayerErrorHandler? = nil
     ) {
+        if let token = timeObserverToken {
+            player?.removeTimeObserver(token)
+            timeObserverToken = nil
+        }
+
         observation?.invalidate()
 
-        let player = AVPlayer(url: url)
+        player = AVPlayer(url: url)
+        if let onProgress = onProgress {
+            timeObserverToken = player?.addPeriodicTimeObserver(
+                forInterval: CMTime(seconds: 1, preferredTimescale: 1),
+                queue: .main,
+                using: { time in onProgress(time); print(time, #function)  }
+            )
+        }
+
         let playerVC = PiPEnabledPlayerViewController()
         playerVC.player = player
 
-        self.observation = player.currentItem?.observe(\.status, options: [.new]) { [weak self] playerItem, _ in
+        self.observation = player?.currentItem?.observe(\.status, options: [.new]) { [weak self] playerItem, _ in
             switch playerItem.status {
             case .readyToPlay:
+                guard let player = self?.player else { return }
                 player.play()
                 print("🔹 Played Video:", url)
                 vc.present(playerVC, animated: true)
