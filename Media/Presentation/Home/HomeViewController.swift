@@ -117,7 +117,6 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
 
         categoryCollectionView.reloadData()
 
-        // 다른 탭에서 옮겨온 경우.
         if let video = selectedVideo {
             savePlaybackHistoryToCoredata(video: video)
         }
@@ -413,8 +412,13 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
     // MARK: - Record PlayTime
 
     private var playTime: Double?
-    private var historyList: [PixabayResponse.Hit] = []
     private var selectedVideo: PixabayResponse.Hit?
+    private var historyList: [PixabayResponse.Hit] = []
+
+    private func initPlaybackValue(for video: PixabayResponse.Hit) {
+        selectedVideo = video
+        playTime = nil
+    }
 
     private func savePlaybackHistoryToCoredata(video: PixabayResponse.Hit) {
 
@@ -703,11 +707,9 @@ extension HomeViewController: UICollectionViewDataSource {
             // MARK: - 썸네일 터치시 영상 재생
             cell.onThumbnailTap = { [weak self] in
                 guard let self = self else { return }
-
-                self.selectedVideo = video
-
+                self.initPlaybackValue(for: video)
                 videoPlayerService.playVideo(self, with: video) { time in
-                    print("\(time.seconds)")
+                    // update play time
                     self.playTime = time.seconds
                 } onError: { error in
                     switch error {

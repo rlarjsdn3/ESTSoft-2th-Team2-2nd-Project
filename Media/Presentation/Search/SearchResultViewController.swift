@@ -483,6 +483,12 @@ final class SearchResultViewController: StoryboardViewController {
     }
 
 	// MARK: - PlayTime
+
+    private func initPlaybackValue(for video: PixabayResponse.Hit) {
+        selectedVideo = video
+        playTime = nil
+    }
+
     private func savePlaybackHistoryToCoredata(video: PixabayResponse.Hit) {
 
         let context = CoreDataService.shared.persistentContainer.viewContext
@@ -549,9 +555,7 @@ extension SearchResultViewController: UICollectionViewDataSource {
         // 썸네일 터치시 영상 재생
         cell.onThumbnailTap = { [weak self] in
             guard let self = self else { return }
-
-            self.selectedVideo = video
-
+            self.initPlaybackValue(for: video)
             self.videoService.playVideo(self, with: video) { time in
                 print("\(time.seconds)")
                 self.playTime = time.seconds
