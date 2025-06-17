@@ -131,14 +131,14 @@ extension SmallVideoCell {
 
     private func configureThumbnail(from url: URL?) {
         thumbnailImageView.backgroundColor = .systemGray4
-
         let session = URLSession.shared
         Task {
             if let url {
+                thumbnailImageView.startShimmer()
                 let (data, _) = try await session.data(from: url)
                 guard self.currentThumbnailURL == url else { return }
                 thumbnailImageView.image = UIImage(data: data)
-                thumbnailImageView.startShimmer()
+                thumbnailImageView.stopShimmer()
             }
         }
     }
