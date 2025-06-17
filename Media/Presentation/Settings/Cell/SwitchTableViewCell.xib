@@ -67,7 +67,7 @@
                 </constraints>
             </tableViewCellContentView>
             <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
-            <color key="backgroundColor" name="TagUnselected"/>
+            <color key="backgroundColor" name="CategoryUnselectedBackground"/>
             <connections>
                 <outlet property="iconImageView" destination="ZR5-bI-I7Q" id="MR0-oM-apr"/>
                 <outlet property="subtitleLabel" destination="koh-ON-JoK" id="Sut-8M-mev"/>
@@ -78,6 +78,9 @@
         </tableViewCell>
     </objects>
     <resources>
+        <namedColor name="CategoryUnselectedBackground">
+            <color red="0.93725490196078431" green="0.93725490196078431" blue="0.93725490196078431" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
         <namedColor name="MainLabel">
             <color red="0.23137254901960785" green="0.23137254901960785" blue="0.23137254901960785" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>

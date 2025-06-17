@@ -91,7 +91,7 @@
                                                 </imageView>
                                             </subviews>
                                         </tableViewCellContentView>
-                                        <color key="backgroundColor" name="TagUnselected"/>
+                                        <color key="backgroundColor" name="CategoryUnselectedBackground"/>
                                         <color key="tintColor" name="MainLabel"/>
                                         <connections>
                                             <segue destination="o6I-Tv-StZ" kind="presentation" identifier="EditNameSegue" trigger="accessoryAction" modalPresentationStyle="pageSheet" id="eNp-dS-i08"/>
@@ -124,7 +124,7 @@
                                                 </imageView>
                                             </subviews>
                                         </tableViewCellContentView>
-                                        <color key="backgroundColor" name="TagUnselected"/>
+                                        <color key="backgroundColor" name="CategoryUnselectedBackground"/>
                                         <color key="tintColor" name="MainLabel"/>
                                     </tableViewCell>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" accessoryType="disclosureIndicator" indentationWidth="10" textLabel="uce-cM-5Fb" imageView="77j-v9-0xb" style="IBUITableViewCellStyleDefault" id="zHC-t2-MYR">
@@ -147,7 +147,7 @@
                                                 </imageView>
                                             </subviews>
                                         </tableViewCellContentView>
-                                        <color key="backgroundColor" name="TagUnselected"/>
+                                        <color key="backgroundColor" name="CategoryUnselectedBackground"/>
                                         <color key="tintColor" name="MainLabel"/>
                                     </tableViewCell>
                                 </cells>
@@ -174,7 +174,7 @@
                                                 </imageView>
                                             </subviews>
                                         </tableViewCellContentView>
-                                        <color key="backgroundColor" name="TagUnselected"/>
+                                        <color key="backgroundColor" name="CategoryUnselectedBackground"/>
                                         <color key="tintColor" name="MainLabel"/>
                                     </tableViewCell>
                                 </cells>
@@ -204,7 +204,7 @@
                                                 </label>
                                             </subviews>
                                         </tableViewCellContentView>
-                                        <color key="backgroundColor" name="TagUnselected"/>
+                                        <color key="backgroundColor" name="CategoryUnselectedBackground"/>
                                     </tableViewCell>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="10" textLabel="u1L-XD-Ghc" imageView="Iis-tQ-fUC" style="IBUITableViewCellStyleDefault" id="dqA-1b-FLp">
                                         <rect key="frame" x="20" y="421.66666984558105" width="321" height="44.666667938232422"/>
@@ -226,7 +226,7 @@
                                                 </imageView>
                                             </subviews>
                                         </tableViewCellContentView>
-                                        <color key="backgroundColor" name="TagUnselected"/>
+                                        <color key="backgroundColor" name="CategoryUnselectedBackground"/>
                                         <color key="tintColor" name="MainLabel"/>
                                     </tableViewCell>
                                 </cells>
@@ -293,6 +293,48 @@
             </objects>
             <point key="canvasLocation" x="1850" y="-324"/>
         </scene>
+        <!--Edit Profile View Controller-->
+        <scene sceneID="WHT-v3-y0I">
+            <objects>
+                <viewController id="F0u-ZV-4SD" customClass="EditProfileViewController" customModule="Media" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="YzM-bD-bkF">
+                        <rect key="frame" x="0.0" y="0.0" width="361" height="689"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ATW-gz-VzP" customClass="NavigationBar" customModule="Media" customModuleProvider="target">
+                                <rect key="frame" x="16" y="20" width="329" height="44"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="44" id="xIh-cQ-juO"/>
+                                </constraints>
+                            </view>
+                            <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Enter Your E-mail" textAlignment="natural" minimumFontSize="17" clearButtonMode="whileEditing" translatesAutoresizingMaskIntoConstraints="NO" id="KfQ-ps-yNi">
+                                <rect key="frame" x="16" y="80" width="329" height="34"/>
+                                <color key="textColor" name="MainLabel"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits" keyboardType="emailAddress" returnKeyType="done"/>
+                            </textField>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="z8w-34-jzA"/>
+                        <color key="backgroundColor" name="Background"/>
+                        <constraints>
+                            <constraint firstItem="z8w-34-jzA" firstAttribute="trailing" secondItem="KfQ-ps-yNi" secondAttribute="trailing" constant="16" id="JFt-Rd-DOw"/>
+                            <constraint firstItem="z8w-34-jzA" firstAttribute="trailing" secondItem="ATW-gz-VzP" secondAttribute="trailing" constant="16" id="Jlt-W9-YK2"/>
+                            <constraint firstItem="ATW-gz-VzP" firstAttribute="top" secondItem="z8w-34-jzA" secondAttribute="top" constant="20" id="cEO-1p-uR1"/>
+                            <constraint firstItem="KfQ-ps-yNi" firstAttribute="leading" secondItem="z8w-34-jzA" secondAttribute="leading" constant="16" id="g5p-Vz-LBm"/>
+                            <constraint firstItem="KfQ-ps-yNi" firstAttribute="top" secondItem="ATW-gz-VzP" secondAttribute="bottom" constant="16" id="nW9-AG-FmT"/>
+                            <constraint firstItem="ATW-gz-VzP" firstAttribute="leading" secondItem="z8w-34-jzA" secondAttribute="leading" constant="16" id="uJy-zO-P0H"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="navigationBar" destination="ATW-gz-VzP" id="283-Va-DJs"/>
+                        <outlet property="textField" destination="KfQ-ps-yNi" id="lC2-BC-zKK"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="orX-lD-Bvk" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1850" y="249"/>
+        </scene>
     </scenes>
     <resources>
         <image name="envelope" catalog="system" width="128" height="85"/>
@@ -311,9 +353,6 @@
         </namedColor>
         <namedColor name="SubLabel">
             <color red="0.5490196078431373" green="0.5490196078431373" blue="0.5490196078431373" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-        </namedColor>
-        <namedColor name="TagUnselected">
-            <color red="0.95294117647058818" green="0.93725490196078431" blue="0.92549019607843142" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
