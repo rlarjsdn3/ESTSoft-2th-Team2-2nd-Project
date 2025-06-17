@@ -256,7 +256,7 @@ extension SearchViewController: UITableViewDelegate {
             guard let self = self else { return }
 
             self.showDeleteAlert(
-                "Are you sure you want to delete it?",
+                "Delete Keyword",
                 message: "This keyword cannot be recovered..",
                 onConfirm: { _ in
                     // 데이터 삭제
