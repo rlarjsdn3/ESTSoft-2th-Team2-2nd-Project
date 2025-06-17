@@ -41,6 +41,16 @@ class EditProfileViewController: UIViewController, NavigationBarDelegate {
     /// 사용자 입력을 받는 텍스트 필드
     @IBOutlet weak var textField: UITextField!
     
+    /// 이름과 이메일에 따라 최대 입력 길이를 다르게 설정
+    private var maxLength: Int {
+        switch editType {
+        case .name:
+            return 15
+        case .email:
+            return 25
+        }
+    }
+    
     // MARK: - Lifecycle
     
     override func viewDidLoad() {
@@ -63,6 +73,8 @@ class EditProfileViewController: UIViewController, NavigationBarDelegate {
                 isSearchMode: false,
                 isLeadingAligned: false
             )
+            
+            textField.placeholder = "Enter Your Name"
         case .email:
             navigationBar.configure(
                 title: "Edit E-mail",
@@ -73,6 +85,8 @@ class EditProfileViewController: UIViewController, NavigationBarDelegate {
                 isSearchMode: false,
                 isLeadingAligned: false
             )
+            
+            textField.placeholder = "Enter Your E-mail"
         }
     }
     
@@ -103,6 +117,24 @@ extension EditProfileViewController: UITextFieldDelegate {
     // 리턴 키를 눌렀을 때 키보드가 내려가게 함
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
+        return true
+    }
+    
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        let currentText = textField.text ?? ""
+        
+        // 입력 범위를 Swift 문자열 Range로 변환
+        guard let stringRange = Range(range, in: currentText) else { return false }
+        // 입력될 텍스트 반영 후 전체 문자열 계산
+        let updatedText = currentText.replacingCharacters(in: stringRange, with: string)
+
+        // 최대 글자 수 초과 시 진동 피드백 후 입력 차단
+        if updatedText.count > maxLength {
+            let generator = UINotificationFeedbackGenerator()
+            generator.notificationOccurred(.warning)
+            return false
+        }
+
         return true
     }
 }
