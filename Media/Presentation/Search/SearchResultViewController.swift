@@ -491,7 +491,6 @@ extension SearchResultViewController: UICollectionViewDataSource {
 
         // 썸네일 터치시 영상 재생
         cell.onThumbnailTap = { [weak self] in
-            print(#function, indexPath.item)
             guard let self = self else { return }
             self.videoService.playVideo(self, with: video, onProgress: nil) { error in
                 switch error {
