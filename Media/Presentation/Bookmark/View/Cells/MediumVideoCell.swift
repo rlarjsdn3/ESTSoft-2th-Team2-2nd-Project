@@ -127,7 +127,6 @@ class MediumVideoCell: UICollectionViewCell, NibLodable, UIContextMenuInteractio
 
 extension MediumVideoCell {
     func configure(_ history: MediumVideoViewModel) {
-        thumbnailImageView.startShimmer()
         currentThumbnailURL = history.thumbnailUrl
         configureThumbnail(from: history.thumbnailUrl)
         tagsLabel.text = history.tags.split(by: ",").prefix(2).joined(separator: ", ")
@@ -173,10 +172,9 @@ extension MediumVideoCell {
         let session = URLSession.shared
         Task {
             if let url {
+                thumbnailImageView.startShimmer()
                 let (data, _) = try await session.data(from: url)
-
                 guard self.currentThumbnailURL == url else { return }
-
                 thumbnailImageView.image = UIImage(data: data)
                 thumbnailImageView.stopShimmer()
             } else {
