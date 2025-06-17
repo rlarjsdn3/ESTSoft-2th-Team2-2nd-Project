@@ -6,6 +6,7 @@
 //
 
 import AVKit
+import CoreData
 import UIKit
 
 final class SearchResultViewController: StoryboardViewController {
@@ -14,7 +15,7 @@ final class SearchResultViewController: StoryboardViewController {
     @IBOutlet weak var videoCollectionView: UICollectionView!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var contentUnavailableView: ContentUnavailableView!
-    
+
     private lazy var refreshControl = UIRefreshControl()
 
     var keyword: String?
@@ -49,6 +50,8 @@ final class SearchResultViewController: StoryboardViewController {
     var observation: NSKeyValueObservation?
 
     private let videoDataService = VideoDataService.shared
+    private var selectedVideo: PixabayResponse.Hit?
+    private var playTime: Double?
 
     // 페이지네이션 프로퍼티
     private var hits: [PixabayResponse.Hit] = []
@@ -119,6 +122,14 @@ final class SearchResultViewController: StoryboardViewController {
 
         fetchVideos(page: 1, category: selectedCategories, order: selectedOrder, duration: selectedDuration)
         setKeyBoardDismissGesture()
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        if let video = selectedVideo {
+            savePlaybackHistoryToCoredata(video: video)
+        }
     }
 
     override func setupHierachy() {
@@ -426,7 +437,7 @@ final class SearchResultViewController: StoryboardViewController {
                                        message: "Please check your internet connection.",
                                        onPrimary: { _ in self.contentUnavailableView.alpha = 1
                             self.contentUnavailableView.isHidden = false
-                            self.contentUnavailableView.imageResource = .noInternet }
+                            self.contentUnavailableView.imageResource = .noInternet}
                         )
                     default:
                         self.showAlert(title: "Error",
@@ -457,6 +468,38 @@ final class SearchResultViewController: StoryboardViewController {
             } onCancel: { action in
 
             }
+    }
+
+	// MARK: - PlayTime
+    private func savePlaybackHistoryToCoredata(video: PixabayResponse.Hit) {
+
+        let context = CoreDataService.shared.persistentContainer.viewContext
+
+        let fetchRequest: NSFetchRequest<PlaybackHistoryEntity> = PlaybackHistoryEntity.fetchRequest()
+        print(type(of: video.id))
+        fetchRequest.predicate = NSPredicate(format: "id == %d", video.id)
+
+
+        do {
+            let existing = try context.fetch(fetchRequest)
+
+            // 기존 기록이 있으면 삭제
+            for record in existing {
+                // 중복 시 playTime 더 긴 것 채택
+                if let playtime = self.playTime, playtime < record.playTime {
+                    self.playTime = record.playTime
+                }
+                CoreDataService.shared.delete(record)
+            }
+            // 새로운 시청기록 생성
+            let historyEntity = video.mapToPlaybackHistoryEntity(insertInto: context)
+            historyEntity.createdAt = Date()
+            historyEntity.playTime = playTime ?? PixabayResponse.Hit.defaultPlayTime
+            print("historyEntity.playTime\(historyEntity.playTime)")
+            try context.save()
+        } catch {
+            print("⚠️ Failed to save playback: \(error)")
+        }
     }
 }
 
@@ -493,7 +536,13 @@ extension SearchResultViewController: UICollectionViewDataSource {
         cell.onThumbnailTap = { [weak self] in
             print(#function, indexPath.item)
             guard let self = self else { return }
-            self.videoService.playVideo(self, with: video, onProgress: nil) { error in
+
+            self.selectedVideo = video
+
+            self.videoService.playVideo(self, with: video) { time in
+                print("\(time.seconds)")
+                self.playTime = time.seconds
+            } onError: { error in
                 switch error {
                 case .notConnectedToInternet:
                     self.showAlert(
@@ -505,6 +554,7 @@ extension SearchResultViewController: UICollectionViewDataSource {
                     break
                 }
             }
+
             self.videoDataService.addToWatchHistory(video)
         }
 
@@ -531,12 +581,19 @@ extension SearchResultViewController: UICollectionViewDataSource {
 
                 // 2) 액션시트로 사용자에게 선택지 제시
                 let alert = UIAlertController(title: "Select Playlist", message: nil, preferredStyle: .actionSheet)
+
                 lists.forEach { pl in
                     alert.addAction(.init(title: pl.name, style: .default) { _ in
-                        // 선택된 목록에 비디오 추가
-                        self.videoDataService.add(video, toPlaylistNamed: pl.name)
-                        Toast.makeToast("\"\(pl.name)\" added to playlist", systemName: "list.clipboard")
-                            .present()
+
+                        switch self.videoDataService.add(video, toPlaylistNamed: pl.name) {
+                        case .success:
+                            Toast.makeToast("\"\(pl.name)\" added to playlist", systemName: "list.clipboard")
+                                .present()
+                        case .failure:
+                            // 여기서 alert으로 안내
+                            Toast.makeToast("Already in '\(pl.name)'", systemName: "exclamationmark.triangle").present()
+
+                        }
                     })
                 }
                 // 새 재생목록 만들기

@@ -105,21 +105,38 @@ final class VideoDataService {
     /// - Returns: 성공 시 `.success(())`, 없는 이름이면 `.failure(Error)` 반환
     @discardableResult
     func add(_ video: PixabayResponse.Hit, toPlaylistNamed name: String) -> Result<Void, Error> {
+        // 1️⃣ 해당 이름의 플레이리스트 가져오기
         let request: NSFetchRequest<PlaylistEntity> = PlaylistEntity.fetchRequest()
         request.predicate = NSPredicate(format: "name == %@", name)
-
         guard let playlist = (try? context.fetch(request))?.first else {
             return .failure(NSError(
                 domain: "VideoDataService",
-                code: 2,
-                userInfo: [NSLocalizedDescriptionKey: "Already in \(name)"]
+                code: 1,
+                userInfo: [NSLocalizedDescriptionKey: "Playlist \"\(name)\" not found"]
             ))
         }
 
+        // 2️⃣ 중복 검사: 이미 같은 videoID를 가진 PlaylistVideoEntity가 있는지
+        let existingVideos = (playlist.playlistVideos as? Set<PlaylistVideoEntity>) ?? []
+        if existingVideos.contains(where: { $0.id == video.id }) {
+            return .failure(NSError(
+                domain: "VideoDataService",
+                code: 2,
+                userInfo: [NSLocalizedDescriptionKey: "Already in \"\(name)\""]
+            ))
+        }
+
+        // 3️⃣ 신규 매핑 & 추가
         let pe = video.mapToPlaylistVideoEntity(insertInto: context)
         playlist.addToPlaylistVideos(pe)
-        try? context.save()
-        return .success(())
+
+        // 4️⃣ 저장
+        do {
+            try context.save()
+            return .success(())
+        } catch {
+            return .failure(error)
+        }
     }
 
     /// 새로운 재생목록을 생성하고 비디오를 추가합니다.
