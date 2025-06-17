@@ -250,6 +250,7 @@
                                                 <color key="tintColor" name="MainLabel"/>
                                                 <state key="normal" title="Button"/>
                                                 <buttonConfiguration key="configuration" style="tinted" title="Reset">
+                                                    <fontDescription key="titleFontDescription" style="UICTFontTextStyleHeadline"/>
                                                     <color key="baseForegroundColor" systemColor="labelColor"/>
                                                 </buttonConfiguration>
                                                 <connections>
@@ -263,7 +264,10 @@
                                                 </constraints>
                                                 <color key="tintColor" name="Primary"/>
                                                 <state key="normal" title="Button"/>
-                                                <buttonConfiguration key="configuration" style="filled" title="Apply"/>
+                                                <buttonConfiguration key="configuration" style="filled" title="Apply">
+                                                    <fontDescription key="titleFontDescription" style="UICTFontTextStyleHeadline"/>
+                                                    <color key="baseForegroundColor" systemColor="systemBackgroundColor"/>
+                                                </buttonConfiguration>
                                                 <connections>
                                                     <action selector="applyButtonTapped:" destination="Y6W-OH-hqX" eventType="touchUpInside" id="Rlc-Ww-PE0"/>
                                                 </connections>

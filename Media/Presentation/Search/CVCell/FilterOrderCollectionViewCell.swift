@@ -33,7 +33,7 @@ class FilterOrderCollectionViewCell: UICollectionViewCell {
 
         if isSelected {
             orderContentView.backgroundColor = UIColor.tagSelected
-            orderLabel.textColor = .white
+            orderLabel.textColor = .systemBackground
         } else {
             orderContentView.backgroundColor = UIColor.tagUnselected
             orderLabel.textColor = .label

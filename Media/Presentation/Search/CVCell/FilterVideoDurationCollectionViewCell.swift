@@ -33,7 +33,7 @@ class FilterVideoDurationCollectionViewCell: UICollectionViewCell {
 
         if isSelected {
             durationContentView.backgroundColor = UIColor.tagSelected
-            durationLabel.textColor = .white
+            durationLabel.textColor = .systemBackground
         } else {
             durationContentView.backgroundColor = UIColor.tagUnselected
             durationLabel.textColor = .label
