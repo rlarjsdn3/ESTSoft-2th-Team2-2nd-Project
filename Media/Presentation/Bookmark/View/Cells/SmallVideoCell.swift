@@ -78,7 +78,7 @@ final class SmallVideoCell: UICollectionViewCell, NibLodable {
     override func prepareForReuse() {
         super.prepareForReuse()
         
-        thumbnailImageView.stopShimmeringOverlay()
+        thumbnailImageView.stopShimmer()
         thumbnailImageView.image = nil
     }
 
@@ -138,7 +138,7 @@ extension SmallVideoCell {
                 let (data, _) = try await session.data(from: url)
                 guard self.currentThumbnailURL == url else { return }
                 thumbnailImageView.image = UIImage(data: data)
-                thumbnailImageView.stopShimmeringOverlay()
+                thumbnailImageView.startShimmer()
             }
         }
     }
