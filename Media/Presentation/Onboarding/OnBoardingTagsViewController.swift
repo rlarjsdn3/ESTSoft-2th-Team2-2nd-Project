@@ -193,8 +193,6 @@ extension OnBoardingTagsViewController: UICollectionViewDelegate {
             
             showAlert(title: "Can't select more than 5", message: "Only up to 5 categories can be selected") { _ in
                 self.dismiss(animated: true)
-            } onCancel: { _ in
-                self.dismiss(animated: true)
             }
 
             collectionView.deselectItem(at: indexPath, animated: false)
