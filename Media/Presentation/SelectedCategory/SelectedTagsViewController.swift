@@ -121,7 +121,7 @@ class SelectedTagsViewController: StoryboardViewController {
             
             let itemWidthDimension: NSCollectionLayoutDimension = switch environment.container.effectiveContentSize.width {
             case ..<500:      .fractionalWidth(0.5)  // 아이폰 세로모드
-            case 500..<1050:  .fractionalWidth(0.2)  // 아이패드 세로 모드
+            case 500..<1050:  .fractionalWidth(0.25)  // 아이패드 세로 모드
             default:          .fractionalWidth(0.125) // 아이패드 가로 모드
             }
             let itemSize = NSCollectionLayoutSize(
@@ -132,7 +132,7 @@ class SelectedTagsViewController: StoryboardViewController {
             
             let columnCount = switch environment.container.effectiveContentSize.width {
             case ..<500:      2 // 아이폰 세로모드
-            case 500..<1050:  5 // 아이패드 세로 모드
+            case 500..<1050:  4 // 아이패드 세로 모드
             default:          8 // 아이패드 가로 모드
             }
             print(environment.container.effectiveContentSize.width)
@@ -221,10 +221,8 @@ extension SelectedTagsViewController: UICollectionViewDelegate {
             
             showAlert(title: "Can't select more than 5", message: "Only up to 5 categories can be selected") { _ in
                 self.dismiss(animated: true)
-            } onCancel: { _ in
-                self.dismiss(animated: true)
             }
-            
+
             collectionView.deselectItem(at: indexPath, animated: false)
             return
         }

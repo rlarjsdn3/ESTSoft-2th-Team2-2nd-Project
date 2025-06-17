@@ -62,7 +62,7 @@ class OnBoardingTagsViewController: StoryboardViewController {
 
             let itemWidthDimension: NSCollectionLayoutDimension = switch environment.container.effectiveContentSize.width {
             case ..<500:      .fractionalWidth(0.5)  // 아이폰 세로모드
-            case 500..<1050:  .fractionalWidth(0.2)  // 아이패드 세로 모드
+            case 500..<1050:  .fractionalWidth(0.25)  // 아이패드 세로 모드
             default:          .fractionalWidth(0.125) // 아이패드 가로 모드
             }
             let itemSize = NSCollectionLayoutSize(
@@ -73,7 +73,7 @@ class OnBoardingTagsViewController: StoryboardViewController {
 
             let columnCount = switch environment.container.effectiveContentSize.width {
             case ..<500:      2 // 아이폰 세로모드
-            case 500..<1050:  5 // 아이패드 세로 모드
+            case 500..<1050:  4 // 아이패드 세로 모드
             default:          8 // 아이패드 가로 모드
             }
             print(environment.container.effectiveContentSize.width)
@@ -97,36 +97,6 @@ class OnBoardingTagsViewController: StoryboardViewController {
         }
 
         return UICollectionViewCompositionalLayout(sectionProvider: sectionProvider)
-    }
-    
-    func setUpLayout() {
-        // item 사이즈
-        let itemSize: NSCollectionLayoutSize
-        let groupSize: NSCollectionLayoutSize
-        
-        // 디바이스 정보에 따라 카테고리 아이템 크기 분기
-        if traitCollection.userInterfaceIdiom == .phone {
-            itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.47), heightDimension: .fractionalWidth(0.47))
-            groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalWidth(0.47))
-        } else {
-            itemSize = NSCollectionLayoutSize(widthDimension: .absolute(160), heightDimension: .absolute(160))
-            groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(160))
-        }
-        
-        let item = NSCollectionLayoutItem(layoutSize: itemSize)
-        
-        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
-        
-        group.interItemSpacing = .flexible(10)
-        
-        // 섹션 구성
-        let section = NSCollectionLayoutSection(group: group)
-        section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 20, bottom: 10, trailing: 20)
-        section.interGroupSpacing = 25
-        
-        // 레이아웃을 만들어서 컬렉션 뷰에 저장
-        let layout = UICollectionViewCompositionalLayout(section: section)
-        tagsCollectionView.collectionViewLayout = layout
     }
     
     // 셀이 3개 이상 선택되면 버튼 활성화
@@ -154,7 +124,6 @@ class OnBoardingTagsViewController: StoryboardViewController {
         
         // 그림자 설정
         cell.layer.shadowColor = UIColor.black.cgColor
-        cell.layer.shadowOpacity = selected ? 0.4 : 0.1
         cell.layer.shadowOffset = CGSize(width: 0, height: 2)
         cell.layer.shadowRadius = 5
         cell.layer.masksToBounds = false
@@ -192,8 +161,6 @@ extension OnBoardingTagsViewController: UICollectionViewDelegate {
         if selectedIndexPath.count >= 5 {
             
             showAlert(title: "Can't select more than 5", message: "Only up to 5 categories can be selected") { _ in
-                self.dismiss(animated: true)
-            } onCancel: { _ in
                 self.dismiss(animated: true)
             }
 

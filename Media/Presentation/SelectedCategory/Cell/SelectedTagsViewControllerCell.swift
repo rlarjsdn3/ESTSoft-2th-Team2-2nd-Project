@@ -16,9 +16,6 @@ class SelectedTagsViewControllerCell: UICollectionViewCell {
     override func awakeFromNib() {
         super.awakeFromNib()
         
-        layer.cornerRadius = 20
-        clipsToBounds = true
-        
         tagsTitle.minimumScaleFactor = 0.5
         tagsTitle.adjustsFontSizeToFitWidth = true
     }
