@@ -5,9 +5,8 @@ import AVFoundation
 import CoreData
 
 final class HomeViewController: StoryboardViewController, NavigationBarDelegate {
-    private var selectedVideoURL: URL?
 
-    var observation: NSKeyValueObservation?
+    private var selectedVideoURL: URL?
 
     private let videoPlayerService: VideoPlayerService = DefaultVideoPlayerService()
 
@@ -20,6 +19,8 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
     var selectedCategoryIndex: Int = 0
 
     var selectedCategories: [String] = []
+
+    var observation: NSKeyValueObservation?
 
     @IBOutlet weak var videoCollectionView: UICollectionView!
 
@@ -98,17 +99,6 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
         self.selectedCategories = categories.map { $0.rawValue }
 
         categoryCollectionView.reloadData()
-
-        // 시청기록 처리 등 기존 코드 유지
-
-//        if let video = selectedVideo {
-//            savePlaybackHistoryToCoredata(video: video)
-//        }
-    }
-
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        print("viewWillDisappear")
     }
 
     // MARK: - 카테고리
@@ -266,7 +256,7 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
 
             return uniqueQueries
         } catch {
-            print("❌ 최근 검색어 가져오기 실패:", error.localizedDescription)
+            print("최근 검색어 가져오기 실패:", error.localizedDescription)
             return []
         }
     }
@@ -399,27 +389,10 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
     }
 
     // MARK: - Record PlayTime
-    //    private var timeObserver: Any?
-    //    private var player: AVPlayer?
+
     private var playTime: Double?
     private var historyList: [PixabayResponse.Hit] = []
     private var selectedVideo: PixabayResponse.Hit?
-
-    //    private func startObservingTime(with url: URL) {
-    //
-    //        let interval = CMTime(seconds: 1, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
-    //
-    //        timeObserver = player?.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak self] currentTime in
-    //            guard let self = self,
-    //                  let duration = player?.currentItem?.duration.seconds,
-    //                  duration.isFinite else { return }
-    //
-    //            let current = currentTime.seconds //
-    //            let durationInt = Int(duration)
-    //            let progress = Float(current / Double(durationInt))
-    //            playTime = current
-    //        }
-    //    }
 
     private func savePlaybackHistoryToCoredata(video: PixabayResponse.Hit) {
 
@@ -448,7 +421,7 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
             print("historyEntity.playTime\(historyEntity.playTime)")
             try context.save()
         } catch {
-            print("⚠️ Failed to save playback: \(error)")
+            print("Failed to save playback: \(error)")
         }
     }
 
@@ -710,7 +683,6 @@ extension HomeViewController: UICollectionViewDataSource {
 
                 self.selectedVideo = video
 
-                // Note: - 김건우: viewWillAppear의 코드 제거 후, onThumbnaulTap 클로저로 옮겼습니다~
                 if let video = selectedVideo {
                     savePlaybackHistoryToCoredata(video: video)
                 }
@@ -755,8 +727,6 @@ extension HomeViewController: UICollectionViewDataSource {
                     Toast.makeToast("Not Found tag: '\(tag)'", systemName: "questionmark.circle").present()
                 }
             }
-
-
 
             // Ellipsis 버튼 실행
             cell.configureMenu(
