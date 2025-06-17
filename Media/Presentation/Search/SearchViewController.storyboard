@@ -42,7 +42,7 @@
                                 </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="SLS-b7-zT8" customClass="ContentUnavailableView" customModule="Media" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="158" width="393" height="694"/>
+                                <rect key="frame" x="0.0" y="174" width="393" height="678"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                             </view>
                         </subviews>
@@ -57,7 +57,7 @@
                             <constraint firstItem="Ase-Rr-RAE" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="WoM-C9-c2Y"/>
                             <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="Ase-Rr-RAE" secondAttribute="trailing" id="X4j-7L-unB"/>
                             <constraint firstItem="SLS-b7-zT8" firstAttribute="leading" secondItem="2oi-2c-qVG" secondAttribute="leading" id="bCr-xe-u2W"/>
-                            <constraint firstItem="SLS-b7-zT8" firstAttribute="top" secondItem="2oi-2c-qVG" secondAttribute="bottom" id="hyU-My-5Qi"/>
+                            <constraint firstItem="SLS-b7-zT8" firstAttribute="top" secondItem="2oi-2c-qVG" secondAttribute="bottom" constant="16" id="hyU-My-5Qi"/>
                             <constraint firstItem="SLS-b7-zT8" firstAttribute="trailing" secondItem="2oi-2c-qVG" secondAttribute="trailing" id="nYY-99-fyI"/>
                             <constraint firstItem="2oi-2c-qVG" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" id="xfc-tF-Qn8"/>
                         </constraints>
