@@ -411,8 +411,8 @@ extension BookmarkViewController {
     private func showAddPlaylistAlert() {
 
         showTextFieldAlert(
-            "새로운 재생 목록 추가",
-            message: "새로운 재생 목록 이름을 입력하세요.") { (action, newText) in
+            "Add New Playlist",
+            message: "Enter a name for the new playlist.") { (action, newText) in
                 if !PlaylistEntity.isExist(newText) {
                     let newPlaylist = PlaylistEntity(
                         name: newText,

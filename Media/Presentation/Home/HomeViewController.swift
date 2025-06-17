@@ -372,7 +372,7 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
 
             UIView.transition(
                 with: self.videoCollectionView,
-                duration: 0.3,
+                duration: 0.1,
                 options: .transitionCrossDissolve,
                 animations: {
                     self.videoCollectionView.reloadData()

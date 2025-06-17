@@ -430,7 +430,7 @@ final class SearchResultViewController: StoryboardViewController {
                     self.contentUnavailableView.imageResource = .noVideos
                     self.videoCollectionView.isHidden = false
 
-                    UIView.transition(with: self.videoCollectionView, duration: 0.3) {
+                    UIView.transition(with: self.videoCollectionView, duration: 0.1) {
                         self.videoCollectionView.reloadData()
                     } completion: { _ in
                         if page == 1, self.hits.count > 0 {
