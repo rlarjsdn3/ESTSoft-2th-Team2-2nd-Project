@@ -10,7 +10,7 @@ import MessageUI
 
 /// 앱의 설정 화면을 관리하는 테이블 뷰 컨트롤러
 /// 사용자 프로필 정보 / 비디오 해상도 설정 / 다크 모드 전환 / 피드백 이메일 전송 등의 기능을 포함함
-class SettingsTableViewController: UITableViewController, EditProfileDelegate, MFMailComposeViewControllerDelegate {
+class SettingsTableViewController: UITableViewController, EditProfileDelegate, MFMailComposeViewControllerDelegate, Alertable {
     /// 설정 화면의 섹션을 구분하는 열거형
     enum Section: Int, CaseIterable {
         case profile, videoQuality, modeFeedback
@@ -291,9 +291,11 @@ class SettingsTableViewController: UITableViewController, EditProfileDelegate, M
 
                     present(mailComposeVC, animated: true, completion: nil)
                 } else {
-                    let alert = UIAlertController(title: "메일 앱이 설정되지 않았습니다", message: "기기의 메일 설정을 확인해 주세요.", preferredStyle: .alert)
-                    alert.addAction(UIAlertAction(title: "확인", style: .default))
-                    present(alert, animated: true)
+                    showAlert(
+                        title: "Mail App Not Set Up",
+                        message: "Please check your device's mail settings.",
+                        onPrimary: { _ in }
+                    )
                 }
             default:
                 break
