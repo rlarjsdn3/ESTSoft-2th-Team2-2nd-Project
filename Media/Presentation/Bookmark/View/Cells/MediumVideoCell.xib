@@ -45,10 +45,7 @@
                                                         <nil key="highlightedColor"/>
                                                     </label>
                                                     <progressView opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" verticalHuggingPriority="750" progressViewStyle="bar" progress="0.01" translatesAutoresizingMaskIntoConstraints="NO" id="ZXa-Zd-WcI">
-                                                        <rect key="frame" x="0.0" y="106" width="187" height="3"/>
-                                                        <constraints>
-                                                            <constraint firstAttribute="height" constant="2" id="Gby-rh-qji"/>
-                                                        </constraints>
+                                                        <rect key="frame" x="0.0" y="106.33333333333333" width="187" height="2.6666666666666714"/>
                                                         <color key="progressTintColor" systemColor="systemRedColor"/>
                                                         <color key="trackTintColor" red="0.94901960780000005" green="0.94901960780000005" blue="0.96862745100000003" alpha="0.79400351820000004" colorSpace="custom" customColorSpace="sRGB"/>
                                                     </progressView>
@@ -193,10 +190,10 @@
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="systemGray2Color">
-            <color red="0.68235294120000001" green="0.68235294120000001" blue="0.69803921570000005" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.68235294117647061" green="0.68235294117647061" blue="0.69803921568627447" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemRedColor">
-            <color red="1" green="0.23137254900000001" blue="0.18823529410000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="1" green="0.23137254901960785" blue="0.18823529411764706" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>
