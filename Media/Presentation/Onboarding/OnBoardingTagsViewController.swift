@@ -99,36 +99,6 @@ class OnBoardingTagsViewController: StoryboardViewController {
         return UICollectionViewCompositionalLayout(sectionProvider: sectionProvider)
     }
     
-    func setUpLayout() {
-        // item 사이즈
-        let itemSize: NSCollectionLayoutSize
-        let groupSize: NSCollectionLayoutSize
-        
-        // 디바이스 정보에 따라 카테고리 아이템 크기 분기
-        if traitCollection.userInterfaceIdiom == .phone {
-            itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.47), heightDimension: .fractionalWidth(0.47))
-            groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalWidth(0.47))
-        } else {
-            itemSize = NSCollectionLayoutSize(widthDimension: .absolute(160), heightDimension: .absolute(160))
-            groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(160))
-        }
-        
-        let item = NSCollectionLayoutItem(layoutSize: itemSize)
-        
-        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
-        
-        group.interItemSpacing = .flexible(10)
-        
-        // 섹션 구성
-        let section = NSCollectionLayoutSection(group: group)
-        section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 20, bottom: 10, trailing: 20)
-        section.interGroupSpacing = 25
-        
-        // 레이아웃을 만들어서 컬렉션 뷰에 저장
-        let layout = UICollectionViewCompositionalLayout(section: section)
-        tagsCollectionView.collectionViewLayout = layout
-    }
-    
     // 셀이 3개 이상 선택되면 버튼 활성화
     func buttonIsEnabled() {
         if selectedIndexPath.count >= 3 {
