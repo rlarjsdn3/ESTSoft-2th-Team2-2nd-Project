@@ -59,8 +59,8 @@ class SettingsTableViewController: UITableViewController, EditProfileDelegate, M
         // 사용자 정보 및 해상도 표시
         nameLabel.text = userDefaults.userName
         emailLabel.text = userDefaults.userEmail
-        videoQualityLabel.text = userDefaults.videoQuality
-        
+        videoQualityLabel.text = currentVideoQuality.rawValue
+
         // 커스텀 스위치 셀 등록
         tableView.register(SwitchTableViewCell.nib, forCellReuseIdentifier: SwitchTableViewCell.id)
         
@@ -237,7 +237,7 @@ class SettingsTableViewController: UITableViewController, EditProfileDelegate, M
                     guard let self = self else { return }
                     
                     // 선택한 해상도를 UserDefaults에 저장
-                    UserDefaults.standard.set(quality.rawValue, forKey: "video_quality")
+                    self.currentVideoQuality = quality
                     
                     // UI 업데이트
                     self.videoQualityLabel.text = quality.rawValue
@@ -298,6 +298,21 @@ class SettingsTableViewController: UITableViewController, EditProfileDelegate, M
             default:
                 break
             }
+        }
+    }
+}
+
+extension SettingsTableViewController {
+    /// UserDefaultsService에 저장된 비디오 해상도 문자열 값을
+    /// VideoQuality enum으로 변환하여 반환. 유효하지 않으면 기본값(.medium)을 반환
+    /// 저장 시에도 enum의 rawValue(String)를 UserDefaults에 저장
+    var currentVideoQuality: VideoQuality {
+        get {
+            let saved = userDefaults.videoQuality
+            return VideoQuality(rawValue: saved) ?? .medium
+        }
+        set {
+            userDefaults.videoQuality = newValue.rawValue
         }
     }
 }
