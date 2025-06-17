@@ -437,7 +437,7 @@ final class SearchResultViewController: StoryboardViewController {
                                        message: "Please check your internet connection.",
                                        onPrimary: { _ in self.contentUnavailableView.alpha = 1
                             self.contentUnavailableView.isHidden = false
-                            self.contentUnavailableView.imageResource = .noInternet }
+                            self.contentUnavailableView.imageResource = .noInternet}
                         )
                     default:
                         self.showAlert(title: "Error",
