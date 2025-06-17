@@ -396,23 +396,40 @@ extension VideoListViewController {
         return filteredEntities
     }
 
-    private func showContentUnavailableViewIfNeeded<T, U>(_ entities: [T], _ filtered: [U]) {
-        UIView.animate(withDuration: 0.25, delay: 0.25) { [self] in
-            // 재생 목록이 비어있으면
-            if entities.isEmpty {
-                contentUnavailableView.alpha = 1.0
-                contentUnavailableView.imageResource = switch entities {
-                case _ where [T].self == [PlaybackHistoryEntity].self: .noHistory
-                case _ where [T].self == [PlaylistVideoEntity].self:   .noBookmark
-                default: .noVideos
+    private func showContentUnavailableViewIfNeeded<T, U>(
+        _ entities: [T],
+        _ filtered: [U]
+    ) {
+        let resource: ImageResource?
+
+        // 엔티티가 비어 있으면
+        if entities.isEmpty {
+            switch T.self {
+            case is PlaybackHistoryEntity.Type:
+                resource = .noHistory
+            case is PlaylistVideoEntity.Type:
+                if case let .playlist(_, _, isBookmark) = videos, isBookmark {
+                    resource = .noBookmark
+                } else {
+                    resource = .noPlaylist
                 }
-            // 검색 결과가 비어있으면
-            } else if filtered.isEmpty {
-                contentUnavailableView.alpha = 1.0
-                contentUnavailableView.imageResource = .noVideos
-            // 정상적으로 셀이 출력되면
+            default:
+                resource = .noVideos
+            }
+        // 검색 결과가 비어 있으면
+        } else if filtered.isEmpty {
+            resource = .noVideos
+        // 비디오가 존재한다면
+        } else {
+            resource = nil
+        }
+
+        UIView.animate(withDuration: 0.25, delay: 0.25) {
+            if let resource {
+                self.contentUnavailableView.imageResource = resource
+                self.contentUnavailableView.alpha = 1.0
             } else {
-                contentUnavailableView.alpha = 0.0
+                self.contentUnavailableView.alpha = 0.0
             }
         }
     }
