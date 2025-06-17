@@ -136,6 +136,8 @@ final class SearchResultViewController: StoryboardViewController {
             filterLabel.widthAnchor.constraint(greaterThanOrEqualToConstant: 15),
             filterLabel.heightAnchor.constraint(equalToConstant: 15)
         ])
+        view.layoutIfNeeded()
+        filterLabel.layer.cornerRadius = filterLabel.bounds.height / 2
 
         setupRecentSearchView()
     }
@@ -148,7 +150,7 @@ final class SearchResultViewController: StoryboardViewController {
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        filterLabel.layer.cornerRadius = filterLabel.frame.size.height / 2
+        filterLabel.layer.cornerRadius = filterLabel.bounds.size.height / 2
     }
 
     // 화면 회전

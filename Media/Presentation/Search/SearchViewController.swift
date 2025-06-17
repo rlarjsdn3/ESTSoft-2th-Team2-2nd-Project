@@ -65,15 +65,15 @@ final class SearchViewController: StoryboardViewController {
         configureSearchTableView()
         configureSearchBar()
         navigationBar.searchBar.becomeFirstResponder()
-        filterLabel.layer.cornerRadius =
-        filterLabel.bounds.size.height / 2
-
         NSLayoutConstraint.activate([
             filterLabel.trailingAnchor.constraint(equalTo: navigationBar.rightButton.trailingAnchor, constant: 5),
             filterLabel.topAnchor.constraint(equalTo: navigationBar.rightButton.topAnchor, constant: -10),
             filterLabel.widthAnchor.constraint(greaterThanOrEqualToConstant: 15),
             filterLabel.heightAnchor.constraint(equalToConstant: 15)
         ])
+
+        view.layoutIfNeeded()
+        filterLabel.layer.cornerRadius = filterLabel.bounds.height / 2
     }
 
     override func setupAttributes() {
