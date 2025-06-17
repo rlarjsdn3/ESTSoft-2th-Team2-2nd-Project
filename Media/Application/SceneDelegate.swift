@@ -48,6 +48,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         if UserDefaults.standard.seenOnboarding {
             // 앱 실행시 온보딩이 완료된 경우 바로 메인화면으로 이동
             let mainVC = mainStoryboard.instantiateViewController(withIdentifier: "MainVC")
+            
+            // 탭바 설정
+            if let tabBarVC = mainVC as? UITabBarController {
+                TabBarConfigurator.configure(tabBarController: tabBarVC)
+            }
+            
             window.rootViewController = mainVC
         } else {
             // 앱 실행시 온보딩이 아직 진행이 안됐으면 온보딩 화면으로 이동
