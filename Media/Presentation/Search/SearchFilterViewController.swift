@@ -290,12 +290,12 @@ extension SearchFilterViewController: UISheetPresentationControllerDelegate {
         else { return }
 
         switch detent {
-        case .large:
-            flow.scrollDirection = .vertical
-            filterCategoryCVHeightConstraint.constant = 240
-        default:
+        case .medium:
             flow.scrollDirection = .horizontal
             filterCategoryCVHeightConstraint.constant = 40
+        default:
+            flow.scrollDirection = .vertical
+            filterCategoryCVHeightConstraint.constant = 240
         }
 
         flow.invalidateLayout()
