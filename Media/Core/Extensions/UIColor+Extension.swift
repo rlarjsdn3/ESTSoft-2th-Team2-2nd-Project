@@ -11,6 +11,9 @@ extension UIColor {
     static let primaryColor = UIColor(named: "Primary")!
     static let backgroundColor = UIColor(named: "Background")!
     static let onboardingBackgroundColor = UIColor(named: "OnboardingBackground")!
+    static let categorySelectedColor = UIColor(named: "CategorySelected")!
+    static let categoryUnselectedColor = UIColor(named: "CategoryUnselected")!
+    static let categoryUnselectedBackgroundColor = UIColor(named: "CategoryUnselectedBackground")!
     static let tagSelectedColor = UIColor(named: "TagSelected")!
     static let tagUnselectedColor = UIColor(named: "TagUnselected")!
     static let tagBorderColor = UIColor(named: "TagBorder")!

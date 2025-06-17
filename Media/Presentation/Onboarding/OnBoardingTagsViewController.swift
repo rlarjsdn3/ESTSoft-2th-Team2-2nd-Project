@@ -46,7 +46,7 @@ class OnBoardingTagsViewController: StoryboardViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        setUpLayout()
+        tagsCollectionView.collectionViewLayout = createCompositionalLayout()
         
         tagsCollectionView.allowsMultipleSelection = true
         tagsCollectionView.allowsSelection = true
@@ -55,6 +55,48 @@ class OnBoardingTagsViewController: StoryboardViewController {
         selectedTagButton.isEnabled = false
         
         self.navigationController?.navigationBar.isHidden = true
+    }
+    
+    private func createCompositionalLayout() -> UICollectionViewCompositionalLayout {
+        let sectionProvider: UICollectionViewCompositionalLayoutSectionProvider = { [weak self] sectionIndex, environment in
+
+            let itemWidthDimension: NSCollectionLayoutDimension = switch environment.container.effectiveContentSize.width {
+            case ..<500:      .fractionalWidth(0.5)  // 아이폰 세로모드
+            case 500..<1050:  .fractionalWidth(0.2)  // 아이패드 세로 모드
+            default:          .fractionalWidth(0.125) // 아이패드 가로 모드
+            }
+            let itemSize = NSCollectionLayoutSize(
+                widthDimension: itemWidthDimension,
+                heightDimension: itemWidthDimension
+            )
+            let item = NSCollectionLayoutItem(layoutSize: itemSize)
+
+            let columnCount = switch environment.container.effectiveContentSize.width {
+            case ..<500:      2 // 아이폰 세로모드
+            case 500..<1050:  5 // 아이패드 세로 모드
+            default:          8 // 아이패드 가로 모드
+            }
+            print(environment.container.effectiveContentSize.width)
+            let groupSize = NSCollectionLayoutSize(
+                widthDimension: .fractionalWidth(1.0),
+                heightDimension: itemWidthDimension
+            )
+            let group = NSCollectionLayoutGroup.horizontal(
+                layoutSize: groupSize,
+                repeatingSubitem: item,
+                count: columnCount
+            )
+            group.interItemSpacing = .flexible(20)
+
+            let section = NSCollectionLayoutSection(group: group)
+            section.interGroupSpacing = 8
+            section.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 14, bottom: 8, trailing: 14)
+
+           
+            return section
+        }
+
+        return UICollectionViewCompositionalLayout(sectionProvider: sectionProvider)
     }
     
     func setUpLayout() {
@@ -99,13 +141,25 @@ class OnBoardingTagsViewController: StoryboardViewController {
     func updateCellAppearance(_ cell: OnboardingTagsViewCell, selected: Bool) {
         if selected {
             cell.contentView.backgroundColor = .tagSelected
-            cell.tagsTitle.textColor = traitCollection.userInterfaceStyle == .dark ? .black : .white
-            cell.tagsImageView.tintColor = traitCollection.userInterfaceStyle == .dark ? .black : .white
+            cell.tagsTitle.textColor = UIColor.categorySelectedColor
+            cell.tagsImageView.tintColor = UIColor.categorySelectedColor
         } else {
-            cell.contentView.backgroundColor = .tagBorderColorAlpha
-            cell.tagsTitle.textColor = .label
-            cell.tagsImageView.tintColor = .label
+            cell.contentView.backgroundColor = UIColor.categoryUnselectedBackgroundColor
+            cell.tagsTitle.textColor = UIColor.categoryUnselectedColor
+            cell.tagsImageView.tintColor = UIColor.categoryUnselectedColor
         }
+        
+        cell.contentView.layer.cornerRadius = 20
+        cell.contentView.layer.masksToBounds = true
+        
+        // 그림자 설정
+        cell.layer.shadowColor = UIColor.black.cgColor
+        cell.layer.shadowOpacity = selected ? 0.4 : 0.1
+        cell.layer.shadowOffset = CGSize(width: 0, height: 2)
+        cell.layer.shadowRadius = 5
+        cell.layer.masksToBounds = false
+
+        cell.layer.shadowPath = UIBezierPath(roundedRect: cell.bounds, cornerRadius: cell.contentView.layer.cornerRadius).cgPath
     }
     
 }
@@ -137,7 +191,7 @@ extension OnBoardingTagsViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if selectedIndexPath.count >= 5 {
             
-            showAlert("🔔Can't select more than 5", message: "Only up to 5 categories can be selected") { _ in
+            showAlert(title: "Can't select more than 5", message: "Only up to 5 categories can be selected") { _ in
                 self.dismiss(animated: true)
             } onCancel: { _ in
                 self.dismiss(animated: true)

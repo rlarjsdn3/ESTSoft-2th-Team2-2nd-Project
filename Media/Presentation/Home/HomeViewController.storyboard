@@ -77,6 +77,7 @@
                     <toolbarItems/>
                     <connections>
                         <outlet property="categoryCollectionView" destination="nMB-R3-bAS" id="n6s-WR-XaZ"/>
+                        <outlet property="contentUnavailableView" destination="nDx-eT-TdJ" id="toM-cy-d0y"/>
                         <outlet property="navigationBar" destination="GBB-wv-WeZ" id="MT2-dN-dFl"/>
                         <outlet property="videoCollectionView" destination="29M-e4-Jdi" id="47S-ff-Hq0"/>
                     </connections>
