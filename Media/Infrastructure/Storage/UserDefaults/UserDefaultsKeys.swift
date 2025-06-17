@@ -50,6 +50,10 @@ extension UserDefaultsKeys {
     /// 기본값은 `Medium`입니다.
     var videoQuality: UserDefaultsKey<String> {
         UserDefaultsKey(name: "video_quality", defaultValue: VideoQuality.medium.rawValue)
-
+    }
+    /// 다크 모드 설정을 저장하는 키입니다.
+    /// 기본값은 `false`입니다.
+    var isDarkMode: UserDefaultsKey<Bool> {
+        UserDefaultsKey(name: "isDarkMode", defaultValue: false)
     }
 }
