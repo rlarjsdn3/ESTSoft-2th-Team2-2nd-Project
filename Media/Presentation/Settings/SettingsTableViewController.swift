@@ -32,7 +32,10 @@ class SettingsTableViewController: UITableViewController, EditProfileDelegate, M
     }
         
     /// 다크 모드 활성화 여부
-    var isDarkMode = false
+    var isDarkMode: Bool {
+        get { userDefaults.isDarkMode }
+        set { userDefaults.isDarkMode = newValue }
+    }
     
     /// 사용자 기본 설정을 관리하는 서비스
     let userDefaults = UserDefaultsService.shared
@@ -57,9 +60,6 @@ class SettingsTableViewController: UITableViewController, EditProfileDelegate, M
         nameLabel.text = userDefaults.userName
         emailLabel.text = userDefaults.userEmail
         videoQualityLabel.text = userDefaults.videoQuality
-        
-        // 다크 모드 초기화
-        isDarkMode = UserDefaults.standard.bool(forKey: "isDarkMode")
         
         // 커스텀 스위치 셀 등록
         tableView.register(SwitchTableViewCell.nib, forCellReuseIdentifier: SwitchTableViewCell.id)
@@ -164,7 +164,6 @@ class SettingsTableViewController: UITableViewController, EditProfileDelegate, M
             cell.onSwitchToggle = { [weak self] isOn in
                 guard let self = self else { return }
                 self.isDarkMode = isOn
-                UserDefaults.standard.set(isOn, forKey: "isDarkMode")
                 
                 if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
                    let window = windowScene.windows.first {

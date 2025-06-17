@@ -24,8 +24,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         
         let window = UIWindow(windowScene: windowScene)
-        let isDark = UserDefaults.standard.bool(forKey: "isDarkMode")
-        window.overrideUserInterfaceStyle = isDark ? .dark : .light
+        let isDarkMode = UserDefaultsService.shared.isDarkMode
+        window.overrideUserInterfaceStyle = isDarkMode ? .dark : .light
         
         let mainStoryboard = UIStoryboard(name: "Main", bundle: nil)
         let onboardingStoryboard = UIStoryboard(name: "OnBoardingOnBoardingViewController", bundle: nil)
@@ -43,20 +43,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         self.window = window
         window.makeKeyAndVisible()
-    }
-
-//    func sceneDidDisconnect(_ scene: UIScene) {
-//    }
-//
-//    func sceneDidBecomeActive(_ scene: UIScene) {
-//    }
-//    
-    /// 사용자 설정에 따라 라이트 / 다크 모드를 적용
-    private func applyUserInterfaceStyle(from windowScene: UIWindowScene) {
-        let isDark = UserDefaults.standard.bool(forKey: "isDarkMode")
-        if let window = windowScene.windows.first {
-            window.overrideUserInterfaceStyle = isDark ? .dark : .light
-        }
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {}
