@@ -125,6 +125,7 @@ final class SearchResultViewController: StoryboardViewController {
         configureSearchBar()
         configureCollectionView()
         configureRefreshControl()
+        contentUnavailableView.isHidden = true
         videoCollectionView.isHidden = true
         activityIndicator.hidesWhenStopped = true
         activityIndicator.startAnimating()
