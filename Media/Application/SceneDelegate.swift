@@ -11,22 +11,37 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
     
-    /**
-     Scene이 앱에 연결될 때 호출되는 메서드
-     
-     탭바 컨트롤러의 외관과 각 탭의 아이콘, 타이틀을 설정함
-     - 탭바 배경색을 설정하고 불투명하게 구성
-     - 선택된/선택되지 않은 탭의 색상 지정
-     - 각 탭(Home, Library, Interest, Setting)의 일반 상태와 선택된 상태 이미지 설정
-     */
+    /// Scene이 앱에 연결될 때 호출되는 메서드
+    /// - 탭바 설정 및 다크모드 적용
+    /// - 온보딩 완료 여부에 따라 루트 뷰컨트롤러 설정
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-
         guard let windowScene = (scene as? UIWindowScene) else { return }
         
         let window = UIWindow(windowScene: windowScene)
+        self.window = window
+        
+        applyUserInterfaceStyle(to: window)
+        setRootViewController(into: window)
+
+        window.makeKeyAndVisible()
+    }
+
+    func sceneDidDisconnect(_ scene: UIScene) {}
+    func sceneDidBecomeActive(_ scene: UIScene) {}
+    func sceneWillResignActive(_ scene: UIScene) {}
+    func sceneWillEnterForeground(_ scene: UIScene) {}
+    func sceneDidEnterBackground(_ scene: UIScene) {}
+    
+    /// UserDefaults의 다크모드 설정에 따라 인터페이스 스타일을 적용
+    private func applyUserInterfaceStyle(to window: UIWindow) {
         let isDarkMode = UserDefaultsService.shared.isDarkMode
         window.overrideUserInterfaceStyle = isDarkMode ? .dark : .light
-        
+    }
+    
+    /// 온보딩 완료 여부에 따라 루트 뷰컨트롤러를 설정
+    /// - 완료된 경우: 메인 탭바 컨트롤러(MainVC)
+    /// - 미완료인 경우: 온보딩 네비게이션 컨트롤러(OnboardingVC)
+    private func setRootViewController(into window: UIWindow) {
         let mainStoryboard = UIStoryboard(name: "Main", bundle: nil)
         let onboardingStoryboard = UIStoryboard(name: "OnBoardingOnBoardingViewController", bundle: nil)
         
@@ -40,15 +55,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             let nav = UINavigationController(rootViewController: onboardingVC)
             window.rootViewController = nav
         }
-        
-        self.window = window
-        window.makeKeyAndVisible()
     }
-
-    func sceneDidDisconnect(_ scene: UIScene) {}
-    func sceneDidBecomeActive(_ scene: UIScene) {}
-    func sceneWillResignActive(_ scene: UIScene) {}
-    func sceneWillEnterForeground(_ scene: UIScene) {}
-    func sceneDidEnterBackground(_ scene: UIScene) {}
 }
 

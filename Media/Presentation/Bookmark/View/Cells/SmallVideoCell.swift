@@ -78,7 +78,7 @@ final class SmallVideoCell: UICollectionViewCell, NibLodable {
     override func prepareForReuse() {
         super.prepareForReuse()
         
-        thumbnailImageView.stopShimmeringOverlay()
+        thumbnailImageView.stopShimmer()
         thumbnailImageView.image = nil
     }
 
@@ -131,14 +131,14 @@ extension SmallVideoCell {
 
     private func configureThumbnail(from url: URL?) {
         thumbnailImageView.backgroundColor = .systemGray4
-
         let session = URLSession.shared
         Task {
             if let url {
+                thumbnailImageView.startShimmer()
                 let (data, _) = try await session.data(from: url)
                 guard self.currentThumbnailURL == url else { return }
                 thumbnailImageView.image = UIImage(data: data)
-                thumbnailImageView.stopShimmeringOverlay()
+                thumbnailImageView.stopShimmer()
             }
         }
     }
@@ -164,7 +164,7 @@ extension SmallVideoCell: UIContextMenuInteractionDelegate {
                 self.onEditAction?()
             }
             let delete = UIAction(
-                title: "Delete",
+                title: "Delete Playlist",
                 image: UIImage(systemName: "trash"),
                 attributes: .destructive
             ) { action in

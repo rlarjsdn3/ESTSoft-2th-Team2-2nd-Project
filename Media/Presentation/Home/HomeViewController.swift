@@ -5,9 +5,8 @@ import AVFoundation
 import CoreData
 
 final class HomeViewController: StoryboardViewController, NavigationBarDelegate {
-    private var selectedVideoURL: URL?
 
-    var observation: NSKeyValueObservation?
+    private var selectedVideoURL: URL?
 
     private let videoPlayerService: VideoPlayerService = DefaultVideoPlayerService()
 
@@ -21,6 +20,8 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
 
     var selectedCategories: [String] = []
 
+    var observation: NSKeyValueObservation?
+
     @IBOutlet weak var videoCollectionView: UICollectionView!
 
     let service = DefaultDataTransferService()
@@ -33,6 +34,23 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
         }
     }
 
+    /// 탭바 외형 설정 여부를 나타내는 플래그
+    /// viewDidAppear가 여러 번 호출될 수 있으므로 중복 설정을 방지하기 위해 사용
+    private var isTabBarConfigured = false
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+
+        // 탭바가 아직 설정되지 않았고 상위에 UITabBarController가 존재할 경우
+        if !isTabBarConfigured, let tabBar = self.tabBarController {
+            // 탭바 외형 구성 수행 (배경색, 아이콘 등)
+            TabBarConfigurator.configure(tabBarController: tabBar)
+            
+            // 한 번만 설정되도록 플래그 설정
+            isTabBarConfigured = true
+        }
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -98,17 +116,6 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
         self.selectedCategories = categories.map { $0.rawValue }
 
         categoryCollectionView.reloadData()
-
-        // 시청기록 처리 등 기존 코드 유지
-
-        if let video = selectedVideo {
-            savePlaybackHistoryToCoredata(video: video)
-        }
-    }
-
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        print("viewWillDisappear")
     }
 
     // MARK: - 카테고리
@@ -266,7 +273,7 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
 
             return uniqueQueries
         } catch {
-            print("❌ 최근 검색어 가져오기 실패:", error.localizedDescription)
+            print("최근 검색어 가져오기 실패:", error.localizedDescription)
             return []
         }
     }
@@ -399,27 +406,10 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
     }
 
     // MARK: - Record PlayTime
-    //    private var timeObserver: Any?
-    //    private var player: AVPlayer?
+
     private var playTime: Double?
     private var historyList: [PixabayResponse.Hit] = []
     private var selectedVideo: PixabayResponse.Hit?
-
-    //    private func startObservingTime(with url: URL) {
-    //
-    //        let interval = CMTime(seconds: 1, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
-    //
-    //        timeObserver = player?.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak self] currentTime in
-    //            guard let self = self,
-    //                  let duration = player?.currentItem?.duration.seconds,
-    //                  duration.isFinite else { return }
-    //
-    //            let current = currentTime.seconds //
-    //            let durationInt = Int(duration)
-    //            let progress = Float(current / Double(durationInt))
-    //            playTime = current
-    //        }
-    //    }
 
     private func savePlaybackHistoryToCoredata(video: PixabayResponse.Hit) {
 
@@ -448,7 +438,7 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
             print("historyEntity.playTime\(historyEntity.playTime)")
             try context.save()
         } catch {
-            print("⚠️ Failed to save playback: \(error)")
+            print("Failed to save playback: \(error)")
         }
     }
 
@@ -710,6 +700,10 @@ extension HomeViewController: UICollectionViewDataSource {
 
                 self.selectedVideo = video
 
+                if let video = selectedVideo {
+                    savePlaybackHistoryToCoredata(video: video)
+                }
+
                 videoPlayerService.playVideo(self, with: video) { time in
                     print("\(time.seconds)")
                     self.playTime = time.seconds
@@ -750,8 +744,6 @@ extension HomeViewController: UICollectionViewDataSource {
                     Toast.makeToast("Not Found tag: '\(tag)'", systemName: "questionmark.circle").present()
                 }
             }
-
-
 
             // Ellipsis 버튼 실행
             cell.configureMenu(
