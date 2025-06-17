@@ -20,13 +20,29 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
      - 각 탭(Home, Library, Interest, Setting)의 일반 상태와 선택된 상태 이미지 설정
      */
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-
         guard let windowScene = (scene as? UIWindowScene) else { return }
         
         let window = UIWindow(windowScene: windowScene)
+        self.window = window
+        
+        applyUserInterfaceStyle(to: window)
+        setRootViewController(into: window)
+
+        window.makeKeyAndVisible()
+    }
+
+    func sceneDidDisconnect(_ scene: UIScene) {}
+    func sceneDidBecomeActive(_ scene: UIScene) {}
+    func sceneWillResignActive(_ scene: UIScene) {}
+    func sceneWillEnterForeground(_ scene: UIScene) {}
+    func sceneDidEnterBackground(_ scene: UIScene) {}
+    
+    private func applyUserInterfaceStyle(to window: UIWindow) {
         let isDarkMode = UserDefaultsService.shared.isDarkMode
         window.overrideUserInterfaceStyle = isDarkMode ? .dark : .light
-        
+    }
+    
+    private func setRootViewController(into window: UIWindow) {
         let mainStoryboard = UIStoryboard(name: "Main", bundle: nil)
         let onboardingStoryboard = UIStoryboard(name: "OnBoardingOnBoardingViewController", bundle: nil)
         
@@ -40,15 +56,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             let nav = UINavigationController(rootViewController: onboardingVC)
             window.rootViewController = nav
         }
-        
-        self.window = window
-        window.makeKeyAndVisible()
     }
-
-    func sceneDidDisconnect(_ scene: UIScene) {}
-    func sceneDidBecomeActive(_ scene: UIScene) {}
-    func sceneWillResignActive(_ scene: UIScene) {}
-    func sceneWillEnterForeground(_ scene: UIScene) {}
-    func sceneDidEnterBackground(_ scene: UIScene) {}
 }
 
