@@ -307,7 +307,14 @@ final class SearchResultViewController: StoryboardViewController {
         vc.modalPresentationStyle = .pageSheet
 
         if let sheet = vc.sheetPresentationController {
-            sheet.detents = [.medium(), .large()]
+            //sheet.detents = [.medium(), .large()]
+            sheet.detents = [
+                .medium(),
+                .custom{ context in
+                    0.8 * context.maximumDetentValue
+                }
+
+            ]
             sheet.selectedDetentIdentifier = .medium
 
             // 디밍: modal이 medium/large 상관 없이 반투명 처리
