@@ -119,7 +119,6 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
 
         // 다른 탭에서 옮겨온 경우.
         if let video = selectedVideo {
-            print("savePlaybackHistoryToCoredata")
             savePlaybackHistoryToCoredata(video: video)
         }
     }

@@ -509,6 +509,8 @@ final class SearchResultViewController: StoryboardViewController {
             historyEntity.playTime = playTime ?? PixabayResponse.Hit.defaultPlayTime
             print("historyEntity.playTime\(historyEntity.playTime)")
             try context.save()
+            // 코어 데이터에 저장하면 selectedVideo = nil로 변경
+            selectedVideo = nil
         } catch {
             print("⚠️ Failed to save playback: \(error)")
         }
