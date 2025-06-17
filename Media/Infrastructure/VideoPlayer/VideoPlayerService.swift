@@ -235,7 +235,7 @@ extension DefaultVideoPlayerService: VideoPlayerService {
             timeObserverToken = player?.addPeriodicTimeObserver(
                 forInterval: CMTime(seconds: 1, preferredTimescale: 1),
                 queue: .main,
-                using: { time in onProgress(time); print(time, #function)  }
+                using: onProgress
             )
         }
 
@@ -248,7 +248,6 @@ extension DefaultVideoPlayerService: VideoPlayerService {
                 guard let player = self?.player else { return }
                 player.play()
                 print("🔹 Played Video:", url)
-                vc.present(playerVC, animated: true)
             case .failed:
                 guard let error = playerItem.error,
                       let resolvedError = self?.resolvedError(error) else {
@@ -261,6 +260,7 @@ extension DefaultVideoPlayerService: VideoPlayerService {
             }
         }
 
+        vc.present(playerVC, animated: true)
     }
 
     /// 시스템에서 발생한 오류를 `VideoPlayerError`로 변환합니다.

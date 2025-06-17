@@ -101,9 +101,9 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
 
         // 시청기록 처리 등 기존 코드 유지
 
-        if let video = selectedVideo {
-            savePlaybackHistoryToCoredata(video: video)
-        }
+//        if let video = selectedVideo {
+//            savePlaybackHistoryToCoredata(video: video)
+//        }
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -709,6 +709,11 @@ extension HomeViewController: UICollectionViewDataSource {
                 guard let self = self else { return }
 
                 self.selectedVideo = video
+
+                // Note: - 김건우: viewWillAppear의 코드 제거 후, onThumbnaulTap 클로저로 옮겼습니다~
+                if let video = selectedVideo {
+                    savePlaybackHistoryToCoredata(video: video)
+                }
 
                 videoPlayerService.playVideo(self, with: video) { time in
                     print("\(time.seconds)")
