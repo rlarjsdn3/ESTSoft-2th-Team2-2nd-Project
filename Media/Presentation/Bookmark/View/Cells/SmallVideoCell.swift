@@ -164,7 +164,7 @@ extension SmallVideoCell: UIContextMenuInteractionDelegate {
                 self.onEditAction?()
             }
             let delete = UIAction(
-                title: "Delete",
+                title: "Delete Playlist",
                 image: UIImage(systemName: "trash"),
                 attributes: .destructive
             ) { action in

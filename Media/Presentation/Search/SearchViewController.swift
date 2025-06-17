@@ -50,6 +50,7 @@ final class SearchViewController: StoryboardViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        setKeyBoardDismissGesture()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -57,20 +58,22 @@ final class SearchViewController: StoryboardViewController {
 
         loadRecentSearches()
         reloadSavedFilters()
-        setKeyBoardDismissGesture()
+		changeStateOfFilterButton()
     }
 
     override func setupHierachy() {
         configureSearchTableView()
         configureSearchBar()
         navigationBar.searchBar.becomeFirstResponder()
-
         NSLayoutConstraint.activate([
             filterLabel.trailingAnchor.constraint(equalTo: navigationBar.rightButton.trailingAnchor, constant: 5),
             filterLabel.topAnchor.constraint(equalTo: navigationBar.rightButton.topAnchor, constant: -10),
             filterLabel.widthAnchor.constraint(greaterThanOrEqualToConstant: 15),
             filterLabel.heightAnchor.constraint(equalToConstant: 15)
         ])
+
+        view.layoutIfNeeded()
+        filterLabel.layer.cornerRadius = filterLabel.bounds.height / 2
     }
 
     override func setupAttributes() {
@@ -84,7 +87,7 @@ final class SearchViewController: StoryboardViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         filterLabel.layer.cornerRadius =
-        filterLabel.frame.size.height / 2
+        filterLabel.bounds.size.height / 2
     }
 
     @objc private func dismissKeyboard() {
@@ -263,7 +266,7 @@ extension SearchViewController: UITableViewDelegate {
             guard let self = self else { return }
 
             self.showDeleteAlert(
-                "Are you sure you want to delete it?",
+                "Delete Keyword",
                 message: "This keyword cannot be recovered..",
                 onConfirm: { _ in
                     // 데이터 삭제

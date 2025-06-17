@@ -125,6 +125,7 @@ final class SearchResultViewController: StoryboardViewController {
         configureSearchBar()
         configureCollectionView()
         configureRefreshControl()
+        contentUnavailableView.isHidden = true
         videoCollectionView.isHidden = true
         activityIndicator.hidesWhenStopped = true
         activityIndicator.startAnimating()
@@ -135,6 +136,8 @@ final class SearchResultViewController: StoryboardViewController {
             filterLabel.widthAnchor.constraint(greaterThanOrEqualToConstant: 15),
             filterLabel.heightAnchor.constraint(equalToConstant: 15)
         ])
+        view.layoutIfNeeded()
+        filterLabel.layer.cornerRadius = filterLabel.bounds.height / 2
 
         setupRecentSearchView()
     }
@@ -147,7 +150,7 @@ final class SearchResultViewController: StoryboardViewController {
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        filterLabel.layer.cornerRadius = filterLabel.frame.size.height / 2
+        filterLabel.layer.cornerRadius = filterLabel.bounds.size.height / 2
     }
 
     // 화면 회전
@@ -304,7 +307,14 @@ final class SearchResultViewController: StoryboardViewController {
         vc.modalPresentationStyle = .pageSheet
 
         if let sheet = vc.sheetPresentationController {
-            sheet.detents = [.medium(), .large()]
+            //sheet.detents = [.medium(), .large()]
+            sheet.detents = [
+                .medium(),
+                .custom{ context in
+                    0.8 * context.maximumDetentValue
+                }
+
+            ]
             sheet.selectedDetentIdentifier = .medium
 
             // 디밍: modal이 medium/large 상관 없이 반투명 처리
