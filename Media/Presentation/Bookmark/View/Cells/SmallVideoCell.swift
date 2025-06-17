@@ -136,9 +136,7 @@ extension SmallVideoCell {
         Task {
             if let url {
                 let (data, _) = try await session.data(from: url)
-                
                 guard self.currentThumbnailURL == url else { return }
-                
                 thumbnailImageView.image = UIImage(data: data)
                 thumbnailImageView.stopShimmeringOverlay()
             }
