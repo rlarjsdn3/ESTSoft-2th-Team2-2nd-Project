@@ -11,7 +11,7 @@ typealias CoreDataString = CoreDataService.StaticString
 extension CoreDataService {
     
     enum StaticString {
-        static let bookmarkedPlaylistName = "북마크를 표시한 재생목록"
+        static let bookmarkedPlaylistName = "Bookmarked Playlist"
     }
 }
 
@@ -33,7 +33,6 @@ extension CoreDataService {
                 isBookmark: true,
                 insertInto: viewContext
             )
-            print("기본 플레이리스트 추가됨")
             saveContext()
         }
         userDefaults.hasCompletedInitialSetup = true

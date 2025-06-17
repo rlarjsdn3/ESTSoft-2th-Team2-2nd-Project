@@ -56,7 +56,7 @@
             <objects>
                 <tableViewController id="uhW-3D-1Ni" customClass="SettingsTableViewController" customModule="Media" customModuleProvider="target" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="static" style="insetGrouped" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="18" estimatedSectionHeaderHeight="-1" sectionFooterHeight="18" estimatedSectionFooterHeight="-1" id="q3v-Uc-OVx">
-                        <rect key="frame" x="0.0" y="0.0" width="361" height="715"/>
+                        <rect key="frame" x="0.0" y="0.0" width="361" height="699"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" name="Background"/>
                         <color key="separatorColor" name="SubLabel"/>
@@ -91,10 +91,10 @@
                                                 </imageView>
                                             </subviews>
                                         </tableViewCellContentView>
-                                        <color key="backgroundColor" name="TagUnselected"/>
+                                        <color key="backgroundColor" name="CategoryUnselectedBackground"/>
                                         <color key="tintColor" name="MainLabel"/>
                                         <connections>
-                                            <segue destination="o6I-Tv-StZ" kind="presentation" identifier="EditNameSegue" trigger="accessoryAction" id="eNp-dS-i08"/>
+                                            <segue destination="o6I-Tv-StZ" kind="presentation" identifier="EditNameSegue" trigger="accessoryAction" modalPresentationStyle="pageSheet" id="eNp-dS-i08"/>
                                         </connections>
                                     </tableViewCell>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" accessoryType="disclosureIndicator" indentationWidth="10" textLabel="0MK-aG-dnR" detailTextLabel="Ihz-pE-OQk" imageView="9Bf-t1-aQf" style="IBUITableViewCellStyleSubtitle" id="e2f-Fw-FWT">
@@ -124,11 +124,8 @@
                                                 </imageView>
                                             </subviews>
                                         </tableViewCellContentView>
-                                        <color key="backgroundColor" name="TagUnselected"/>
+                                        <color key="backgroundColor" name="CategoryUnselectedBackground"/>
                                         <color key="tintColor" name="MainLabel"/>
-                                        <connections>
-                                            <segue destination="F0u-ZV-4SD" kind="presentation" identifier="EditEmailSegue" trigger="accessoryAction" id="wJL-hG-8Ng"/>
-                                        </connections>
                                     </tableViewCell>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" accessoryType="disclosureIndicator" indentationWidth="10" textLabel="uce-cM-5Fb" imageView="77j-v9-0xb" style="IBUITableViewCellStyleDefault" id="zHC-t2-MYR">
                                         <rect key="frame" x="20" y="176.66666793823242" width="321" height="44.666667938232422"/>
@@ -150,7 +147,7 @@
                                                 </imageView>
                                             </subviews>
                                         </tableViewCellContentView>
-                                        <color key="backgroundColor" name="TagUnselected"/>
+                                        <color key="backgroundColor" name="CategoryUnselectedBackground"/>
                                         <color key="tintColor" name="MainLabel"/>
                                     </tableViewCell>
                                 </cells>
@@ -177,7 +174,7 @@
                                                 </imageView>
                                             </subviews>
                                         </tableViewCellContentView>
-                                        <color key="backgroundColor" name="TagUnselected"/>
+                                        <color key="backgroundColor" name="CategoryUnselectedBackground"/>
                                         <color key="tintColor" name="MainLabel"/>
                                     </tableViewCell>
                                 </cells>
@@ -207,7 +204,7 @@
                                                 </label>
                                             </subviews>
                                         </tableViewCellContentView>
-                                        <color key="backgroundColor" name="TagUnselected"/>
+                                        <color key="backgroundColor" name="CategoryUnselectedBackground"/>
                                     </tableViewCell>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="10" textLabel="u1L-XD-Ghc" imageView="Iis-tQ-fUC" style="IBUITableViewCellStyleDefault" id="dqA-1b-FLp">
                                         <rect key="frame" x="20" y="421.66666984558105" width="321" height="44.666667938232422"/>
@@ -229,7 +226,7 @@
                                                 </imageView>
                                             </subviews>
                                         </tableViewCellContentView>
-                                        <color key="backgroundColor" name="TagUnselected"/>
+                                        <color key="backgroundColor" name="CategoryUnselectedBackground"/>
                                         <color key="tintColor" name="MainLabel"/>
                                     </tableViewCell>
                                 </cells>
@@ -253,9 +250,9 @@
         <!--Edit Profile View Controller-->
         <scene sceneID="53d-rg-N6f">
             <objects>
-                <viewController id="o6I-Tv-StZ" customClass="EditProfileViewController" customModule="Media" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="EditProfileViewController" id="o6I-Tv-StZ" customClass="EditProfileViewController" customModule="Media" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="4SW-EV-nbF">
-                        <rect key="frame" x="0.0" y="0.0" width="361" height="705"/>
+                        <rect key="frame" x="0.0" y="0.0" width="361" height="689"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="uYF-ab-wS1" customClass="NavigationBar" customModule="Media" customModuleProvider="target">
@@ -266,7 +263,11 @@
                                 </constraints>
                             </view>
                             <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Enter Your Name" textAlignment="natural" minimumFontSize="17" clearButtonMode="whileEditing" translatesAutoresizingMaskIntoConstraints="NO" id="fRs-SV-bIv">
-                                <rect key="frame" x="16" y="80" width="329" height="34"/>
+                                <rect key="frame" x="16" y="94" width="329" height="48"/>
+                                <color key="backgroundColor" name="CategoryUnselectedBackground"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="48" id="Kjj-R0-nlY"/>
+                                </constraints>
                                 <color key="textColor" name="MainLabel"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits" returnKeyType="done"/>
@@ -278,7 +279,7 @@
                             <constraint firstItem="uYF-ab-wS1" firstAttribute="top" secondItem="OX6-Vq-WAz" secondAttribute="top" constant="20" id="9Bl-Yn-ykG"/>
                             <constraint firstItem="OX6-Vq-WAz" firstAttribute="trailing" secondItem="uYF-ab-wS1" secondAttribute="trailing" constant="16" id="Jse-qE-2da"/>
                             <constraint firstItem="fRs-SV-bIv" firstAttribute="leading" secondItem="OX6-Vq-WAz" secondAttribute="leading" constant="16" id="XAi-09-2JU"/>
-                            <constraint firstItem="fRs-SV-bIv" firstAttribute="top" secondItem="uYF-ab-wS1" secondAttribute="bottom" constant="16" id="cWf-Cv-Md5"/>
+                            <constraint firstItem="fRs-SV-bIv" firstAttribute="top" secondItem="uYF-ab-wS1" secondAttribute="bottom" constant="30" id="cWf-Cv-Md5"/>
                             <constraint firstItem="uYF-ab-wS1" firstAttribute="leading" secondItem="OX6-Vq-WAz" secondAttribute="leading" constant="16" id="dSj-id-Fql"/>
                             <constraint firstItem="OX6-Vq-WAz" firstAttribute="trailing" secondItem="fRs-SV-bIv" secondAttribute="trailing" constant="16" id="tG3-zV-EnB"/>
                         </constraints>
@@ -297,7 +298,7 @@
             <objects>
                 <viewController id="F0u-ZV-4SD" customClass="EditProfileViewController" customModule="Media" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="YzM-bD-bkF">
-                        <rect key="frame" x="0.0" y="0.0" width="361" height="705"/>
+                        <rect key="frame" x="0.0" y="0.0" width="361" height="689"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ATW-gz-VzP" customClass="NavigationBar" customModule="Media" customModuleProvider="target">
@@ -344,14 +345,14 @@
         <namedColor name="Background">
             <color red="0.98039215686274506" green="0.98039215686274506" blue="0.98039215686274506" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
+        <namedColor name="CategoryUnselectedBackground">
+            <color red="0.93725490196078431" green="0.93725490196078431" blue="0.93725490196078431" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+        </namedColor>
         <namedColor name="MainLabel">
             <color red="0.23137254901960785" green="0.23137254901960785" blue="0.23137254901960785" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="SubLabel">
             <color red="0.5490196078431373" green="0.5490196078431373" blue="0.5490196078431373" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-        </namedColor>
-        <namedColor name="TagUnselected">
-            <color red="0.95294117647058818" green="0.93725490196078431" blue="0.92549019607843142" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>

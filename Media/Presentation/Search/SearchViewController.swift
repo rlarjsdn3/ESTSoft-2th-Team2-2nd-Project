@@ -35,6 +35,8 @@ final class SearchViewController: StoryboardViewController {
         }
     }()
 
+    private var dimmingView: UIView?
+
     //필터 갯수 표현 라벨
     private lazy var filterLabel: UILabel = {
         let label = UILabel()
@@ -50,6 +52,7 @@ final class SearchViewController: StoryboardViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        setKeyBoardDismissGesture()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -57,20 +60,22 @@ final class SearchViewController: StoryboardViewController {
 
         loadRecentSearches()
         reloadSavedFilters()
-        setKeyBoardDismissGesture()
+		changeStateOfFilterButton()
     }
 
     override func setupHierachy() {
         configureSearchTableView()
         configureSearchBar()
         navigationBar.searchBar.becomeFirstResponder()
-
         NSLayoutConstraint.activate([
             filterLabel.trailingAnchor.constraint(equalTo: navigationBar.rightButton.trailingAnchor, constant: 5),
             filterLabel.topAnchor.constraint(equalTo: navigationBar.rightButton.topAnchor, constant: -10),
             filterLabel.widthAnchor.constraint(greaterThanOrEqualToConstant: 15),
             filterLabel.heightAnchor.constraint(equalToConstant: 15)
         ])
+
+        view.layoutIfNeeded()
+        filterLabel.layer.cornerRadius = filterLabel.bounds.height / 2
     }
 
     override func setupAttributes() {
@@ -84,7 +89,7 @@ final class SearchViewController: StoryboardViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         filterLabel.layer.cornerRadius =
-        filterLabel.frame.size.height / 2
+        filterLabel.bounds.size.height / 2
     }
 
     @objc private func dismissKeyboard() {
@@ -164,11 +169,21 @@ final class SearchViewController: StoryboardViewController {
             Toast.makeToast("Filter has been applied.", systemName: "slider.horizontal.3").present()
             self.reloadSavedFilters()
             self.changeStateOfFilterButton()
+            self.dimmingView?.removeFromSuperview()
+        }
+
+        vc.onDismiss = {
+            self.dimmingView?.removeFromSuperview()
         }
 
         vc.modalPresentationStyle = .pageSheet
         if let sheet = vc.sheetPresentationController {
-            sheet.detents = [.medium(), .large()]
+            sheet.detents = [
+                .medium(),
+                .custom{ context in
+                    0.8 * context.maximumDetentValue
+                }
+            ]
             sheet.selectedDetentIdentifier = .medium
 
             //디밍: modal이 medium/large 상관 없이 반투명 처리
@@ -180,6 +195,12 @@ final class SearchViewController: StoryboardViewController {
             sheet.preferredCornerRadius = 20
             sheet.delegate = vc
         }
+
+        let dim = UIView(frame: view.bounds)
+        dim.backgroundColor = UIColor.black.withAlphaComponent(0.7)
+        dim.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        view.addSubview(dim)
+        self.dimmingView = dim
 
         present(vc, animated: true)
     }
@@ -256,7 +277,7 @@ extension SearchViewController: UITableViewDelegate {
             guard let self = self else { return }
 
             self.showDeleteAlert(
-                "Are you sure you want to delete it?",
+                "Delete Keyword",
                 message: "This keyword cannot be recovered..",
                 onConfirm: { _ in
                     // 데이터 삭제
@@ -333,3 +354,4 @@ extension SearchViewController: NavigationBarDelegate {
         showSheet()
     }
 }
+

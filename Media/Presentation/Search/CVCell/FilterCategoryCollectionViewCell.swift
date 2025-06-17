@@ -32,7 +32,7 @@ class FilterCategoryCollectionViewCell: UICollectionViewCell {
 
         if isSelected {
             categoryContentView.backgroundColor = UIColor.tagSelected
-            categoryLabel.textColor = .white
+            categoryLabel.textColor = .systemBackground
         } else {
             categoryContentView.backgroundColor = UIColor.tagUnselected
             categoryLabel.textColor = .label

@@ -184,7 +184,6 @@ class SelectedTagsViewController: StoryboardViewController {
         
         // 그림자 설정
         cell.layer.shadowColor = UIColor.black.cgColor
-        cell.layer.shadowOpacity = selected ? 0.4 : 0.1
         cell.layer.shadowOffset = CGSize(width: 0, height: 2)
         cell.layer.shadowRadius = 5
         cell.layer.masksToBounds = false

@@ -15,7 +15,7 @@
       "scale" : "1x"
     },
     {
-      "filename" : "noInternetlight@2x.png",
+      "filename" : "no_playlist_light.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
@@ -26,7 +26,7 @@
           "value" : "dark"
         }
       ],
-      "filename" : "noInternetdark@2x.png",
+      "filename" : "no_playlist_dark.png",
       "idiom" : "universal",
       "scale" : "2x"
     },

@@ -43,7 +43,7 @@ final class SmallVideoCell: UICollectionViewCell, NibLodable {
             shadowView.isHidden = isLast
             titleLabel.textAlignment = isLast ? .center : .left
             videoCountBackgroundView.isHidden = isLast
-            if isLast { titleLabel.text = "재생목록 추가"}
+            if isLast { titleLabel.text = "Add Playlist"}
             fileContainerView.isUserInteractionEnabled = !isLast
         }
     }
@@ -73,6 +73,13 @@ final class SmallVideoCell: UICollectionViewCell, NibLodable {
     override func awakeFromNib() {
         super.awakeFromNib()
         setViews()
+    }
+
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        
+        thumbnailImageView.stopShimmer()
+        thumbnailImageView.image = nil
     }
 
     private func setViews() {
@@ -124,17 +131,14 @@ extension SmallVideoCell {
 
     private func configureThumbnail(from url: URL?) {
         thumbnailImageView.backgroundColor = .systemGray4
-
         let session = URLSession.shared
         Task {
             if let url {
+                thumbnailImageView.startShimmer()
                 let (data, _) = try await session.data(from: url)
-                
                 guard self.currentThumbnailURL == url else { return }
-                
                 thumbnailImageView.image = UIImage(data: data)
-            } else {
-                thumbnailImageView.image = UIImage(named: "default")
+                thumbnailImageView.stopShimmer()
             }
         }
     }
@@ -160,7 +164,7 @@ extension SmallVideoCell: UIContextMenuInteractionDelegate {
                 self.onEditAction?()
             }
             let delete = UIAction(
-                title: "Delete",
+                title: "Delete Playlist",
                 image: UIImage(systemName: "trash"),
                 attributes: .destructive
             ) { action in

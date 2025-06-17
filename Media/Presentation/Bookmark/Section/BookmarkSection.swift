@@ -79,7 +79,7 @@ extension Bookmark.SectionType {
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
 
         let groupWidthDimension: NSCollectionLayoutDimension = environment.isHorizontalSizeClassCompact
-        ? .fractionalWidth(0.9) : .fractionalWidth(0.42)
+        ? .fractionalWidth(0.9) : .fractionalWidth(0.44)
         let groupHeightDimension: NSCollectionLayoutDimension = environment.isHorizontalSizeClassCompact
         ? .fractionalWidth(0.76) : .fractionalWidth(0.36)
         let groupSize = NSCollectionLayoutSize(

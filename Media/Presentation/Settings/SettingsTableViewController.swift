@@ -10,7 +10,7 @@ import MessageUI
 
 /// 앱의 설정 화면을 관리하는 테이블 뷰 컨트롤러
 /// 사용자 프로필 정보 / 비디오 해상도 설정 / 다크 모드 전환 / 피드백 이메일 전송 등의 기능을 포함함
-class SettingsTableViewController: UITableViewController, EditProfileDelegate, MFMailComposeViewControllerDelegate {
+class SettingsTableViewController: UITableViewController, EditProfileDelegate, MFMailComposeViewControllerDelegate, Alertable {
     /// 설정 화면의 섹션을 구분하는 열거형
     enum Section: Int, CaseIterable {
         case profile, videoQuality, modeFeedback
@@ -32,7 +32,10 @@ class SettingsTableViewController: UITableViewController, EditProfileDelegate, M
     }
         
     /// 다크 모드 활성화 여부
-    var isDarkMode = false
+    var isDarkMode: Bool {
+        get { userDefaults.isDarkMode }
+        set { userDefaults.isDarkMode = newValue }
+    }
     
     /// 사용자 기본 설정을 관리하는 서비스
     let userDefaults = UserDefaultsService.shared
@@ -56,11 +59,8 @@ class SettingsTableViewController: UITableViewController, EditProfileDelegate, M
         // 사용자 정보 및 해상도 표시
         nameLabel.text = userDefaults.userName
         emailLabel.text = userDefaults.userEmail
-        videoQualityLabel.text = userDefaults.videoQuality
-        
-        // 다크 모드 초기화
-        isDarkMode = UserDefaults.standard.bool(forKey: "isDarkMode")
-        
+        videoQualityLabel.text = currentVideoQuality.rawValue
+
         // 커스텀 스위치 셀 등록
         tableView.register(SwitchTableViewCell.nib, forCellReuseIdentifier: SwitchTableViewCell.id)
         
@@ -164,7 +164,6 @@ class SettingsTableViewController: UITableViewController, EditProfileDelegate, M
             cell.onSwitchToggle = { [weak self] isOn in
                 guard let self = self else { return }
                 self.isDarkMode = isOn
-                UserDefaults.standard.set(isOn, forKey: "isDarkMode")
                 
                 if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
                    let window = windowScene.windows.first {
@@ -194,12 +193,20 @@ class SettingsTableViewController: UITableViewController, EditProfileDelegate, M
 
     /// 섹션 간 여백
     override func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-        return 45
+        if traitCollection.userInterfaceIdiom == .pad {
+            return 30  // iPad용
+        } else {
+            return 45  // iPhone용
+        }
     }
     
     /// 셀의 높이
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 55
+        if traitCollection.userInterfaceIdiom == .pad {
+            return 65  // iPad용
+        } else {
+            return 55  // iPhone용
+        }
     }
 
 
@@ -213,9 +220,9 @@ class SettingsTableViewController: UITableViewController, EditProfileDelegate, M
         if section == .profile {
             switch ProfileRow(rawValue: indexPath.row) {
             case .name:
-                performSegue(withIdentifier: "EditNameSegue", sender: nil)
+                presentEditProfile(type: .name, currentText: userDefaults.userName ?? "")
             case .email:
-                performSegue(withIdentifier: "EditEmailSegue", sender: nil)
+                presentEditProfile(type: .email, currentText: userDefaults.userEmail ?? "")
             case .interests:
                 let storyboard = UIStoryboard(name: "SelectedTagsViewController", bundle: nil)
                 if let interestVC = storyboard.instantiateViewController(withIdentifier: "SelectedTagsViewController") as? SelectedTagsViewController {
@@ -238,7 +245,7 @@ class SettingsTableViewController: UITableViewController, EditProfileDelegate, M
                     guard let self = self else { return }
                     
                     // 선택한 해상도를 UserDefaults에 저장
-                    UserDefaults.standard.set(quality.rawValue, forKey: "video_quality")
+                    self.currentVideoQuality = quality
                     
                     // UI 업데이트
                     self.videoQualityLabel.text = quality.rawValue
@@ -292,13 +299,49 @@ class SettingsTableViewController: UITableViewController, EditProfileDelegate, M
 
                     present(mailComposeVC, animated: true, completion: nil)
                 } else {
-                    let alert = UIAlertController(title: "메일 앱이 설정되지 않았습니다", message: "기기의 메일 설정을 확인해 주세요.", preferredStyle: .alert)
-                    alert.addAction(UIAlertAction(title: "확인", style: .default))
-                    present(alert, animated: true)
+                    showAlert(
+                        title: "Mail App Not Set Up",
+                        message: "Please check your device's mail settings.",
+                        onPrimary: { _ in }
+                    )
                 }
             default:
                 break
             }
+        }
+    }
+    
+    // MARK: - Private Methods
+
+    private func presentEditProfile(type: EditType, currentText: String) {
+        let storyboard = UIStoryboard(name: "SettingsViewController", bundle: nil)
+        let editVC = storyboard.instantiateViewController(withIdentifier: "EditProfileViewController") as! EditProfileViewController
+
+        editVC.editType = type
+        editVC.delegate = self
+        editVC.currentText = currentText
+
+        if let sheet = editVC.sheetPresentationController {
+            sheet.detents = [.medium()]
+            sheet.prefersGrabberVisible = true
+            sheet.preferredCornerRadius = 20
+        }
+
+        present(editVC, animated: true)
+    }
+}
+
+extension SettingsTableViewController {
+    /// UserDefaultsService에 저장된 비디오 해상도 문자열 값을
+    /// VideoQuality enum으로 변환하여 반환. 유효하지 않으면 기본값(.medium)을 반환
+    /// 저장 시에도 enum의 rawValue(String)를 UserDefaults에 저장
+    var currentVideoQuality: VideoQuality {
+        get {
+            let saved = userDefaults.videoQuality
+            return VideoQuality(rawValue: saved) ?? .medium
+        }
+        set {
+            userDefaults.videoQuality = newValue.rawValue
         }
     }
 }
