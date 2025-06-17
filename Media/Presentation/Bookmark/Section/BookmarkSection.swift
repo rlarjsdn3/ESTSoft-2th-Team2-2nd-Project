@@ -78,10 +78,22 @@ extension Bookmark.SectionType {
         )
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
 
-        let groupWidthDimension: NSCollectionLayoutDimension = environment.isHorizontalSizeClassCompact
-        ? .fractionalWidth(0.9) : .fractionalWidth(0.44)
-        let groupHeightDimension: NSCollectionLayoutDimension = environment.isHorizontalSizeClassCompact
-        ? .fractionalWidth(0.76) : .fractionalWidth(0.36)
+        let groupWidthDimension: NSCollectionLayoutDimension = if environment.isHorizontalSizeClassCompact {
+            .fractionalWidth(0.9)
+        } else {
+            switch environment.container.effectiveContentSize.width {
+            case 500..<1050:  .fractionalWidth(0.44)  // 아이패드 세로 모드
+            default:          .fractionalWidth(0.40)  // 아이패드 가로 모드
+            }
+        }
+        let groupHeightDimension: NSCollectionLayoutDimension = if environment.isHorizontalSizeClassCompact {
+            .fractionalWidth(0.76)
+        } else {
+            switch environment.container.effectiveContentSize.width {
+            case 500..<1050:  .fractionalWidth(0.36)  // 아이패드 세로 모드
+            default:          .fractionalWidth(0.30)  // 아이패드 가로 모드
+            }
+        }
         let groupSize = NSCollectionLayoutSize(
             widthDimension: groupWidthDimension,
             heightDimension: groupHeightDimension
