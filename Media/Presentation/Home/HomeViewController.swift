@@ -33,11 +33,14 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
         }
     }
 
+    private var isTabBarConfigured = false
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
-        if let tabBar = self.tabBarController {
+        if !isTabBarConfigured, let tabBar = self.tabBarController {
             TabBarConfigurator.configure(tabBarController: tabBar)
+            isTabBarConfigured = true
         }
     }
     
