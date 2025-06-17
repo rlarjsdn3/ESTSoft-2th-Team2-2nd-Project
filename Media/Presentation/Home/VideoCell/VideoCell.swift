@@ -90,11 +90,20 @@ final class VideoCell: UICollectionViewCell, NibLodable {
     override func layoutSubviews() {
         super.layoutSubviews()
         profileImage.layer.cornerRadius = profileImage.frame.size.width / 2
+        print(#function)
+
+        if thumbnailImage.image == nil {
+            thumbnailImage.startShimmer()
+        }
+        if profileImage.image == nil {
+            profileImage.stopShimmer()
+        }
     }
 
 
     override func prepareForReuse() {
         super.prepareForReuse()
+        print(#function)
 
         thumbnailImage.stopShimmer()
         profileImage.stopShimmer()
