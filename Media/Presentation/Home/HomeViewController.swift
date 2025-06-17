@@ -34,6 +34,23 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
         }
     }
 
+    /// 탭바 외형 설정 여부를 나타내는 플래그
+    /// viewDidAppear가 여러 번 호출될 수 있으므로 중복 설정을 방지하기 위해 사용
+    private var isTabBarConfigured = false
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+
+        // 탭바가 아직 설정되지 않았고 상위에 UITabBarController가 존재할 경우
+        if !isTabBarConfigured, let tabBar = self.tabBarController {
+            // 탭바 외형 구성 수행 (배경색, 아이콘 등)
+            TabBarConfigurator.configure(tabBarController: tabBar)
+            
+            // 한 번만 설정되도록 플래그 설정
+            isTabBarConfigured = true
+        }
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
