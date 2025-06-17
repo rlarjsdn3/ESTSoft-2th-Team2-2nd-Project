@@ -212,9 +212,9 @@ class SettingsTableViewController: UITableViewController, EditProfileDelegate, M
         if section == .profile {
             switch ProfileRow(rawValue: indexPath.row) {
             case .name:
-                performSegue(withIdentifier: "EditNameSegue", sender: nil)
+                presentEditProfile(type: .name, currentText: userDefaults.userName ?? "")
             case .email:
-                performSegue(withIdentifier: "EditEmailSegue", sender: nil)
+                presentEditProfile(type: .email, currentText: userDefaults.userEmail ?? "")
             case .interests:
                 let storyboard = UIStoryboard(name: "SelectedTagsViewController", bundle: nil)
                 if let interestVC = storyboard.instantiateViewController(withIdentifier: "SelectedTagsViewController") as? SelectedTagsViewController {
@@ -301,6 +301,25 @@ class SettingsTableViewController: UITableViewController, EditProfileDelegate, M
                 break
             }
         }
+    }
+    
+    // MARK: - Private Methods
+
+    private func presentEditProfile(type: EditType, currentText: String) {
+        let storyboard = UIStoryboard(name: "SettingsViewController", bundle: nil)
+        let editVC = storyboard.instantiateViewController(withIdentifier: "EditProfileViewController") as! EditProfileViewController
+
+        editVC.editType = type
+        editVC.delegate = self
+        editVC.currentText = currentText
+
+        if let sheet = editVC.sheetPresentationController {
+            sheet.detents = [.medium()]
+            sheet.prefersGrabberVisible = true
+            sheet.preferredCornerRadius = 20
+        }
+
+        present(editVC, animated: true)
     }
 }
 

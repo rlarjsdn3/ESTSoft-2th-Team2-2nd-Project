@@ -63,6 +63,8 @@ class EditProfileViewController: UIViewController, NavigationBarDelegate {
                 isSearchMode: false,
                 isLeadingAligned: false
             )
+            
+            textField.placeholder = "Enter Your Name"
         case .email:
             navigationBar.configure(
                 title: "Edit E-mail",
@@ -73,6 +75,8 @@ class EditProfileViewController: UIViewController, NavigationBarDelegate {
                 isSearchMode: false,
                 isLeadingAligned: false
             )
+            
+            textField.placeholder = "Enter Your E-mail"
         }
     }
     
