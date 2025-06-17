@@ -116,6 +116,12 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
         self.selectedCategories = categories.map { $0.rawValue }
 
         categoryCollectionView.reloadData()
+
+        // 다른 탭에서 옮겨온 경우.
+        if let video = selectedVideo {
+            print("savePlaybackHistoryToCoredata")
+            savePlaybackHistoryToCoredata(video: video)
+        }
     }
 
     // MARK: - 카테고리
@@ -437,6 +443,7 @@ final class HomeViewController: StoryboardViewController, NavigationBarDelegate 
             historyEntity.playTime = playTime ?? PixabayResponse.Hit.defaultPlayTime
             print("historyEntity.playTime\(historyEntity.playTime)")
             try context.save()
+            selectedVideo = nil
         } catch {
             print("Failed to save playback: \(error)")
         }
@@ -699,10 +706,6 @@ extension HomeViewController: UICollectionViewDataSource {
                 guard let self = self else { return }
 
                 self.selectedVideo = video
-
-                if let video = selectedVideo {
-                    savePlaybackHistoryToCoredata(video: video)
-                }
 
                 videoPlayerService.playVideo(self, with: video) { time in
                     print("\(time.seconds)")
