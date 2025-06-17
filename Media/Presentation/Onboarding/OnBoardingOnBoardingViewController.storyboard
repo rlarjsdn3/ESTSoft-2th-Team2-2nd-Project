@@ -5,7 +5,6 @@
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
-        <capability name="Stack View standard spacing" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -18,7 +17,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="NQ1-xI-WMX">
-                                <rect key="frame" x="16" y="694" width="361" height="60"/>
+                                <rect key="frame" x="16" y="714" width="361" height="60"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="60" id="7Ns-5I-L4L"/>
                                 </constraints>
@@ -32,37 +31,37 @@
                                 </connections>
                             </button>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="onboarding" translatesAutoresizingMaskIntoConstraints="NO" id="a5H-sD-mbg">
-                                <rect key="frame" x="0.0" y="146" width="393" height="400"/>
+                                <rect key="frame" x="-3.6666666666666572" y="146" width="400.33333333333326" height="400"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="393" id="eXo-Hx-L81">
-                                        <variation key="heightClass=regular-widthClass=regular" constant="450"/>
+                                    <constraint firstAttribute="width" constant="400" id="BG7-bn-fLh">
+                                        <variation key="heightClass=regular-widthClass=regular" constant="600"/>
                                     </constraint>
                                     <constraint firstAttribute="height" constant="400" id="yo8-PZ-Zjo">
-                                        <variation key="heightClass=regular-widthClass=regular" constant="450"/>
+                                        <variation key="heightClass=regular-widthClass=regular" constant="600"/>
                                     </constraint>
                                 </constraints>
                             </imageView>
-                            <stackView opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" axis="vertical" spacingType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="ubn-Hr-hC0">
-                                <rect key="frame" x="89.000000000000014" y="551" width="215.33333333333337" height="104"/>
+                            <stackView opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" axis="vertical" distribution="fillProportionally" spacing="14" translatesAutoresizingMaskIntoConstraints="NO" id="GTu-PU-QtU">
+                                <rect key="frame" x="16" y="540" width="361" height="110"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Welcome!" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ZMJ-tN-0ph">
-                                        <rect key="frame" x="0.0" y="0.0" width="215.33333333333334" height="48"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="361" height="48"/>
                                         <fontDescription key="fontDescription" type="boldSystem" pointSize="40"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                         <variation key="heightClass=regular-widthClass=regular">
-                                            <fontDescription key="fontDescription" type="boldSystem" pointSize="60"/>
+                                            <fontDescription key="fontDescription" type="boldSystem" pointSize="56"/>
                                         </variation>
                                     </label>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" textAlignment="center" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Qdh-5j-l2I">
-                                        <rect key="frame" x="0.0" y="56" width="215.33333333333334" height="48"/>
+                                        <rect key="frame" x="0.0" y="62" width="361" height="48"/>
                                         <string key="text">Your personalized
 video world starts here.</string>
-                                        <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="20"/>
+                                        <fontDescription key="fontDescription" type="system" weight="medium" pointSize="20"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                         <variation key="heightClass=regular-widthClass=regular">
-                                            <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="40"/>
+                                            <fontDescription key="fontDescription" type="system" weight="medium" pointSize="34"/>
                                         </variation>
                                     </label>
                                 </subviews>
@@ -71,15 +70,21 @@ video world starts here.</string>
                         <viewLayoutGuide key="safeArea" id="vDu-zF-Fre"/>
                         <color key="backgroundColor" name="OnboardingBackground"/>
                         <constraints>
-                            <constraint firstItem="NQ1-xI-WMX" firstAttribute="top" secondItem="ubn-Hr-hC0" secondAttribute="bottom" constant="39" id="11j-6s-058"/>
-                            <constraint firstItem="vDu-zF-Fre" firstAttribute="bottom" secondItem="NQ1-xI-WMX" secondAttribute="bottom" constant="30" id="5vR-cy-Ldw"/>
-                            <constraint firstItem="NQ1-xI-WMX" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" constant="16" id="HhI-Ej-gLc"/>
-                            <constraint firstItem="a5H-sD-mbg" firstAttribute="centerY" secondItem="5EZ-qb-Rvc" secondAttribute="centerY" constant="-80" id="WBf-ur-799"/>
+                            <constraint firstItem="vDu-zF-Fre" firstAttribute="bottom" secondItem="NQ1-xI-WMX" secondAttribute="bottom" constant="10" id="5vR-cy-Ldw"/>
+                            <constraint firstItem="NQ1-xI-WMX" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" constant="16" id="HhI-Ej-gLc">
+                                <variation key="heightClass=regular-widthClass=regular" constant="200"/>
+                            </constraint>
+                            <constraint firstItem="a5H-sD-mbg" firstAttribute="centerY" secondItem="5EZ-qb-Rvc" secondAttribute="centerY" constant="-80" id="QfX-Ga-h2z"/>
                             <constraint firstItem="a5H-sD-mbg" firstAttribute="centerX" secondItem="5EZ-qb-Rvc" secondAttribute="centerX" id="WPZ-TG-ByZ"/>
-                            <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="ubn-Hr-hC0" secondAttribute="trailing" constant="88.670000000000002" id="bw1-KA-NYf"/>
-                            <constraint firstItem="ubn-Hr-hC0" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" constant="89" id="iXa-sA-vDK"/>
-                            <constraint firstItem="ubn-Hr-hC0" firstAttribute="top" secondItem="a5H-sD-mbg" secondAttribute="bottom" constant="5" id="nXT-sg-hOI"/>
-                            <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="NQ1-xI-WMX" secondAttribute="trailing" constant="16" id="pDh-3g-jRR"/>
+                            <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="GTu-PU-QtU" secondAttribute="trailing" constant="16" id="jx9-5x-2SG"/>
+                            <constraint firstItem="vDu-zF-Fre" firstAttribute="trailing" secondItem="NQ1-xI-WMX" secondAttribute="trailing" constant="16" id="pDh-3g-jRR">
+                                <variation key="heightClass=regular-widthClass=regular" constant="200"/>
+                            </constraint>
+                            <constraint firstItem="GTu-PU-QtU" firstAttribute="leading" secondItem="vDu-zF-Fre" secondAttribute="leading" constant="16" id="qYC-TJ-Nan"/>
+                            <constraint firstItem="NQ1-xI-WMX" firstAttribute="top" secondItem="GTu-PU-QtU" secondAttribute="bottom" constant="64" id="x7B-1a-IZS">
+                                <variation key="heightClass=regular-widthClass=regular" constant="110"/>
+                            </constraint>
+                            <constraint firstItem="GTu-PU-QtU" firstAttribute="centerX" secondItem="5EZ-qb-Rvc" secondAttribute="centerX" id="xf3-FX-w5a"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="h9h-YI-ne7"/>
