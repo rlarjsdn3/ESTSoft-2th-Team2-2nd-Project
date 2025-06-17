@@ -43,7 +43,7 @@ final class SmallVideoCell: UICollectionViewCell, NibLodable {
             shadowView.isHidden = isLast
             titleLabel.textAlignment = isLast ? .center : .left
             videoCountBackgroundView.isHidden = isLast
-            if isLast { titleLabel.text = "재생목록 추가"}
+            if isLast { titleLabel.text = "Add Playlist"}
             fileContainerView.isUserInteractionEnabled = !isLast
         }
     }
