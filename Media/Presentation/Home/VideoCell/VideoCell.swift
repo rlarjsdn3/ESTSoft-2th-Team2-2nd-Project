@@ -96,7 +96,8 @@ final class VideoCell: UICollectionViewCell, NibLodable {
     override func prepareForReuse() {
         super.prepareForReuse()
 
-        thumbnailImage.stopShimmeringOverlay()
+        thumbnailImage.stopShimmer()
+        profileImage.stopShimmer()
         thumbnailImage.image = nil
         profileImage.image = nil
 
@@ -146,7 +147,8 @@ final class VideoCell: UICollectionViewCell, NibLodable {
 
         currentImageURL = viewModel.thumbnailURL
 
-        thumbnailImage.startShimmeringOverlay()
+        thumbnailImage.startShimmer()
+        profileImage.startShimmer()
 
         if let thumbURL = viewModel.thumbnailURL {
                     loadImage(
@@ -155,8 +157,8 @@ final class VideoCell: UICollectionViewCell, NibLodable {
                         compareWith: \.currentImageURL
                     )
                 } else {
-                    thumbnailImage.stopShimmeringOverlay()
                     thumbnailImage.image = UIImage(named: "no_videos")
+                    thumbnailImage.stopShimmer()
                 }
                 currentProfileURL = viewModel.profileImageURL
                 if let profURL = viewModel.profileImageURL {
@@ -167,8 +169,8 @@ final class VideoCell: UICollectionViewCell, NibLodable {
                     )
                 } else {
                     profileImage.image = UIImage(named: "no_profile")
+                    profileImage.stopShimmer()
                 }
-
         self.setNeedsLayout()
         self.layoutIfNeeded()
             }
@@ -182,7 +184,7 @@ final class VideoCell: UICollectionViewCell, NibLodable {
                 guard let imageView = imageView else { return }
                 guard self[keyPath: holderKeyPath] == url else { return }
                 imageView.image = image
-                imageView.stopShimmeringOverlay()
+                imageView.stopShimmer()
             }
         }
     }
