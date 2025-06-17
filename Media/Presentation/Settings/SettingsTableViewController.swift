@@ -193,12 +193,20 @@ class SettingsTableViewController: UITableViewController, EditProfileDelegate, M
 
     /// 섹션 간 여백
     override func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-        return 45
+        if traitCollection.userInterfaceIdiom == .pad {
+            return 30  // iPad용
+        } else {
+            return 45  // iPhone용
+        }
     }
     
     /// 셀의 높이
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 55
+        if traitCollection.userInterfaceIdiom == .pad {
+            return 65  // iPad용
+        } else {
+            return 55  // iPhone용
+        }
     }
 
 
