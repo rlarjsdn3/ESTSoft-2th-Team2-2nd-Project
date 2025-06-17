@@ -46,9 +46,11 @@ class SearchFilterViewController: StoryboardViewController {
     let userDefaults = UserDefaultsService.shared
 
     var onApply: (() -> Void)?
+    var onDismiss: (() -> Void)?
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
     }
 
     deinit {
@@ -62,6 +64,8 @@ class SearchFilterViewController: StoryboardViewController {
         }
         filterCategoryCVHeightConstraint.constant = 40
         filterCategoryCollectionView.allowsMultipleSelection = false
+
+        presentationController?.delegate = self
     }
 
     override func setupAttributes() {
@@ -306,3 +310,8 @@ extension SearchFilterViewController: UISheetPresentationControllerDelegate {
     }
 }
 
+extension SearchFilterViewController: UIAdaptivePresentationControllerDelegate {
+    func presentationControllerWillDismiss(_ presentationController: UIPresentationController) {
+        onDismiss?()
+    }
+}

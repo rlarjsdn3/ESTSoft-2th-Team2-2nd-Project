@@ -35,6 +35,8 @@ final class SearchViewController: StoryboardViewController {
         }
     }()
 
+    private var dimmingView: UIView?
+
     //필터 갯수 표현 라벨
     private lazy var filterLabel: UILabel = {
         let label = UILabel()
@@ -167,17 +169,20 @@ final class SearchViewController: StoryboardViewController {
             Toast.makeToast("Filter has been applied.", systemName: "slider.horizontal.3").present()
             self.reloadSavedFilters()
             self.changeStateOfFilterButton()
+            self.dimmingView?.removeFromSuperview()
+        }
+
+        vc.onDismiss = {
+            self.dimmingView?.removeFromSuperview()
         }
 
         vc.modalPresentationStyle = .pageSheet
         if let sheet = vc.sheetPresentationController {
-//            sheet.detents = [.medium(), .large()]
             sheet.detents = [
                 .medium(),
                 .custom{ context in
                     0.8 * context.maximumDetentValue
                 }
-
             ]
             sheet.selectedDetentIdentifier = .medium
 
@@ -190,6 +195,12 @@ final class SearchViewController: StoryboardViewController {
             sheet.preferredCornerRadius = 20
             sheet.delegate = vc
         }
+
+        let dim = UIView(frame: view.bounds)
+        dim.backgroundColor = UIColor.black.withAlphaComponent(0.7)
+        dim.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        view.addSubview(dim)
+        self.dimmingView = dim
 
         present(vc, animated: true)
     }
@@ -343,3 +354,4 @@ extension SearchViewController: NavigationBarDelegate {
         showSheet()
     }
 }
+
