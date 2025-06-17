@@ -30,8 +30,14 @@ class OnBoardingTagsViewController: StoryboardViewController {
             
             UserDefaults.standard.seenOnboarding = true
             
-            vc.modalPresentationStyle = .fullScreen
-            self.navigationController?.setViewControllers([vc], animated: true)
+            // 탭바 설정
+            TabBarConfigurator.configure(tabBarController: vc)
+            
+            if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+               let sceneDelegate = scene.delegate as? SceneDelegate {
+                sceneDelegate.window?.rootViewController = vc
+                sceneDelegate.window?.makeKeyAndVisible()
+            }
         }
     }
     
