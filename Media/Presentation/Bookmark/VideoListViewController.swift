@@ -161,7 +161,7 @@ final class VideoListViewController: StoryboardViewController {
 
             let itemWidthDimension: NSCollectionLayoutDimension = switch environment.container.effectiveContentSize.width {
             case ..<500:      .fractionalWidth(1.0)  // 아이폰 세로모드
-            case 500..<1000:  .fractionalWidth(0.5)  // 아이패드 세로 모드
+            case 500..<1050:  .fractionalWidth(0.5)  // 아이패드 세로 모드
             default:          .fractionalWidth(0.33) // 아이패드 가로 모드
             }
             let itemSize = NSCollectionLayoutSize(
