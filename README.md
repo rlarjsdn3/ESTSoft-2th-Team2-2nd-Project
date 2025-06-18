@@ -18,7 +18,7 @@
 <br>
 
 ## 📖 프로젝트 개요
-**앱이름**은 
+**굳이오**는 
 AVFoundation, AVKit을 활용해 네이티브 앱 내에서 Pixabay REST API로 동영상을 스트리밍하고,  
 사용자가 원하는 방향으로 **필터링**, **북마킹**, **플레이리스트 추가** 등 다양한 맞춤형 기능을 사용할 수 있는 iOS 애플리케이션입니다.
 <br>
@@ -62,11 +62,11 @@ AVFoundation, AVKit을 활용해 네이티브 앱 내에서 Pixabay REST API로 
 | SearchView   | - 사용자가 입력한 키워드로 영상 검색<br>- 카테고리, 정렬 기준(인기순 / 최신순), 영상 길이의 필터링 기능 제공 |
 | LibraryView  | - 시청한 비디오 목록 출력 및 검색 기능 제공<br>- 북마크된 비디오 보관, 플레이리스트 생성 및 보관  |
 | InterestView | - 다양한 분야의 취향 선택 (최대 5개)                                      |
-| SettingView  | - 다크모드 지원<br>- 비디오 해상도 설정 <br>- 메일 피드백 기능 지원                 |
+| SettingView  | - 다크모드 지원<br>- 비디오 해상도 설정 <br>- 메일 피드백 기능 지원             |
+| VideoPlayer | - PIP 모드 전환 가능 |
 
 
 <br>
-
 
 ## 📱주요 화면 스크린샷
 
@@ -95,13 +95,15 @@ AVFoundation, AVKit을 활용해 네이티브 앱 내에서 Pixabay REST API로 
       <th align="center"><strong>Interest</strong></th>
       <th align="center"><strong>Settings</strong></th>
       <th align="center"><strong>Video Player</strong></th>
+      <th align="center"><strong>PIP</strong></th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td align="center"><img src="https://github.com/user-attachments/assets/bbd666c4-6566-4fb2-a8dd-2a6721b6570d" width="300"/></td>
-      <td align="center"><img src="./Images/settings.png" width="200"/></td>
-      <td align="center"><img src="./Images/player.png" width="200"/></td>
+      <td align="center"><img src="https://github.com/user-attachments/assets/19b96915-e0b8-45cd-8c36-477723e579d0" width="300"/></td>
+      <td align="center"><img src="https://github.com/user-attachments/assets/5924cad6-4b6e-445c-a212-a0ac876b4612" width="300"/></td>
+      <td align="center"><img src="https://github.com/user-attachments/assets/339e1d08-a4a7-4cc2-b32c-670bb7f7a796" width="300"/></td>
     </tr>
   </tbody>
 </table>
@@ -193,12 +195,12 @@ AVFoundation, AVKit을 활용해 네이티브 앱 내에서 Pixabay REST API로 
     <td align="center"><a href="https://github.com/Jeon-GwangHo">@Jeon-GwangHo</a></td>
   </tr>
   <tr>
-    <td align="center">- Design Lead<br>- UX/UI 및 기능 개발</td>
-    <td align="center">- Project Manager<br>- UX/UI 및 기능 개발</td>
-    <td align="center">- Speaker(자료)<br>- UX/UI 및 기능 개발</td>
-    <td align="center">- Technical Writer<br>- UX/UI 및 기능 개발</td>
-    <td align="center">- QA<br>- UX/UI 및 기능 개발</td>
-    <td align="center">- Speaker<br>- UX/UI 및 기능 개발</td>
+    <td align="center">Design Lead<br>UX/UI 및 기능 개발</td>
+    <td align="center">Project Manager<br>UX/UI 및 기능 개발</td>
+    <td align="center">Speaker(자료)<br>UX/UI 및 기능 개발</td>
+    <td align="center">Technical Writer<br>UX/UI 및 기능 개발</td>
+    <td align="center">QA<br>UX/UI 및 기능 개발</td>
+    <td align="center">Speaker<br>UX/UI 및 기능 개발</td>
   </tr>
 </table>
 </table>
