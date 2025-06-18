@@ -240,7 +240,7 @@
                                         </cells>
                                     </collectionView>
                                     <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="kOz-RV-SD4">
-                                        <rect key="frame" x="16" y="379" width="361" height="40"/>
+                                        <rect key="frame" x="16" y="363" width="361" height="40"/>
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="6lb-vf-VXx">
                                                 <rect key="frame" x="0.0" y="0.0" width="172.66666666666666" height="40"/>
@@ -285,7 +285,7 @@
                                     <constraint firstAttribute="trailing" secondItem="kOz-RV-SD4" secondAttribute="trailing" constant="16" id="M4V-kf-f2q"/>
                                     <constraint firstItem="hep-ys-zYV" firstAttribute="top" secondItem="l3N-v5-ut4" secondAttribute="bottom" constant="16" id="MOV-xg-rmF"/>
                                     <constraint firstItem="Esz-cq-yE2" firstAttribute="leading" secondItem="4nS-xR-0pm" secondAttribute="leading" id="NFW-H5-dsC"/>
-                                    <constraint firstItem="kOz-RV-SD4" firstAttribute="top" secondItem="lyT-Uc-WWf" secondAttribute="bottom" constant="40" id="Q6H-l2-NB8"/>
+                                    <constraint firstItem="kOz-RV-SD4" firstAttribute="top" secondItem="lyT-Uc-WWf" secondAttribute="bottom" constant="24" id="Q6H-l2-NB8"/>
                                     <constraint firstItem="kOz-RV-SD4" firstAttribute="leading" secondItem="4nS-xR-0pm" secondAttribute="leading" constant="16" id="XiH-TK-7dW"/>
                                     <constraint firstAttribute="trailing" secondItem="Esz-cq-yE2" secondAttribute="trailing" id="YmF-Fa-H6p"/>
                                     <constraint firstItem="lyT-Uc-WWf" firstAttribute="leading" secondItem="4nS-xR-0pm" secondAttribute="leading" id="bWF-3o-cna"/>
@@ -295,6 +295,7 @@
                                     <constraint firstItem="Esz-cq-yE2" firstAttribute="top" secondItem="zux-gw-W19" secondAttribute="bottom" constant="16" id="mxE-Ko-0NL"/>
                                     <constraint firstItem="hep-ys-zYV" firstAttribute="leading" secondItem="4nS-xR-0pm" secondAttribute="leading" id="nJ8-Cu-9bq"/>
                                     <constraint firstItem="Rcb-Lo-iA5" firstAttribute="top" secondItem="hep-ys-zYV" secondAttribute="bottom" constant="24" id="pDF-qb-zya"/>
+                                    <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="kOz-RV-SD4" secondAttribute="bottom" id="rrg-yF-rZz"/>
                                     <constraint firstAttribute="trailing" secondItem="lyT-Uc-WWf" secondAttribute="trailing" id="spn-JK-AiW"/>
                                     <constraint firstAttribute="trailing" secondItem="hep-ys-zYV" secondAttribute="trailing" id="tOw-WB-0re"/>
                                     <constraint firstItem="zux-gw-W19" firstAttribute="leading" secondItem="4nS-xR-0pm" secondAttribute="leading" constant="16" id="x2C-Uz-ktv"/>

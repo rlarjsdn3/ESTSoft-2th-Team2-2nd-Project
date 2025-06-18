@@ -299,7 +299,11 @@ extension SearchFilterViewController: UISheetPresentationControllerDelegate {
             filterCategoryCVHeightConstraint.constant = 40
         default:
             flow.scrollDirection = .vertical
-            filterCategoryCVHeightConstraint.constant = 240
+            if UIDevice.current.userInterfaceIdiom == .pad {
+                filterCategoryCVHeightConstraint.constant = 160
+            } else {
+                filterCategoryCVHeightConstraint.constant = 240
+            }
         }
 
         flow.invalidateLayout()
