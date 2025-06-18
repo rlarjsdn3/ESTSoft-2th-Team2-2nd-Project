@@ -6,9 +6,7 @@
 <br>
 <br>
 
-<p align="center">
-  <img src="https://github.com/user-attachments/assets/99ea2882-8bf8-4d62-957a-17d265f98d02" width="200" />
-</p>
+![굿이오](https://github.com/user-attachments/assets/440bfaa4-b6a9-42bf-a511-37c0044f120c)
 
 <h1 align="center"><strong>굳이오</strong></h1>
 <p align="center"><em>사용자의 취향 분석을 통한 맞춤형 비디오 스트리밍 플레이어</em></p>
