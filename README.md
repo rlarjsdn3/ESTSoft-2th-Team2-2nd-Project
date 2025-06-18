@@ -8,7 +8,7 @@
 
 ![굿이오](https://github.com/user-attachments/assets/440bfaa4-b6a9-42bf-a511-37c0044f120c)
 
-<h1 align="center"><strong>굳이오</strong></h1>
+<h1 align="center"><strong>굿이오</strong></h1>
 <p align="center"><em>사용자의 취향 분석을 통한 맞춤형 비디오 스트리밍 플레이어</em></p>
 
 <br>
@@ -16,7 +16,7 @@
 <br>
 
 ## 📖 프로젝트 개요
-**굳이오**는 
+**굿이오**는 
 AVFoundation, AVKit을 활용해 네이티브 앱 내에서 Pixabay REST API로 동영상을 스트리밍하고,  
 사용자가 원하는 방향으로 **필터링**, **북마킹**, **플레이리스트 추가** 등 다양한 맞춤형 기능을 사용할 수 있는 iOS 애플리케이션입니다.
 <br>
