@@ -6,9 +6,10 @@
 <br>
 <br>
 
-![굿이오](https://github.com/user-attachments/assets/440bfaa4-b6a9-42bf-a511-37c0044f120c)
+![굳이오수정](https://github.com/user-attachments/assets/ac29981e-b612-40fe-b8c3-f95809046f73)
 
-<h1 align="center"><strong>굿이오</strong></h1>
+
+<h1 align="center"><strong>굳이오</strong></h1>
 <p align="center"><em>사용자의 취향 분석을 통한 맞춤형 비디오 스트리밍 플레이어</em></p>
 
 <br>
@@ -16,7 +17,7 @@
 <br>
 
 ## 📖 프로젝트 개요
-**굿이오**는 
+**굳이오**는 
 AVFoundation, AVKit을 활용해 네이티브 앱 내에서 Pixabay REST API로 동영상을 스트리밍하고,  
 사용자가 원하는 방향으로 **필터링**, **북마킹**, **플레이리스트 추가** 등 다양한 맞춤형 기능을 사용할 수 있는 iOS 애플리케이션입니다.
 <br>
@@ -166,7 +167,10 @@ AVFoundation, AVKit을 활용해 네이티브 앱 내에서 Pixabay REST API로 
 3. **빌드 설정 변경**
    **Xcode 상단의** Run **대상 설정에서** Release **모드로 변경 후 실행해야 합니다.** <br>(기본 Debug 모드로 실행 시 일부 UI 또는 기능이 정상 동작하지 않을 수 있습니다)
 
-5. 실행 (⌘ + R)
+4. 시뮬레이터 버전 주의사항
+   iOS **18.4** 이상 시뮬레이터에서는 일부 UI 또는 기능이 정상적으로 작동하지 않을 수 있습니다. <br>정상 작동을 위해 iOS 18.4 미만 시뮬레이터 사용을 권장합니다.
+
+6. 실행 (⌘ + R)
    iOS 17+ 시뮬레이터 또는 실제 디바이스에서 실행 가능합니다.
 
 
